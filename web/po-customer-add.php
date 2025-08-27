@@ -76,7 +76,7 @@ if ($idr != "" && $idk != "") {
 	$sql = "
 			select a.*, b.nama_customer, b.credit_limit, b.top_payment, c.nomor_surat, c.masa_awal, c.masa_akhir, d.nama_cabang, f.nama_area, e.jenis_produk, e.merk_dagang, 
 			c.oa_kirim, c.volume_tawar, c.refund_tawar,
-			c.detail_formula, c.perhitungan, c.harga_dasar, 
+			c.detail_formula, c.perhitungan, c.harga_dasar, c.pembulatan, c.detail_rincian,
 			g.not_yet as not_yet,
 			g.ov_up_07 as ov_up_07, 
 			g.ov_under_30 as ov_under_30,
@@ -95,14 +95,18 @@ if ($idr != "" && $idk != "") {
 		";
 	$rsm = $con->getRecord($sql);
 	//print_r($rsm); exit;
+	$rincian = json_decode($rsm['detail_rincian'], true);
 	$formula = json_decode($rsm['detail_formula'], true);
 	if ($rsm['perhitungan'] == 1) {
 		if ($rsm['pembulatan'] == 0) {
 			$harganya = number_format($rsm['harga_dasar'], 2);
+			$ket_pembulatan = "TIDAK - 2 Angka dibelakang koma";
 		} elseif ($rsm['pembulatan'] == 1) {
 			$harganya = number_format($rsm['harga_dasar'], 0);
+			$ket_pembulatan = "YA";
 		} elseif ($rsm['pembulatan'] == 2) {
 			$harganya = number_format($rsm['harga_dasar'], 4);
+			$ket_pembulatan = "TIDAK - 4 Angka dibelakang koma";
 		}
 		$nilainya = $rsm['harga_dasar'];
 	} else {
@@ -205,31 +209,35 @@ if ($idr != "" && $idk != "") {
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['credit_limit'] ? number_format($rsm['credit_limit']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Not yet</td>
+												<td style="padding:3px 5px; background-color: #ddd;">Invoice not issued yet</td>
+												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($credit_limit_reserved ? number_format($credit_limit_reserved) : 0); ?></td>
+											</tr>
+											<tr>
+												<td style="padding:3px 5px; background-color: #ddd;">AR Not yet</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['not_yet'] ? number_format($rsm['not_yet']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Overdue 1-7 days</td>
+												<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 1-7 days</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['ov_up_07'] ? number_format($rsm['ov_up_07']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Overdue 8-30 days</td>
+												<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 8-30 days</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['ov_under_30'] ? number_format($rsm['ov_under_30']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Overdue 31-60 days</td>
+												<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 31-60 days</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['ov_under_60'] ? number_format($rsm['ov_under_60']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Overdue 61-90 days</td>
+												<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 61-90 days</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['ov_under_90'] ? number_format($rsm['ov_under_90']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Overdue > 90 days</td>
+												<td style="padding:3px 5px; background-color: #ddd;">AR Overdue > 90 days</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['ov_up_90'] ? number_format($rsm['ov_up_90']) : 0); ?></td>
 											</tr>
 											<tr>
-												<td style="padding:3px 5px; background-color: #ddd;">Remaining</td>
+												<td style="padding:3px 5px; background-color: #ddd;">Credit Limit Remaining</td>
 												<td style="padding:3px 5px;"><?php echo 'Rp ' . ($rsm['reminding'] ? number_format($rsm['reminding']) : 0); ?></td>
 											</tr>
 										</table>
@@ -301,6 +309,10 @@ if ($idr != "" && $idk != "") {
 														<td>Harga</td>
 														<td><?php echo $harganya; ?></td>
 													</tr>
+													<tr>
+														<td>Pembulatan</td>
+														<td><?php echo $ket_pembulatan; ?></td>
+													</tr>
 													<?php if ($rsm['refund_tawar'] != 0) : ?>
 														<tr>
 															<td>Refund</td>
@@ -308,6 +320,56 @@ if ($idr != "" && $idk != "") {
 														</tr>
 														<input type="hidden" id="refund_tawar" value="<?= $rsm['refund_tawar'] ?>">
 													<?php endif ?>
+												</table>
+											</div>
+										</div>
+									</div>
+								<?php } ?>
+							</div>
+
+							<div id="rincian-harga">
+								<?php if ($action == "update") { ?>
+									<?php
+									$rincian_harga = '';
+									$no = 1;
+
+									foreach ($rincian as $arr1) {
+										$nilai = $arr1['nilai'] ? $arr1['nilai'] . " %" : '';
+										$biaya = (float)$arr1['biaya']; // pastikan berupa float
+										$jenis = $arr1['rincian'];
+
+										// Periksa apakah ada desimal (4 digit) yang tidak semuanya nol
+										$biaya_parts = explode('.', number_format($biaya, 4, '.', ''));
+										if (isset($biaya_parts[1]) && (int)$biaya_parts[1] > 0) {
+											// Tampilkan dengan 4 angka desimal dan koma sebagai pemisah desimal
+											$formatted_biaya = number_format($biaya, 4, '.', ',');
+										} else {
+											// Tampilkan tanpa koma desimal
+											$formatted_biaya = number_format($biaya, 0, '.', ',');
+										}
+
+										$rincian_harga .= '
+									<tr>
+										<td class="text-center">' . $no++ . '</td>
+										<td>' . htmlspecialchars($jenis) . '</td>
+										<td class="text-right">' . $nilai . '</td>
+										<td class="text-right"><span style="float:left;">Rp.</span>' . $formatted_biaya . '</td>
+									</tr>';
+									}
+									?>
+									<div class="row">
+										<div class="col-md-offset-2 col-sm-6">
+											<div class="table-responsive">
+												<table class="table table-bordered">
+													<thead>
+														<th class="text-center" width="10%">NO</th>
+														<th class="text-center" width="20%">RINCIAN</th>
+														<th class="text-center" width="10%">NILAI</th>
+														<th class="text-center" width="30%">HARGA</th>
+													</thead>
+													<tbody>
+														<?= $rincian_harga ?>
+													</tbody>
 												</table>
 											</div>
 										</div>
@@ -537,8 +599,18 @@ if ($idr != "" && $idk != "") {
 											<?php
 											if (isset($rsm['harga_poc'])) {
 												$readonly = (!$rsm['disposisi_poc'] || $rsm['poc_approved'] == 2 ? '' : 'readonly');
+
 												$nilainya = ($rsm['harga_poc'] ? $rsm['harga_poc'] : "");
-												echo '<input type="text" id="harga_liter" name="harga_liter" class="form-control text-right" required value="' . $nilainya . '" ' . $readonly . ' readonly/>';
+
+												if ($rsm['pembulatan'] == 0) {
+													$formated_nilai = number_format($nilainya, 2);
+												} elseif ($rsm['pembulatan'] == 1) {
+													$formated_nilai = number_format($nilainya, 0);
+												} else {
+													$formated_nilai = number_format($nilainya, 4);
+												}
+
+												echo '<input type="text" id="harga_liter" name="harga_liter" class="form-control text-right" required value="' . $formated_nilai . '" ' . $readonly . ' readonly/>';
 											} else {
 												$readonly = ($idr != '' && $idk != '' ? 'readonly' : '');
 												echo '<input type="text" id="harga_liter" name="harga_liter" class="form-control text-right" required ' . $readonly . ' readonly/>';
@@ -796,6 +868,7 @@ if ($idr != "" && $idk != "") {
 						success: function(data) {
 							// console.log(data)
 							$("#ket-penawaran").html(data.items);
+							$("#rincian-harga").html(data.rincian);
 							$("#produk").val(data.produk).trigger('change');
 							$("#refund_tawar").val(data.refund).trigger('change');
 							$("#harga_liter").val(data.harga);
@@ -843,6 +916,7 @@ if ($idr != "" && $idk != "") {
 					$("#loading_modal").modal("hide");
 				} else {
 					$("#ket-penawaran").html("");
+					$("#rincian-harga").html("");
 					$("#produk").val("").trigger('change');
 					$("#harga_liter").val("");
 					calculate_order();
@@ -1321,33 +1395,37 @@ if ($idr != "" && $idk != "") {
 								'<tr>' +
 								'<td width="150" style="padding:3px 5px; background-color: #ddd;">Credit Limit</td>' +
 								'<td style="padding:3px 5px;">' + data.credit_limit + '</td>' +
+								'<tr>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">Invoice not issued yet</td>' +
+								'<td style="padding:3px 5px;">' + data.credit_limit_reserved + '</td>' +
+								'</tr>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Not yet</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Not yet</td>' +
 								'<td style="padding:3px 5px;">' + data.not_yet + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 1-7 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 1-7 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_up_07 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 8-30 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 8-30 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_under_30 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 31-60 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 31-60 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_under_60 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 61-90 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 61-90 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_under_90 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue > 90 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue > 90 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_up_90 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Remaining</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">Credit Limit Remaining</td>' +
 								'<td style="padding:3px 5px;">' + data.reminding + '</td>' +
 								'</tr>' +
 								'</table>';

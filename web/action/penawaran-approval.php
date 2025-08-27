@@ -33,6 +33,10 @@ $ls_oa_kirim				= htmlspecialchars($_POST["oa_kirim"], ENT_QUOTES);
 $ls_ppn						= htmlspecialchars($_POST["ppn"], ENT_QUOTES);
 $ls_pbbkb					= htmlspecialchars($_POST["pbbkb"], ENT_QUOTES);
 $ls_volume					= htmlspecialchars($_POST["volume"], ENT_QUOTES);
+$ls_refund					= htmlspecialchars($_POST["refund_tawar"], ENT_QUOTES);
+$ls_other_cost				= htmlspecialchars($_POST["other_cost"], ENT_QUOTES);
+$ls_harga_tier				= htmlspecialchars($_POST["harga_tier"], ENT_QUOTES);
+$ls_tier					= htmlspecialchars($_POST["tier"], ENT_QUOTES);
 $ls_keterangan_pengajuan	= htmlspecialchars($_POST["keterangan_pengajuan"], ENT_QUOTES);
 
 $ls_harga_dasar				= ($ls_harga_dasar ? $ls_harga_dasar : 0);
@@ -40,6 +44,10 @@ $ls_oa_kirim				= ($ls_oa_kirim ? $ls_oa_kirim : 0);
 $ls_ppn						= ($ls_ppn ? $ls_ppn : 0);
 $ls_pbbkb					= ($ls_pbbkb ? $ls_pbbkb : 0);
 $ls_volume					= ($ls_volume ? $ls_volume : 0);
+$ls_refund					= ($ls_refund ? $ls_refund : 0);
+$ls_other_cost				= ($ls_other_cost ? $ls_other_cost : 0);
+$ls_harga_tier				= ($ls_harga_tier ? $ls_harga_tier : 0);
+$ls_tier					= ($ls_tier ? $ls_tier : NULL);
 
 $cek_persetujuan = "0";
 
@@ -65,9 +73,8 @@ if ($approval == "") {
 		$oke  = $oke && !$con->hasError();
 
 		$sql2 = "
-				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
-				values ('P001', '" . $approval . "', '" . $catatan_sm_mkt . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', 
-				" . $ls_harga_dasar . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
+				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, harga_tier, tier, refund, other_cost, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
+				values ('P001', '" . $approval . "', '" . $catatan_sm_mkt . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', " . $ls_harga_dasar . ",  " . $ls_harga_tier . ", '" . $ls_tier . "', " . $ls_refund . ", " . $ls_other_cost . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ")";
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 	} else if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 7 && !$is_mkt) {
@@ -91,9 +98,8 @@ if ($approval == "") {
 		$oke  = $oke && !$con->hasError();
 
 		$sql2 = "
-				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
-				values ('P001', '" . $approval . "', '" . $catatan_sm_cab . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', 
-				" . $ls_harga_dasar . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
+				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, harga_tier, tier, refund, other_cost, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
+				values ('P001', '" . $approval . "', '" . $catatan_sm_cab . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', " . $ls_harga_dasar . ", " . $ls_harga_tier . ", '" . $ls_tier . "', " . $ls_refund . ", " . $ls_other_cost . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 	} else if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 6) {
@@ -117,9 +123,8 @@ if ($approval == "") {
 		$oke  = $oke && !$con->hasError();
 
 		$sql2 = "
-				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
-				values ('P001', '" . $approval . "', '" . $catatan_om . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', 
-				" . $ls_harga_dasar . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
+				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, harga_tier, tier, refund, other_cost, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
+				values ('P001', '" . $approval . "', '" . $catatan_om . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', " . $ls_harga_dasar . ", " . $ls_harga_tier . ", '" . $ls_tier . "', " . $ls_refund . ", " . $ls_other_cost . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 	} else if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 3) {
@@ -143,9 +148,8 @@ if ($approval == "") {
 		$oke  = $oke && !$con->hasError();
 
 		$sql2 = "
-				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
-				values ('P001', '" . $approval . "', '" . $catatan_coo . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', 
-				" . $ls_harga_dasar . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
+				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, harga_tier, tier, refund, other_cost, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
+				values ('P001', '" . $approval . "', '" . $catatan_coo . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', " . $ls_harga_dasar . ", " . $ls_harga_tier . ", '" . $ls_tier . "', " . $ls_refund . ", " . $ls_other_cost . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ")";
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 	} else if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 21) {
@@ -156,9 +160,8 @@ if ($approval == "") {
 		$oke  = $oke && !$con->hasError();
 
 		$sql2 = "
-				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
-				values ('P001', '" . $approval . "', '" . $catatan_ceo . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', 
-				" . $ls_harga_dasar . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ");";
+				insert into pro_approval_hist (kd_approval, result, summary, id_user, tgl_approval, id_customer, id_penawaran, id_role, harga_dasar, harga_tier, tier, refund, other_cost, oa_kirim, pbbkb, ppn, keterangan_pengajuan, volume)
+				values ('P001', '" . $approval . "', '" . $catatan_ceo . "', '" . $user_id . "', NOW(), '" . $idr . "', '" . $idk . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) . "', " . $ls_harga_dasar . ", " . $ls_harga_tier . ", '" . $ls_tier . "', " . $ls_refund . ", " . $ls_other_cost . ", " . $ls_oa_kirim . ", " . $ls_pbbkb . ", " . $ls_ppn . ", '" . $ls_keterangan_pengajuan . "', " . $ls_volume . ")";
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 
