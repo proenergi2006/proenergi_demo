@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BotDetect jQuery CAPTCHA Examples</title>
+  <link href="styles/styles.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content"><h1>BotDetect jQuery CAPTCHA Examples</h1></div>
+    </header>
+
+    <nav>
+      <ul class="nav">
+        <li><a href="basic.html">Basic Example</a></li>
+        <li><a href="contact.html" class="active">Contact Example</a></li>
+      </ul>
+    </nav>
+
+    <section id="main-content">
+        <form id="contactForm" method="POST">
+            <div id="form-messages"></div>
+
+            <label>
+                <span>Name:</span>
+                <input type="text" id="name" name="name">
+            </label>
+            <div class="error name"></div>
+
+
+            <label>
+                <span>Email</span>
+                <input type="email" id="email" name="email" >
+            </label>
+            <div class="error email"></div>
+
+
+            <label>
+                <span>Subject:</span>
+                <input type="text" id="subject" name="subject">
+            </label>
+            <div class="error subject"></div>
+
+
+            <label>
+                <span>Message:</span>
+                <textarea id="message" name="message"></textarea>
+            </label>
+            <div class="error message"></div>
+
+
+            <!-- show Captcha image html-->
+            <div id="botdetect-captcha" data-stylename="jqueryFormCaptcha"></div>
+
+            <label>
+                <span>Retype the characters from the picture:</span>
+                <!-- captcha code user input textbox -->
+                <input 
+                    type="text" 
+                    id="captchaCode" 
+                    name="captchaCode" 
+                    data-correct-captcha
+                >
+            </label>
+            <div class="error captchaCode"></div>
+
+            <button type="submit" id="submitButton" class="btn btn-primary">Send</button>
+        </form>
+    </section>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="node_modules/jquery-captcha/dist/jquery-captcha.min.js"></script>
+    <script src="js/contact.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+label {
+  display: block;
+  margin-bottom: 5px;
+  margin-top: 10px;
+}
+
+label span {
+  display: block;
+  margin-bottom: 3px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+input[type="text"],
+input[type="email"] {
+  width: 261px;
+  height: 25px;
+  padding: 0 5px;
+}
+
+textarea {
+  width: 269px;
+  height: 50px;
+}
+
+.textarea-error {
+  margin-bottom: 10px;
+}
+
+.alert {
+  padding: 5px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.alert-success {
+  background: #5db95d;
+  color: #fff;
+  border: 1px solid #4e974e;
+}
+
+.alert-error {
+  background: #db4f4a;
+  color: #fff;
+  border: 1px solid #b0352f;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+}
+
+.list-messages {
+  margin: 0; padding: 0;
+}
+
+button {
+  margin-top: 10px;
+}

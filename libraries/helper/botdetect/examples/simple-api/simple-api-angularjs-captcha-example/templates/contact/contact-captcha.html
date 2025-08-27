@@ -1,0 +1,64 @@
+<form name="contactForm" novalidate ng-controller="ContactController" ng-submit="send(contactForm)" >
+    
+    <div class="alert alert-success" ng-show="successMessages">
+        {{ successMessages }}
+    </div>
+
+    <div class="alert alert-error" ng-show="errorMessages">
+        <ul class="list-messages" ng-repeat="(field, message) in errorMessages">
+            <li>{{ message }}</li>
+        </ul>
+    </div>
+    
+    
+    <label>
+        <span>Name:</span>
+        <input type="text" name="name" ng-model="name" ng-minlength="3" required>
+    </label>
+    
+    <div class="error" ng-show="contactForm.name.$error.minlength && !contactForm.name.$pristine">
+        Name must be at least 3 characters.
+    </div>
+    
+    
+    <label>
+        <span>Email</span>
+        <input type="email" name="email" ng-model="email" required>
+    </label>
+    
+    <div class="error" ng-show="contactForm.email.$invalid && !contactForm.email.$pristine">
+        Email is invalid.
+    </div>
+    
+
+    <label>
+        <span>Subject:</span>
+        <input type="text" name="subject" ng-model="subject" ng-minlength="10" required>
+    </label>
+    
+    <div class="error" ng-show="contactForm.subject.$error.minlength">
+        Subject must be at least 10 characters.
+    </div>
+    
+    
+    <label>
+        <span>Message:</span>
+        <textarea name="message" ng-model="message" ng-minlength="10" required></textarea>
+    </label>
+    
+    <div class="error" ng-show="contactForm.message.$error.minlength">
+        Message must be at least 10 characters.
+    </div>
+    
+    
+    <!-- show Captcha image html-->
+    <botdetect-captcha styleName="angularFormCaptcha"></botdetect-captcha>
+    
+    <label>
+        <span>Retype the characters from the picture:</span>
+        <!-- captcha code user input textbox -->
+        <input type="text" name="captchaCode" ng-model="captchaCode" id="captchaCode" autocomplete="off">
+    </label>
+
+    <button type="submit" class="btn btn-primary">Send</button>
+</form>

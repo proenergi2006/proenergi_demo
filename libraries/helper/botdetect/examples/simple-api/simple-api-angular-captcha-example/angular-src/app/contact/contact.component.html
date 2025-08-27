@@ -1,0 +1,92 @@
+<form novalidate (ngSubmit)="send(contact)" [formGroup]="contact">
+
+  <div class="alert alert-success" *ngIf="successMessages">
+    {{ successMessages }}
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessages">
+    <ul class="list-messages">
+      <li *ngFor="let error of errorMessages | values">
+        {{ error }}
+      </li>
+    </ul>
+  </div>
+
+  <label>
+    <span>Name:</span>
+    <input
+      type="text"
+      name="name"
+      formControlName="name">
+  </label>
+
+  <div
+    class="error"
+    *ngIf="contact.get('name').hasError('minlength') && contact.get('name').touched"
+    >
+    Name must be at least 3 characters.
+  </div>
+
+
+  <label>
+    <span>Email:</span>
+    <input
+      type="email"
+      name="email"
+      formControlName="email">
+  </label>
+
+  <div
+    class="error"
+    *ngIf="contact.get('email').hasError('pattern') && contact.get('email').touched"
+    >
+    Email is invalid.
+  </div>
+
+
+  <label>
+    <span>Subject:</span>
+    <input
+      type="text"
+      name="subject"
+      formControlName="subject">
+  </label>
+
+  <div
+    class="error"
+    *ngIf="contact.get('subject').hasError('minlength') && contact.get('subject').touched"
+    >
+    Subject must be at least 10 characters.
+  </div>
+
+
+  <label>
+    <span>Message:</span>
+    <textarea
+      name="message"
+      formControlName="message"></textarea>
+  </label>
+
+  <div
+    class="error textarea-error"
+    *ngIf="contact.get('message').hasError('minlength') && contact.get('message').touched"
+    >
+    Message must be at least 10 characters.
+  </div>
+  
+  <!-- show captcha html -->
+  <botdetect-captcha styleName="angularFormCaptcha"></botdetect-captcha>
+
+  <label>
+    <span>Retype the characters from the picture:</span>
+    <input
+      type="text"
+      id="captchaCode"
+      name="captchaCode"
+      formControlName="captchaCode"
+    >
+  </label>
+
+
+  <button type="submit">Send</button>
+</form>

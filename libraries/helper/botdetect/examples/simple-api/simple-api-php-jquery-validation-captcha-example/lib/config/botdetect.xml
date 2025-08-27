@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<botdetect xmlns="https://captcha.com/schema/php"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://captcha.com/schema/php
+            https://captcha.com/schema/php/botdetect-4.2.3.xsd">
+
+    <captchaStyles>
+        <captchaStyle>
+            <name>jQueryValidatedCaptcha</name>
+            <userInputID>CaptchaCode</userInputID>
+            <codeLength>3</codeLength>
+            <imageWidth>150</imageWidth>
+            <helpLinkMode>Image</helpLinkMode>
+            <imageStyle>Graffiti2</imageStyle>
+        </captchaStyle>
+    </captchaStyles>
+
+</botdetect>

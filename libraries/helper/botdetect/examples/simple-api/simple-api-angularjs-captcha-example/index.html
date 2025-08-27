@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BotDetect AngularJS CAPTCHA Examples</title>
+  <link href="styles/styles.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content"><h1>BotDetect AngularJS CAPTCHA Examples</h1></div>
+    </header>
+
+    <nav ng-controller="NavigationController">
+      <ul class="nav">
+        <li><a href="#/basic" ng-class="{ active: isActive('/basic')}">Basic Example</a></li>
+          <li><a href="#/contact" ng-class="{ active: isActive('/contact')}">Contact Example</a></li>
+      </ul>
+    </nav>
+
+    <section id="main-content">
+      <ng-view></ng-view>
+    </section>
+  
+    
+    <script src="https://code.angularjs.org/1.5.9/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.5.9/angular-route.min.js"></script>
+
+    <script src="node_modules/angularjs-captcha/dist/angularjs-captcha.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

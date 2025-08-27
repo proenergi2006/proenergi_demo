@@ -1,0 +1,182 @@
+<?php
+session_start();
+$privat_base_directory = explode('/', dirname($_SERVER['PHP_SELF']))[1];
+$public_base_directory = $_SERVER['DOCUMENT_ROOT'] . "/" . $privat_base_directory;
+require_once($public_base_directory . "/libraries/helper/load.php");
+load_helper("autoload");
+
+$auth	= new MyOtentikasi();
+$con 	= new Connection();
+$draw 	= isset($_POST["element"]) ? htmlspecialchars($_POST["element"], ENT_QUOTES) : 0;
+$start 	= isset($_POST["start"]) ? htmlspecialchars($_POST["start"], ENT_QUOTES) : 0;
+$length	= isset($_POST['length']) ? htmlspecialchars($_POST["length"], ENT_QUOTES) : 25;
+$q1	= isset($_POST["q1"]) ? htmlspecialchars($_POST["q1"], ENT_QUOTES) : '';
+$q2	= isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
+$q3	= isset($_POST["q3"]) ? htmlspecialchars($_POST["q3"], ENT_QUOTES) : '';
+$q4	= isset($_POST["q4"]) ? htmlspecialchars($_POST["q4"], ENT_QUOTES) : '';
+
+$p = new paging;
+$sql = "select a.*, c.tanggal_kirim, d.produk_poc, e.nama_customer, f.nama_suplier, b.pr_terminal, g.id_area, h.alamat_survey, i.nama_prov, j.nama_kab, k.wilayah_angkut, 
+			m.nama_terminal, m.tanki_terminal, m.lokasi_terminal, b.produk, b.pr_vendor, b.no_do_syop, b.nomor_lo_pr, d.nomor_poc, c.volume_kirim
+			from pro_po_ds_kapal a 
+			join pro_pr_detail b on a.id_prd = b.id_prd 
+			join pro_po_customer_plan c on b.id_plan = c.id_plan 
+			join pro_po_customer d on c.id_poc = d.id_poc 
+			join pro_customer e on d.id_customer = e.id_customer 
+			join pro_master_transportir f on a.transportir = f.id_master 
+			join pro_penawaran g on d.id_penawaran = g.id_penawaran 
+			join pro_customer_lcr h on c.id_lcr = h.id_lcr
+			join pro_master_provinsi i on h.prov_survey = i.id_prov 
+			join pro_master_kabupaten j on h.kab_survey = j.id_kab 
+			join pro_master_wilayah_angkut k on h.id_wil_oa = k.id_master and h.prov_survey = k.id_prov and h.kab_survey = k.id_kab 
+			join pro_master_area l on g.id_area = l.id_master 
+			join pro_master_terminal m on a.terminal = m.id_master 
+			where a.id_wilayah = '" . paramDecrypt($_SESSION["sinori" . SESSIONID]["id_wilayah"]) . "'";
+
+if ($q1 != "")
+	$sql .= " and (upper(a.nomor_dn_kapal) like '" . strtoupper($q1) . "%' or upper(a.notify_nama) like '%" . strtoupper($q1) . "%' 
+				or upper(a.vessel_name) like '%" . strtoupper($q1) . "%' or upper(a.kapten_name) like '%" . strtoupper($q1) . "%' or upper(e.nama_customer) like '%" . strtoupper($q1) . "%')";
+if ($q2 != "" && $q3 == "")
+	$sql .= " and c.tanggal_kirim = '" . tgl_db($q2) . "'";
+else if ($q2 != "" && $q3 != "")
+	$sql .= " and c.tanggal_kirim between '" . tgl_db($q2) . "' and '" . tgl_db($q3) . "'";
+
+if ($q4 != "" && $q4 == "1")
+	$sql .= " and a.is_loaded = 0 and a.is_delivered = 0 and a.is_cancel = 0";
+else if ($q4 != "" && $q4 == "2")
+	$sql .= " and a.is_loaded = 1 and a.is_delivered = 0 and a.is_cancel = 0";
+else if ($q4 != "" && $q4 == "3")
+	$sql .= " and a.is_loaded = 1 and a.is_delivered = 1";
+else if ($q4 != "" && $q4 == "4")
+	$sql .= " and a.is_loaded = 1 and a.is_cancel = 1";
+else if ($q4 != "" && $q4 == "5")
+	$sql .= " and a.is_loaded = 0";
+
+$tot_record = $con->num_rows($sql);
+$tot_page 	= ceil($tot_record / $length);
+$page		= ($start > $tot_page) ? $start - 1 : $start;
+$position 	= $p->findPosition($length, $tot_record, $page);
+$sql .= " order by c.tanggal_kirim desc, a.id_dsk limit " . $position . ", " . $length;
+$link = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php?' . paramEncrypt('q1=' . $q1 . '&q2=' . $q2 . '&q3=' . $q3 . '&q4=' . $q4);
+
+$count = 0;
+$content = "";
+if ($tot_record <= 0) {
+	$content .= '<tr><td colspan="7" style="text-align:center"><input type="hidden" id="uriExp2" value="' . $link . '" />Data tidak ditemukan </td></tr>';
+} else {
+	$count 		= $position;
+	$tot_page 	= ceil($tot_record / $length);
+	$result 	= $con->getResult($sql);
+	foreach ($result as $data) {
+		$count++;
+		$idp 		= $data["id_dsk"];
+		$volpo		= $data['bl_lo_jumlah'];
+		$tempal 	= strtolower(str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data['nama_kab']));
+		$alamat		= $data['alamat_survey'] . " " . ucwords($tempal) . " " . $data['nama_prov'];
+		$produk_poc	= $data['produk_poc'];
+		$tgl_loaded	= $data['tanggal_loaded'];
+		$jam_loaded	= $data['jam_loaded'];
+		$pr_vendor	= $data['pr_vendor'];
+		$id_area	= $data['id_area'];
+		$etl     	= $data['tgl_etl'];
+		$nama_cust  = $data['nama_customer'];
+
+		$terminal1 	= $data['nama_terminal'];
+		$terminal2 	= ($data['tanki_terminal']) ? ' - ' . $data['tanki_terminal'] : '';
+		$terminal3 	= ($data['lokasi_terminal']) ? '<br />' . $data['lokasi_terminal'] : '';
+		$terminal 	= $terminal1 . $terminal2 . $terminal3;
+
+		$dataInfo1 	= 'kapal#' . $data['nomor_dn_kapal'] . '#' . $data['nama_customer'] . '#' . $alamat . '#' . $data['wilayah_angkut'] . '#' . $volpo . '#' . $data['produk'];
+		$dataInfo2 	= '#' . $data['nama_suplier'] . '#' . $data['no_spj'] . '#' . $data['vessel_name'] . '#' . $data['kapten_name'];
+		$linkInfo 	= paramEncrypt($dataInfo1 . $dataInfo2);
+
+		$linkParam 	= paramEncrypt($data['id_dsk'] . "|#|" . $volpo . "|#|" . $data['nomor_dn_kapal']);
+		$linkList 	= paramEncrypt($data['id_dsk'] . "|#|2|#|" . $data['nomor_dn_kapal'] . "[]" . $data['nama_customer'] . "|#|" . $data['mobil_po'] . "|#|" . $data['bl_lo_jumlah']);
+
+		$status = '';
+		if ($data['is_delivered']) {
+			$status = '<p style="margin-bottom:5px;"><b>Delivered</b><br/>' . date("d/m/Y H:i", strtotime($data['tanggal_delivered'])) . '</p>';
+			if (!$data['realisasi_volume'] || !$data['terima_jalan']) {
+				$status .= '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-realisasi="1" class="editStsT btn btn-success" 
+								title="Realisasi Kirim dan Terima Surat Jalan"><i class="fa fa-sticky-note-o"></i> <span style="font-size:11px;">Realisasi</span></a>';
+			}
+		} else if ($data['is_cancel']) {
+			$status = '<p style="margin-bottom:0px;" class="text-red"><b>Canceled</b><br/>' . date("d/m/Y H:i", strtotime($data['tanggal_cancel'])) . '</p>';
+		} else if ($data['is_loaded']) {
+			$bmp = json_decode($data['status_pengiriman'], true);
+			$idb = count($bmp) - 1;
+			$bes = '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-customer="' . $nama_cust . '"  data-customer_alamat_dr="' . $alamat . '"class="editStsT btn btn-info pull-right"><i class="fa fa-plus"></i></a>';
+			$status = $bes . '<div class="status-kirim"><p>' . $bmp[$idb]['tanggal'] . '</p><span>' . $bmp[$idb]['status'] . '</span></div>';
+		} else {
+			if ($data['status_pengiriman']) {
+				$status = '';
+			}
+		}
+
+		$btnExtra1 	= '';
+		if (!$data['is_loaded']) {
+
+			$id_customer 	= $data['id_customer'];
+			$pic_logistik 	= $data['pic_logistik'];
+			$pic_cs 		= $data['pic_cs'];
+			$pic_marketing 	= $data['pic_marketing'];
+			$nama_cust  	= $data['nama_customer'];
+			$no_plat 		= $data['nomor_plat'];
+			$nama_sopir 	= $data['nama_sopir'];
+			$etl     	    = $data['tgl_etl'];
+
+			$dataInfo1 	= 'kapal#' . $data['nomor_do'] . '#' . $data['nama_customer'] . '#' . $alamat . '#' . $data['wilayah_angkut'] . '#' . $volpo . '#' . $data['produk'];
+			$dataInfo2 	= '#' . $data['nama_suplier'] . '#' . $data['no_spj'] . '#' . $data['nomor_plat'] . '#' . $data['nama_sopir'];
+			$linkInfo 	= paramEncrypt($dataInfo1 . $dataInfo2);
+
+			$linkLoad 	= paramEncrypt("do_kapal#|#loading#|#" . $idp . "#|#" . $volpo . "#|#" . $produk_poc . "#|#" . $tgl_loaded . "#|#" . $jam_loaded . "#|#" . $pr_vendor . "#|#" . $id_area . "#|#" . $data['terminal']);
+
+			$btnExtra1 = '<a class="editStsLoading margin-sm btn btn-action btn-success" title="Loading" data-jenis="loading" data-param="' . $linkLoad . '" data-info="' . $linkInfo . '" data-etl="' . $etl . '"  data-etl_val="' . $etl . '" data-terminal="' . $terminal . '" data-customer="' . $nama_cust . '">
+						<i class="fa fa-table"></i></a>';
+		}
+
+		$content .= '
+				<tr>
+					<td class="text-center">' . $count . '</td>
+					<td class="text-left">
+						<p style="margin-bottom:0px"><b>' . $data['nomor_dn_kapal'] . '</b></p>
+						<p style="margin-bottom:0px">' . $data['nama_customer'] . '</p>
+						<p style="margin-bottom:0px">' . $alamat . '</p>
+						<p style="margin-bottom:0px">Wilayah OA : ' . $data['wilayah_angkut'] . '</p>
+					</td>
+					
+					<td>
+                            <p style="margin-bottom:0px"><b>' . $data['nomor_poc'] . '</b></p>
+							<p style="margin-bottom:0px">' . number_format($data['volume_kirim']) . ' Liter ' . $data['produk'] . '</p>
+                            <p style="margin-bottom:0px">' . 'Tgl Kirim ' . tgl_indo($data['tanggal_kirim']) . '</p>
+                    
+                    </td>
+					
+					<td class="text-left">
+						<p style="margin-bottom:0px"><b>' . $data['nama_suplier'] . '</b></p>
+						<p style="margin-bottom:0px">Vessel &nbsp;: ' . $data['vessel_name'] . '</p>
+						<p style="margin-bottom:0px">Captain : ' . $data['kapten_name'] . '</p>
+					</td>
+					<td class="text-left">
+					<p style="margin-bottom:0px"><b>Delivery Order : </b></p> ' . $data['no_do_syop'] . '</p>
+					<p style="margin-bottom:0px"><b>Loading Order : </b></p>' . $data['nomor_lo_pr'] . '</p>
+					</td>
+					<td class="text-left">' . $terminal . '</td>
+					<td class="text-left">' . $status . '</td>
+					<td class="text-center action">
+						<a class="listStsT margin-sm btn btn-action btn-info" title="History Pengiriman" data-param="' . $linkList . '"><i class="fa fa-info-circle"></i></a>
+						' . $btnExtra1 . '
+            		</td>
+				</tr>';
+	}
+	$content .= '<tr class="hide"><td colspan="7"><input type="hidden" id="uriExp2" value="' . $link . '" />&nbsp;</td></tr>';
+}
+
+$json_data = array(
+	"items"		=> $content,
+	"pages"		=> $tot_page,
+	"page"		=> $page,
+	"totalData"	=> $tot_record,
+	"infoData"	=> "Showing " . ($position + 1) . " to " . $count . " of " . $tot_record . " entries",
+);
+echo json_encode($json_data);

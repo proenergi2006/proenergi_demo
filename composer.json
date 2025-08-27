@@ -1,0 +1,8 @@
+{
+    "require": {
+        "mpdf/mpdf": "^8.0",
+        "phpoffice/phpspreadsheet": "^1.11",
+        "phpoffice/phpexcel": "^1.8",
+		"shuchkin/simplexlsx": "^1.0"
+    }
+}

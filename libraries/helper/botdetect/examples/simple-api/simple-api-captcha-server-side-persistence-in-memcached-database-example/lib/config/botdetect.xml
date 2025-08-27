@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<botdetect xmlns="https://captcha.com/schema/php"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://captcha.com/schema/php
+            https://captcha.com/schema/php/botdetect-4.2.3.xsd">
+
+    <captchaStyles>
+        <captchaStyle>
+            <name>MemcachedCaptchaExample</name>
+            <userInputID>CaptchaCode</userInputID>
+            <codeLength>3-5</codeLength>
+        </captchaStyle>
+    </captchaStyles>
+
+    <captchaPersistence>
+        <persistenceType>Memcached</persistenceType>
+        <address>127.0.0.1:11211</address>
+    </captchaPersistence>
+</botdetect>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<botdetect xmlns="https://captcha.com/schema/php"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://captcha.com/schema/php
+            https://captcha.com/schema/php/botdetect-4.2.3.xsd">
+
+    <captchaStyles>
+        <captchaStyle>
+            <name>Captcha1</name>
+
+            <userInputID>CaptchaCode1</userInputID>
+            <codeLength>6</codeLength>
+            <codeStyle>Numeric</codeStyle>
+            <disallowedCodeSubstrings>1,2,3,4,5,00,777,9999</disallowedCodeSubstrings>
+
+            <imageStyle>SunAndWarmAir</imageStyle>
+            <imageWidth>250</imageWidth>
+            <imageHeight>60</imageHeight>
+            <imageFormat>png</imageFormat>
+
+            <soundEnabled>true</soundEnabled>
+            <soundStyle>Synth</soundStyle>
+            <soundFormat>WavPcm8bit8kHzMono</soundFormat>
+            <soundRegenerationMode>Limited</soundRegenerationMode>
+            <soundStartDelay>100</soundStartDelay> <!-- 0.1 seconds -->
+
+            <locale>es-MX</locale>
+            <imageTooltip>Custom Mexican Spanish Captcha image tooltip</imageTooltip>
+            <soundTooltip>Custom Mexican Spanish Captcha sound icon tooltip</soundTooltip>
+            <reloadTooltip>Custom Mexican Spanish Captcha reload icon tooltip</reloadTooltip>
+            <helpLinkUrl>custom-mexican-spanish-captcha-help-page.html</helpLinkUrl>
+            <helpLinkText>Custom Mexican Spanish Captcha help link text</helpLinkText>
+
+            <reloadEnabled>true</reloadEnabled>
+            <useSmallIcons>false</useSmallIcons>
+            <useHorizontalIcons>false</useHorizontalIcons>
+            <soundIconUrl></soundIconUrl>
+            <reloadIconUrl></reloadIconUrl>
+            <iconsDivWidth></iconsDivWidth>
+            <helpLinkEnabled>true</helpLinkEnabled>
+            <helpLinkMode>text</helpLinkMode>
+            <tabIndex>-1</tabIndex>
+            <additionalCssClasses>class1 class2 class3</additionalCssClasses>
+            <additionalInlineCss>border: 4px solid #fff; background-color:#f8f8f8;</additionalInlineCss>
+
+            <addCssInclude>false</addCssInclude>
+            <addScriptInclude>false</addScriptInclude>
+            <addInitScriptInclude>true</addInitScriptInclude>
+            <autoUppercaseInput>true</autoUppercaseInput>
+            <autoFocusInput>true</autoFocusInput>
+            <autoClearInput>true</autoClearInput>
+            <autoReloadExpiredCaptchas>true</autoReloadExpiredCaptchas>
+            <autoReloadTimeout>7200</autoReloadTimeout> <!-- 2 hours -->
+            <remoteScriptEnabled>true</remoteScriptEnabled>
+        </captchaStyle>
+
+
+        <captchaStyle>
+            <name>Captcha2</name>
+
+            <userInputID>CaptchaCode2</userInputID>
+            <codeLength>3</codeLength>
+            <codeStyle>alpha</codeStyle>
+            <disallowedCodeSubstrings>AAA,BBB,CCC</disallowedCodeSubstrings>
+
+            <imageStyle>BlackOverlap,Graffiti,Overlap</imageStyle>
+            <imageWidth>120</imageWidth>
+            <imageHeight>35</imageHeight>
+            <imageFormat>png</imageFormat>
+
+            <customDarkColor>#006400</customDarkColor>
+            <customLightColor>#eeeeff</customLightColor>
+
+            <soundStyle>Dispatch</soundStyle>
+            <soundFormat>WavPcm8bit8kHzMono</soundFormat>
+            <soundRegenerationMode>none</soundRegenerationMode>
+
+            <locale>fr-CA</locale>
+            <imageTooltip>Custom Canadian French Captcha image tooltip</imageTooltip>
+            <soundTooltip>Custom Canadian French Captcha sound icon tooltip</soundTooltip>
+            <reloadTooltip>Custom Canadian French Captcha reload icon tooltip</reloadTooltip>
+            <helpLinkUrl>custom-canadian-french-captcha-help-page.html</helpLinkUrl>
+            <helpLinkText>Custom Canadian French Captcha help link text</helpLinkText>
+
+            <reloadEnabled>true</reloadEnabled>
+            <useSmallIcons>true</useSmallIcons>
+            <useHorizontalIcons>true</useHorizontalIcons>
+            <soundIconUrl></soundIconUrl>
+            <reloadIconUrl></reloadIconUrl>
+            <iconsDivWidth>50</iconsDivWidth>
+            <helpLinkEnabled>true</helpLinkEnabled>
+            <helpLinkMode>image</helpLinkMode>
+            <tabIndex>15</tabIndex>
+            <additionalCssClasses></additionalCssClasses>
+            <additionalInlineCss></additionalInlineCss>
+
+            <addCssInclude>false</addCssInclude>
+            <addScriptInclude>false</addScriptInclude>
+            <addInitScriptInclude>true</addInitScriptInclude>
+            <autoUppercaseInput>false</autoUppercaseInput>
+            <autoFocusInput>false</autoFocusInput>
+            <autoClearInput>false</autoClearInput>
+            <autoReloadExpiredCaptchas>true</autoReloadExpiredCaptchas>
+            <autoReloadTimeout>3600</autoReloadTimeout> <!-- 1 hours -->
+            <soundStartDelay>1000</soundStartDelay> <!-- 1 second -->
+            <remoteScriptEnabled>false</remoteScriptEnabled>
+        </captchaStyle>
+    </captchaStyles>
+
+</botdetect>

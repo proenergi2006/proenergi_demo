@@ -1,0 +1,96 @@
+.form-control-file {
+	background-color: #fff;
+    border: 1px solid #ddd;
+	line-height: 26px;
+	padding: 3px;
+    width: 100%;
+}
+.ie .form-control-file {
+	height: 34px;
+}
+.progress{
+	margin: 0 0 10px;
+	display: block;	
+}
+.progress-status{
+	margin: 0;
+	display: block;
+	font-size: 12px;
+}
+.info-status{
+	color: #f56954;
+	margin: 5px 0px;
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+}
+.file-wrap{
+	margin-top: -8px;
+}
+.preview-file{
+	background-color: #f4f4f4;
+    font-weight: 400;
+    padding: 5px 25px 5px 10px;
+	margin-bottom: 15px;
+    border: 1px solid #ddd;
+	position: relative;
+}
+.preview-file > span{
+    font-weight: 700;
+	color: #3c8dbc;
+	cursor: pointer;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+}
+.registration-form fieldset {
+	position: relative;
+	margin-bottom: 20px;
+}
+.registration-form .error-block {
+	font-size: 12px;
+	margin: 5px 0 15px;
+	color: #f56954;
+	display: block;
+}
+.registration-form .form-title {
+	padding: 10px 15px;
+	border: 1px solid #00acd6;
+	border-bottom: none;
+	background-color: #56386a;
+}
+.registration-form .form-title h3{
+	margin: 0 50px 0 0;
+	color: #fff;
+	font-size: 16px;
+	font-weight: bold;
+	font-family: arial;
+}
+.registration-form .form-title small{
+	color: #fff;
+	position: absolute;
+	top: 5px;
+	right: 10px;
+}
+.registration-form .form-main {
+	padding: 15px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-top: none;
+}
+.registration-form .form-main .form-main-title {
+	font-size: 16px;
+	font-weight: bold;
+	font-family: arial;
+	margin: 15px 0;
+	color: #555;
+}
+.registration-form .form-main .form-main-title:first-child {
+	margin: 0 0 15px;
+}
+.registration-form .form-main label {
+	color: #555;
+}
+.registration-form .static-text{
+	height: auto;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BotDetect jQuery CAPTCHA Examples</title>
+  <link href="styles/styles.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content"><h1>BotDetect jQuery CAPTCHA Examples</h1></div>
+    </header>
+
+    <nav>
+      <ul class="nav">
+        <li><a href="basic.html" class="active">Basic Example</a></li>
+        <li><a href="contact.html">Contact Example</a></li>
+      </ul>
+    </nav>
+
+    <section id="main-content">
+        <form id="basicForm" method="POST">
+            <div id="form-messages"></div>
+
+            <!-- show Captcha image html-->
+            <div id="botdetect-captcha" data-stylename="jqueryBasicCaptcha"></div>
+
+            <label>
+                <span>Retype the characters from the picture:</span>
+                <!-- captcha code user input textbox -->
+                <input 
+                    type="text" 
+                    name="captchaCode" 
+                    id="captchaCode" 
+                    data-correct-captcha
+                >
+            </label>
+
+            <div class="error captchaCode"></div>
+
+            <button type="submit" id="submitButton">Validate</button>
+        </form>
+    </section>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="node_modules/jquery-captcha/dist/jquery-captcha.min.js"></script>
+    <script src="js/basic.js"></script>
+</body>
+</html>
