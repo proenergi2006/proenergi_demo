@@ -263,6 +263,7 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
                                         <th class="text-center" rowspan="2" width="230">Nama dan PO Customer</th>
                                         <th class="text-center" rowspan="2" width="230">Area/ Alamat Kirim/ Wilayah OA</th>
                                         <th class="text-center" colspan="2">Quantity</th>
+                                        <th class="text-center" rowspan="2" width="120">Tgl Loading</th>
                                         <th class="text-center" rowspan="2" width="">Catatan</th>
                                         <th class="text-center" rowspan="2" width="100">Tanggal Issued</th>
                                     </tr>
@@ -377,6 +378,13 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
                                                     <?php if ($data['status_plan'] == 0) {  ?>
                                                         <input type="text" class="text-right input-po toa hitung" name="<?php echo 'dt4[' . $idp . ']'; ?>" id="<?php echo 'dt4' . $nom; ?>" value="<?php echo $data['volume_kirim']; ?>" style="width:100%;" />
                                                     <?php } else echo number_format($data['volume_kirim']); ?>
+                                                </td>
+                                                <td class="text-center">
+                                                    <?php if ($data['status_plan'] == 0) : ?>
+                                                        <input type="text" id="<?php echo 'tgl_loading' . $nom; ?>" name="<?php echo 'tgl_loading[' . $idp . ']'; ?>" class="form-control datepicker tgl_loading" autocomplete="off" />
+                                                    <?php else : ?>
+                                                        <?= date("d/m/Y", strtotime($data['tanggal_loading'])) ?>
+                                                    <?php endif ?>
                                                 </td>
                                                 <td>
                                                     <p style="margin-bottom:3px"><?php echo 'Tgl Kirim ' . tgl_indo($data['tanggal_kirim']); ?></p>
@@ -514,13 +522,44 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
     </style>
     <script>
         $(document).ready(function() {
+            $.datepicker.setDefaults({
+                dateFormat: "dd/mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                showAnim: "fadeIn"
+            });
             $(".hitung").number(true, 0, ".", ",");
             $("form#gform").on("click", "button:submit", function() {
                 if (confirm("Apakah anda yakin?")) {
                     var tombol = $(this).attr("id").split("btnSbmt");
                     $("#tombol_klik").val(tombol[1]);
                     if ($("#gform").find("input:checked").length > 0) {
-                        console.log(tombol[1]);
+                        var valid = true;
+                        var kosongKe = null;
+
+                        if (tombol[1] == '1') {
+                            // Ambil hanya baris yang dicentang
+                            var $rowsChecked = $("#gform tr").has('input[type="checkbox"]:checked');
+
+                            // Cek tanggal loading pada baris-baris itu saja
+                            var adaKosong = false;
+                            $rowsChecked.each(function() {
+                                var tgl = $(this).find(".tgl_loading, .newtgl_loading").val();
+                                if (!tgl) {
+                                    adaKosong = true;
+                                    // opsional: beri indikator error
+                                    $(this).find(".tgl_loading, .newtgl_loading").addClass("is-invalid").focus();
+                                    return false; // break each
+                                }
+                            });
+
+                            if (adaKosong) {
+                                $("#preview_modal #preview_alert").text("Tanggal Loading wajib diisi pada baris yang dicentang.");
+                                $("#preview_modal").modal("show");
+                                return false;
+                            }
+                        }
+
                         if (tombol[1] != -1) {
                             $("#loading_modal").modal({
                                 backdrop: "static"
@@ -598,6 +637,17 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
                     }
                     if (id && i > 1) {
                         el.each(function(i, v) {
+                            cloning.find(".tgl_loading").each(function() {
+                                $(this)
+                                    .removeClass("tgl_loading")
+                                    .addClass("newtgl_loading");
+                            });
+
+                            cloning.find(".vol_kirim").each(function() {
+                                $(this)
+                                    .removeClass("vol_kirim")
+                                    .addClass("newvol_kirim");
+                            });
                             var elName = "new" + $(this).attr("name").substr(0, 3) + "[" + idl + "][]";
                             var elId = $(this).attr("id");
                             $(this).attr("id", elId + newId);
@@ -605,6 +655,7 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
                         });
                     }
                 });
+                cloning.find('.newtgl_loading').val("");
                 cloning.find('input:text').val("");
                 cloning.find(".hdn").remove();
                 let tmp_elm = row.find("input[name^='dt3']");
@@ -622,6 +673,10 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
                 $("#table-grid2").find(".noFormula").each(function(i, v) {
                     $(this).text(i + 1);
                 });
+
+                cloning.find(".datepicker").removeClass("hasDatepicker").removeAttr("id");
+                cloning.find(".datepicker").datepicker("destroy");
+                cloning.find(".datepicker").datepicker({});
             }).on("click", "#table-grid2 button.hRow", function() {
                 var cRow = $(this).closest('tr');
                 cRow.remove();

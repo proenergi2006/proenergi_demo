@@ -24,17 +24,23 @@ if (isset($_POST["newdt4"])) {
 	foreach ($_POST['newdt4'] as $idx1 => $val1) {
 		foreach ($_POST['newdt4'][$idx1] as $idx2 => $val2) {
 			$cek01 		= htmlspecialchars($_POST['newcek'][$idx1][$idx2], ENT_QUOTES);
-			// $dtx01 		= htmlspecialchars($_POST['newcek'][$idx1][$idx2], ENT_QUOTES);
 			$dtx01 		= htmlspecialchars($_POST['newdt1'][$idx1][$idx2], ENT_QUOTES);
-			// $dtx03 		= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['newcek'][$idx1][$idx2]), ENT_QUOTES);
+			$tgl_loading = htmlspecialchars($_POST['newtgl'][$idx1][$idx2], ENT_QUOTES);
 			$dtx03 		= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['newdt3'][$idx1][$idx2]), ENT_QUOTES);
 			$volume 	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['newdt4'][$idx1][$idx2]), ENT_QUOTES);
 			$volplan 	= htmlspecialchars($_POST['volplan' . $idx1], ENT_QUOTES);
+
+			$sql_get_nomor_so = "SELECT no_so FROM pro_po_customer_plan WHERE id_plan = '" . $idx1 . "'";
+			$row_nomor_so = $con->getRecord($sql_get_nomor_so);
+			$nomor_so = $row_nomor_so['no_so'] ?? '';
+
+			$nomor_so_detail = $nomor_so . "-S" . $no;
+
 			$sqlExtra 	= "
-					insert into pro_po_customer_plan (id_poc, id_lcr, tanggal_kirim, volume_kirim, realisasi_kirim, is_urgent, top_plan, actual_top_plan, pelanggan_plan, 
+					insert into pro_po_customer_plan (id_poc, id_lcr, no_so, tanggal_kirim, tanggal_loading, volume_kirim, realisasi_kirim, is_urgent, top_plan, actual_top_plan, pelanggan_plan, 
 					ar_notyet, ar_satu, ar_dua, kredit_limit, status_plan, status_jadwal, ask_approval, catatan_reschedule, 
 					is_approved, created_time, created_ip, created_by, splitted_from_plan, vol_ori_plan) (
-						select id_poc, id_lcr, tanggal_kirim, '" . $volume . "', realisasi_kirim, is_urgent, top_plan, actual_top_plan, pelanggan_plan, 
+						select id_poc, id_lcr, '" . $nomor_so_detail . "', tanggal_kirim, '" . tgl_db($tgl_loading) . "', '" . $volume . "', realisasi_kirim, is_urgent, top_plan, actual_top_plan, pelanggan_plan, 
 						ar_notyet, ar_satu, ar_dua, kredit_limit, status_plan, status_jadwal, ask_approval, catatan_reschedule, is_approved, 
 						created_time, created_ip, created_by, '" . $idx1 . "', '" . $volplan . "' 
 						from pro_po_customer_plan
@@ -78,8 +84,9 @@ if ($tombol == 1) {
 			$dt1 = htmlspecialchars($_POST['dt1'][$idx1], ENT_QUOTES);
 			$dt4 = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dt4'][$idx1]), ENT_QUOTES);
 			$dt3 = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dt3'][$idx1]), ENT_QUOTES);
+			$tgl_loading = htmlspecialchars($_POST["tgl_loading"][$idx1], ENT_QUOTES);
 
-			$sql2 = "update pro_po_customer_plan set volume_kirim = '" . $dt4 . "', status_plan = 1 where id_plan = '" . $idx1 . "'";
+			$sql2 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "',volume_kirim = '" . $dt4 . "', status_plan = 1 where id_plan = '" . $idx1 . "'";
 			$con->setQuery($sql2);
 			$oke  = $oke && !$con->hasError();
 
@@ -92,6 +99,7 @@ if ($tombol == 1) {
 			foreach ($arrExtraData as $idx01 => $data01) {
 				$id_plan 	= $data01['id_plan'];
 				$produk 	= $data01['produk'];
+				$tgl_loading = $data01['tgl_loading'];
 				$volume 	= $data01['volume'];
 				$oanya 		= $data01['oanya'];
 

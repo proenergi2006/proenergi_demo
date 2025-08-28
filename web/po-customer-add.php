@@ -1209,11 +1209,6 @@ if ($idr != "" && $idk != "") {
 
 			var formValidasiCfg = {
 				submitHandler: function(form) {
-					$("#loading_modal").modal({
-						keyboard: false,
-						backdrop: 'static'
-					});
-
 					var total_order = $("#total_order").val();
 					var not_yet = $("#not_yet").val();
 					var ov_up_07 = $("#ov_up_07").val();
@@ -1223,53 +1218,66 @@ if ($idr != "" && $idk != "") {
 					var ov_up_90 = $("#ov_up_90").val();
 					var reminding = $("#reminding").val();
 
-					if ($("#cekkolnup").is(":checked") && $("#nup_fee").val() == "") {
-						$("#loading_modal").modal("hide");
-						$.validator.showErrorField('nup_fee', "Kolom ini belum diisi atau dipilih");
-						setErrorFocus($("#nup_fee"), $("form#gform"), false);
-					} else {
-						$.ajax({
-							type: "POST",
-							url: "./__cek_po_customer.php",
-							dataType: "json",
-							data: $(form).serializeArray(),
-							cache: false,
-							success: function(data) {
-								if (data.error) {
-									$("#preview_modal").find("#preview_alert").html(data.error);
-									$("#preview_modal").modal();
-									$("#loading_modal").modal("hide");
-									return false;
-								} else {
-									var unblock = false;
-									if (total_order > reminding) unblock = true;
-									if (ov_up_07 > 0 || ov_under_30 > 0 || ov_under_60 > 0 || ov_under_90 > 0 || ov_up_90 > 0) unblock = true;
-									if (unblock) {
-										$("#loading_modal").modal("hide");
-										swal.fire({
-											title: '<div style="font-weight:400; font-size:16px; line-height:25px;">Terdapat Proses Unblock pada PO untuk cutomer ini. Apakah anda yakin tetap menyimpan data?</div>',
-											icon: 'warning',
-											showCancelButton: true,
-											confirmButtonColor: '#3085d6',
-											cancelButtonColor: '#d33',
-											confirmButtonText: 'Ya',
-											cancelButtonText: 'Tidak',
-										}).then((result) => {
-											if (result.isConfirmed) {
-												$("#loading_modal").modal({
-													keyboard: false,
-													backdrop: 'static'
-												});
-												form.submit();
-											}
-										});
-									} else {
-										form.submit();
+					Swal.fire({
+						title: "Anda yakin simpan?",
+						showCancelButton: true,
+						confirmButtonText: "Ya",
+					}).then((result) => {
+						if (result.isConfirmed) {
+							$("#loading_modal").modal({
+								keyboard: false,
+								backdrop: 'static'
+							});
+							if ($("#cekkolnup").is(":checked") && $("#nup_fee").val() == "") {
+								$("#loading_modal").modal("hide");
+								$.validator.showErrorField('nup_fee', "Kolom ini belum diisi atau dipilih");
+								setErrorFocus($("#nup_fee"), $("form#gform"), false);
+							} else {
+								$.ajax({
+									type: "POST",
+									url: "./__cek_po_customer.php",
+									dataType: "json",
+									data: $(form).serializeArray(),
+									cache: false,
+									success: function(data) {
+										if (data.error) {
+											$("#preview_modal").find("#preview_alert").html(data.error);
+											$("#preview_modal").modal();
+											$("#loading_modal").modal("hide");
+											return false;
+										} else {
+											form.submit();
+											// var unblock = false;
+											// if (total_order > reminding) unblock = true;
+											// if (ov_up_07 > 0 || ov_under_30 > 0 || ov_under_60 > 0 || ov_under_90 > 0 || ov_up_90 > 0) unblock = true;
+											// if (unblock) {
+											// 	$("#loading_modal").modal("hide");
+											// 	swal.fire({
+											// 		title: '<div style="font-weight:400; font-size:16px; line-height:25px;">Terdapat Proses Unblock pada PO untuk cutomer ini. Apakah anda yakin tetap menyimpan data?</div>',
+											// 		icon: 'warning',
+											// 		showCancelButton: true,
+											// 		confirmButtonColor: '#3085d6',
+											// 		cancelButtonColor: '#d33',
+											// 		confirmButtonText: 'Ya',
+											// 		cancelButtonText: 'Tidak',
+											// 	}).then((result) => {
+											// 		if (result.isConfirmed) {
+											// 			$("#loading_modal").modal({
+											// 				keyboard: false,
+											// 				backdrop: 'static'
+											// 			});
+											// 			form.submit();
+											// 		}
+											// 	});
+											// } else {
+											// 	form.submit();
+											// }
+										}
 									}
-								}
+								});
 							}
-						});
-					}
+						}
+					});
 				}
 			};
 			$("form#gform").validate($.extend(true, {}, config.validation, formValidasiCfg));
@@ -1302,33 +1310,37 @@ if ($idr != "" && $idk != "") {
 								'<tr>' +
 								'<td width="150" style="padding:3px 5px; background-color: #ddd;">Credit Limit</td>' +
 								'<td style="padding:3px 5px;">' + data.credit_limit + '</td>' +
+								'<tr>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">Invoice not issued yet</td>' +
+								'<td style="padding:3px 5px;">' + data.credit_limit_reserved + '</td>' +
+								'</tr>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Not yet</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Not yet</td>' +
 								'<td style="padding:3px 5px;">' + data.not_yet + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 1-7 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 1-7 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_up_07 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 8-30 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 8-30 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_under_30 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 31-60 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 31-60 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_under_60 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue 61-90 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue 61-90 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_under_90 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Overdue > 90 days</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">AR Overdue > 90 days</td>' +
 								'<td style="padding:3px 5px;">' + data.ov_up_90 + '</td>' +
 								'</tr>' +
 								'<tr>' +
-								'<td style="padding:3px 5px; background-color: #ddd;">Remaining</td>' +
+								'<td style="padding:3px 5px; background-color: #ddd;">Credit Limit Remaining</td>' +
 								'<td style="padding:3px 5px;">' + data.reminding + '</td>' +
 								'</tr>' +
 								'</table>';
