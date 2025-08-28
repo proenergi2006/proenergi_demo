@@ -19,6 +19,13 @@ $volume_bol	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POS
 $volume_terima	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["volume_terima"]), ENT_QUOTES);
 $nama_pic		= htmlspecialchars($_POST["nama_pic"], ENT_QUOTES);
 
+//Parameter untuk Accurate
+$gudang			= htmlspecialchars($_POST["gudang"], ENT_QUOTES);
+$kode_item_accurate = $_POST["kode_item_accurate"];
+$no_terima		= $_POST["no_terima"];
+$unit_price		= $_POST["unit_price"];
+$nomor_po		= $_POST["nomor_po"];
+
 $filePhoto1 	= htmlspecialchars($_FILES['file_template']['name'], ENT_QUOTES);
 $sizePhoto1 	= htmlspecialchars($_FILES['file_template']['size'], ENT_QUOTES);
 $tempPhoto1 	= htmlspecialchars($_FILES['file_template']['tmp_name'], ENT_QUOTES);
@@ -34,6 +41,12 @@ if ($sizePhoto1 > $maxFileSize) {
 	header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
 	exit;
 }
+
+//get cabang 
+$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+$rowget_cabang = $con->getRecord($queryget_cabang);
 
 if ($act == 'cek') {
 } else if ($act == 'add') {
@@ -84,18 +97,87 @@ if ($act == 'cek') {
 		$oke  = $oke && !$con->hasError();
 
 		if ($oke) {
-			$con->commit();
-			$con->close();
+			$get_po_supplier = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idnya01 . "'";
+			$res_po = $con->getRecord($get_po_supplier);
 
-			if ($isUpload) {
-				if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
+			$id_accurate_po = $res_po['id_accurate'];
+			$data_po = http_build_query([
+				'id' => $id_accurate_po,
+			]);
 
-				$tujuan  = $pathnya . '/' . $fileName;
-				$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+			//GET detail PO Accurate
+			$url_ponya = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $data_po;
+
+			$result_po = curl_get($url_ponya);
+
+			if ($result_po['s'] == true) {
+
+				//Save ke Accurate
+				$urlnya = 'https://zeus.accurate.id/accurate/api/receive-item/save.do';
+				// Data yang akan dikirim dalam format JSON
+				$data = array(
+					"receiveNumber" => $no_terima,
+					"number" => $no_terima,
+					"transDate" => $tgl_terima,
+					"vendorNo" => $result_po['d']['vendor']['vendorNo'],
+					"description" => "Terima barang dari PO " . $res_po['nomor_po'],
+					"toAddress" => $result_po['d']['toAddress'],
+					'branchName'  => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+					'detailItem' => array([
+						'itemNo'       => paramDecrypt($kode_item_accurate),
+						'quantity'     => $volume_terima,
+						'unitPrice'    => paramDecrypt($unit_price),
+						'purchaseOrderNumber' => paramDecrypt($nomor_po),
+						"warehouseName" => paramDecrypt($gudang),
+					])
+				);
+
+
+				// Mengonversi data menjadi format JSON
+				$jsonData = json_encode($data);
+
+				$result = curl_post($urlnya, $jsonData);
+
+				if ($result['s'] == true) {
+					$update = "UPDATE new_pro_inventory_vendor_po_receive set id_accurate = '" . $result['r']['id'] . "', no_terima = '" . $no_terima . "' WHERE id_po_receive = " . $idnya02;
+					$con->setQuery($update);
+
+					$con->commit();
+					$con->close();
+
+					if ($isUpload) {
+						if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
+
+						$tujuan  = $pathnya . '/' . $fileName;
+						$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+					}
+
+					header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
+					exit();
+				} else {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
+				}
+			} else {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "PO Supplier pada accurate tidak ada", BASE_REFERER);
 			}
+			// $con->commit();
+			// $con->close();
 
-			header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
-			exit();
+			// if ($isUpload) {
+			// 	if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
+
+			// 	$tujuan  = $pathnya . '/' . $fileName;
+			// 	$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+			// }
+
+			// header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
+			// exit();
 		} else {
 			$con->rollBack();
 			$con->clearError();
@@ -157,24 +239,203 @@ if ($act == 'cek') {
 	}
 
 	if ($oke) {
-		$con->commit();
-		$con->close();
+		$data_receive = "SELECT * FROM new_pro_inventory_vendor_po_receive WHERE id_po_receive = '" . $idnya02 . "'";
+		$rowget = $con->getRecord($data_receive);
 
-		if ($isUpload) {
-			$pathnya = $public_base_directory . '/files/uploaded_user/lampiran';
-			if (count($res01) > 0) {
-				foreach ($res01 as $data) {
-					if ($data['file_upload'] && file_exists($pathnya . '/' . $data['file_upload'])) unlink($pathnya . '/' . $data['file_upload']);
+		$id_accurate2 = $rowget['id_accurate'];
+		$data_ri_receive_detail = http_build_query(
+			[
+				'id' => $id_accurate2,
+			]
+		);
+
+		//GET detail DO Accurate
+		$url_detail_ri = 'https://zeus.accurate.id/accurate/api/receive-item/detail.do?' . $data_ri_receive_detail;
+
+		$result_ri_receive_detail = curl_get($url_detail_ri);
+
+		if ($result_ri_receive_detail['s'] == true) {
+			$data_receive = array(
+				'id' => $id_accurate2,
+			);
+
+			// DELETE DO Existing Accurate
+			$url_delete_ri = 'https://zeus.accurate.id/accurate/api/receive-item/delete.do';
+
+			$result_ri_receive = curl_delete($url_delete_ri, json_encode($data_receive));
+
+			if ($result_ri_receive['s'] == true) {
+
+				$get_po_supplier = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $rowget['id_po_supplier'] . "'";
+				$res_po = $con->getRecord($get_po_supplier);
+
+				$id_accurate_po = $res_po['id_accurate'];
+				$data_po = http_build_query([
+					'id' => $id_accurate_po,
+				]);
+
+				//GET detail PO Accurate
+				$url_ponya = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $data_po;
+
+				$result_po = curl_get($url_ponya);
+
+				if ($result_po['s'] == true) {
+
+					//Save RI ke Accurate
+					$urlnya = 'https://zeus.accurate.id/accurate/api/receive-item/save.do';
+					// Data yang akan dikirim dalam format JSON
+					$data = array(
+						"receiveNumber" => $no_terima,
+						"transDate" => $tgl_terima,
+						"vendorNo" => $result_po['d']['vendor']['vendorNo'],
+						"description" => "Terima barang dari PO " . $res_po['nomor_po'],
+						"toAddress" => $result_po['d']['toAddress'],
+						'branchName'  => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+						'detailItem' => array([
+							'itemNo'       => paramDecrypt($kode_item_accurate),
+							'quantity'     => $volume_terima,
+							'unitPrice'    => paramDecrypt($unit_price),
+							'purchaseOrderNumber' => paramDecrypt($nomor_po),
+							"warehouseName" => paramDecrypt($gudang),
+						])
+					);
+
+					// Mengonversi data menjadi format JSON
+					$jsonData = json_encode($data);
+
+					$result = curl_post($urlnya, $jsonData);
+
+					if ($result['s'] == true) {
+						$update = "UPDATE new_pro_inventory_vendor_po_receive set id_accurate = '" . $result['r']['id'] . "', no_terima = '" . $no_terima . "' WHERE id_po_receive = " . $idnya02;
+						$con->setQuery($update);
+
+						$con->commit();
+						$con->close();
+
+						if ($isUpload) {
+							$pathnya = $public_base_directory . '/files/uploaded_user/lampiran';
+							if (count($res01) > 0) {
+								foreach ($res01 as $data) {
+									if ($data['file_upload'] && file_exists($pathnya . '/' . $data['file_upload'])) unlink($pathnya . '/' . $data['file_upload']);
+								}
+							}
+
+							if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
+							$tujuan  = $pathnya . '/' . $fileName;
+							$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+						}
+
+						header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
+						exit();
+					} else {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
+					}
+				} else {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", "PO Supplier pada accurate tidak ada", BASE_REFERER);
 				}
+			} else {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", $result_ri_receive["d"][0] . " - Response dari Accurate", BASE_REFERER);
 			}
+		} else {
+			//APabila bellum ada RI di Accurate
+			$get_po_supplier = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $rowget['id_po_supplier'] . "'";
+			$res_po = $con->getRecord($get_po_supplier);
 
-			if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
-			$tujuan  = $pathnya . '/' . $fileName;
-			$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+			$id_accurate_po = $res_po['id_accurate'];
+			$data_po = http_build_query([
+				'id' => $id_accurate_po,
+			]);
+
+			$url_ponya = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $data_po;
+
+			$result_po = curl_get($url_ponya);
+
+			if ($result_po['s'] == true) {
+
+
+				$urlnya = 'https://zeus.accurate.id/accurate/api/receive-item/save.do';
+				// Data yang akan dikirim dalam format JSON
+				$data = array(
+					"receiveNumber" => $no_terima,
+					"transDate" => $tgl_terima,
+					"vendorNo" => $result_po['d']['vendor']['vendorNo'],
+					"description" => "Terima barang dari PO " . $res_po['nomor_po'],
+					"toAddress" => $result_po['d']['toAddress'],
+					'branchName'  => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+					'detailItem' => array([
+						'itemNo'       => paramDecrypt($kode_item_accurate),
+						'quantity'     => $volume_terima,
+						'unitPrice'    => paramDecrypt($unit_price),
+						'purchaseOrderNumber' => paramDecrypt($nomor_po),
+						"warehouseName" => paramDecrypt($gudang),
+					])
+				);
+
+				$jsonData = json_encode($data);
+				$result = curl_post($urlnya, $jsonData);
+
+				if ($result['s'] == true) {
+					$update = "UPDATE new_pro_inventory_vendor_po_receive set id_accurate = '" . $result['r']['id'] . "', no_terima = '" . $no_terima . "' WHERE id_po_receive = " . $idnya02;
+					$con->setQuery($update);
+
+					$con->commit();
+					$con->close();
+
+					if ($isUpload) {
+						$pathnya = $public_base_directory . '/files/uploaded_user/lampiran';
+						if (count($res01) > 0) {
+							foreach ($res01 as $data) {
+								if ($data['file_upload'] && file_exists($pathnya . '/' . $data['file_upload'])) unlink($pathnya . '/' . $data['file_upload']);
+							}
+						}
+
+						if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
+						$tujuan  = $pathnya . '/' . $fileName;
+						$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+					}
+
+					header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
+					exit();
+				} else {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
+				}
+			} else {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "PO Supplier pada accurate tidak ada", BASE_REFERER);
+			}
 		}
+		// $con->commit();
+		// $con->close();
 
-		header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
-		exit();
+		// if ($isUpload) {
+		// 	$pathnya = $public_base_directory . '/files/uploaded_user/lampiran';
+		// 	if (count($res01) > 0) {
+		// 		foreach ($res01 as $data) {
+		// 			if ($data['file_upload'] && file_exists($pathnya . '/' . $data['file_upload'])) unlink($pathnya . '/' . $data['file_upload']);
+		// 		}
+		// 	}
+
+		// 	if (!file_exists($pathnya . '/' . $folder . '/')) mkdir($pathnya . '/' . $folder, 0777);
+		// 	$tujuan  = $pathnya . '/' . $fileName;
+		// 	$mantab  = move_uploaded_file($tempPhoto1, $tujuan);
+		// }
+
+		// header("location: " . BASE_URL_CLIENT . "/vendor-po-new-terima.php?" . paramEncrypt("idr=" . $idnya01));
+		// exit();
 	} else {
 		$con->rollBack();
 		$con->clearError();

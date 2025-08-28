@@ -42,6 +42,8 @@ if (!$idnya02) {
     $dt15   = ($rsm['vol_terima']) ? $rsm['vol_terima'] : '';
     $dt19   = ($rsm['volume_bol']) ? $rsm['volume_bol'] : '';
     $ket   = ($rsm['keterangan']) ? $rsm['keterangan'] : '';
+    $nilai_pbbkb = ($rsm['nilai_pbbkb']) ? $rsm['nilai_pbbkb'] : 0;
+
 
 
     $dt16 = $dt15 - $dt10;
@@ -85,6 +87,8 @@ if (!$idnya02) {
     $dt13    = ($rsm['pbbkb']) ? $rsm['pbbkb'] : '';
     $dt14    = ($rsm['total_order']) ? $rsm['total_order'] : '';
     $dt10     =  ($rsm['volume_po']) ? $rsm['volume_po'] : '';
+    $nilai_pbbkb = ($rsm['nilai_pbbkb']) ? $rsm['nilai_pbbkb'] : 0;
+
 
     $action         = "update";
     $tgl_terima     = date("d/m/Y", strtotime($rsm['tgl_terima']));
@@ -380,7 +384,9 @@ if (!$idnya02) {
                                         <div class="col-md-5">
                                             <div class="input-group">
                                                 <span class="input-group-addon" style="font-size:12px;">Rp.</span>
-                                                <input type="text" id="dt13" name="dt13" class="form-control hitung" value="<?php echo isset($dt22) ? $dt22 : '0'; ?>" />
+                                                <input type="text" id="dt13" name="dt13" class="form-control hitung" value=""/>
+                                                <input type="hidden" id="nilai_pbbkb" value="<?= $nilai_pbbkb ?>">
+                                                <!-- <input type="text" id="dt13" name="dt13" class="form-control hitung" value="<?php echo isset($dt22) ? $dt22 : '0'; ?>" /> -->
 
                                             </div>
                                         </div>
@@ -575,6 +581,37 @@ if (!$idnya02) {
     <script>
         $(document).ready(function() {
 
+            //add confirmation
+            document.getElementById("btnSbmt").addEventListener("click", function(e) {
+                // Ambil form
+                const form = document.getElementById("gform");
+
+                // // Gunakan built-in form validation browser
+                // if (!form.checkValidity()) {
+                //     // Trigger pesan validasi default browser
+                //     form.reportValidity();
+                //     return; // Stop proses lanjut
+                // }
+
+                // Jika valid, tampilkan SweetAlert konfirmasi
+                Swal.fire({
+                    title: 'Konfirmasi Simpan',
+                    text: "Anda yakin ingin menyimpan data ini?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Simpan',
+                    cancelButtonText: 'Batal',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $("#loading_modal").modal({
+                            keyboard: false,
+                            backdrop: 'static'
+                        });
+                        form.submit();
+                    }
+                });
+            });
+
             // Format angka dengan plugin number
 
             $(".hitung1").number(true, 0, ".", ",");
@@ -592,6 +629,11 @@ if (!$idnya02) {
                 var hargaDasar = parseFloat($('#dt8').val()) || 0;
                 var hargaDasarRI = parseFloat($('#harga_ri').val()) || 0;
                 var pbbkb = parseFloat($('#dt13').val()) || 0;
+                
+
+                //additional
+                var nilai_pbbkb = parseFloat($('#nilai_pbbkb').val()) || 0;
+                var iuran_migas = parseFloat($('#dt17').val()) || 0;
 
                 // Hitung sub total
 
@@ -599,7 +641,8 @@ if (!$idnya02) {
 
                 var subTotal = volumeRI * hargaDasarRI;
 
-
+                //hitung pbbkb baru otomatis
+                var total_pbbkb_baru = (subTotal * nilai_pbbkb) / 100;
 
                 // Hitung PPN 11%
                 var ppn11 = ((11 * subTotal) / 100);
@@ -610,13 +653,15 @@ if (!$idnya02) {
                     var pph = ((subTotal * 0.3) / 100);
                 }
                 // Hitung total order
-                var totalOrder = subTotal + ppn11 + pph + pbbkb;
+                // var totalOrder = subTotal + ppn11 + pph + pbbkb;
+                var totalOrder = subTotal + ppn11 + pph + total_pbbkb_baru + iuran_migas;
 
                 // Tampilkan hasil perhitungan pada input yang sesuai
                 $('#dt9').val(subTotal.toFixed(4));
                 $('#dt11').val(ppn11.toFixed(4));
                 $('#dt12').val(pph.toFixed(4));
                 $('#dt14').val(totalOrder.toFixed(4));
+                $('#dt13').val(total_pbbkb_baru.toFixed(4));
             }
 
             // Membuat event listener untuk input yang dihitung

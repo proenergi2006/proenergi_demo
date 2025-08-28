@@ -82,31 +82,108 @@ $pesn .= "<p>" . BASE_SERVER . "</p>";
 
 if ($oke) {
 
-    if ($ems1) {
-        $rms1 = $con->getResult($ems1);
-        $mail = new PHPMailer;
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->Port = 465;
-        $mail->SMTPSecure = 'ssl';
-        $mail->SMTPAuth = true;
-        $mail->SMTPKeepAlive = true;
-        $mail->Username = USR_EMAIL_PROENERGI202389;
-        $mail->Password = PWD_EMAIL_PROENERGI202389;
+    // if ($ems1) {
+    //     $rms1 = $con->getResult($ems1);
+    //     $mail = new PHPMailer;
+    //     $mail->isSMTP();
+    //     $mail->Host = 'smtp.gmail.com';
+    //     $mail->Port = 465;
+    //     $mail->SMTPSecure = 'ssl';
+    //     $mail->SMTPAuth = true;
+    //     $mail->SMTPKeepAlive = true;
+    //     $mail->Username = USR_EMAIL_PROENERGI202389;
+    //     $mail->Password = PWD_EMAIL_PROENERGI202389;
 
-        $mail->setFrom(USR_EMAIL_PROENERGI202389, 'Pro-Energi');
-        foreach ($rms1 as $datms) {
-            $mail->addAddress($datms['email_user']);
+    //     $mail->setFrom(USR_EMAIL_PROENERGI202389, 'Pro-Energi');
+    //     foreach ($rms1 as $datms) {
+    //         $mail->addAddress($datms['email_user']);
+    //     }
+    //     $mail->Subject = $sbjk;
+    //     $mail->msgHTML($pesn);
+    //     $mail->send();
+    // }
+
+    //Approve CEO untuk Accurate agar membuka PO yang ditutup sebelum di verifikasi CEO
+    if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 21) {
+        if ($revert == 2) {
+            $queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master ='" . $idr . "'";
+            $rowgetid = $con->getRecord($queryget);
+
+            $id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+            $queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+            $rowget_cabang = $con->getRecord($queryget_cabang);
+            if ($rowgetid['id_accurate'] != null) {
+
+                $data_id = http_build_query([
+                    'id' => $rowgetid['id_accurate'],
+                ]);
+
+                $url_getpo = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $data_id;
+
+                $result_detail = curl_get($url_getpo);
+
+                if ($result_detail['s'] == true) {
+                    $urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+                    // Data yang akan dikirim dalam format JSON
+                    $data = array(
+                        'id'                => $rowgetid['id_accurate'],
+                        'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+                        'toAddress'         => $result_detail['d']['toAddress'],
+                        'manualClosed'      => false,
+                        // 'detailItem'       	=> [],
+                    );
+
+                    // // Menggunakan foreach untuk mengisi detailItem
+                    foreach ($result_detail['d']['detailItem'] as $item) {
+                        $data['detailItem'][] = [
+                            'id'           => $item['id'],
+                            'itemNo'       => $item['item']['no'],
+                            'quantity'     => $item['quantity'],
+                            'unitPrice'    => $item['unitPrice'],
+                            'manualClosed' => false
+                        ];
+                    }
+
+                    // Mengonversi data menjadi format JSON
+                    $jsonData = json_encode($data);
+                    $result = curl_post($urlnya, $jsonData);
+
+
+                    if ($result['s'] == true) {
+                        $con->commit();
+                        $con->close();
+                        header("location: " . BASE_URL_CLIENT . "/verifikasi-po.php");
+                        exit();
+                    } else {
+                        $con->rollBack();
+                        $con->clearError();
+                        $con->close();
+                        $flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
+                    }
+                } else {
+                    $con->rollBack();
+                    $con->clearError();
+                    $con->close();
+                    $flash->add("error", $$result_detail["d"][0] . " - Response dari Accurate", BASE_REFERER);
+                }
+            } else {
+                $con->rollBack();
+                $con->clearError();
+                $con->close();
+                $flash->add("error", "Id accurate tidak ditemukan", BASE_REFERER);
+            }
         }
-        $mail->Subject = $sbjk;
-        $mail->msgHTML($pesn);
-        $mail->send();
+    } else {
+        $con->commit();
+        $con->close();
+        header("location: " . BASE_URL_CLIENT . "/verifikasi-po.php");
+        exit();
     }
-
-    $con->commit();
-    $con->close();
-    header("location: " . BASE_URL_CLIENT . "/verifikasi-po.php");
-    exit();
+    // $con->commit();
+    // $con->close();
+    // header("location: " . BASE_URL_CLIENT . "/verifikasi-po.php");
+    // exit();
 } else {
     $con->rollBack();
     $con->clearError();
