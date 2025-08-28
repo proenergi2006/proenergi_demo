@@ -37,9 +37,15 @@ $sql = "
 		FROM pro_po_customer
 		GROUP BY id_penawaran
 	) j ON a.id_penawaran = j.id_penawaran 
-		where 1=1 and a.id_customer = '" . $idr . "' 
-		order by a.created_time desc
-	";
+		where 1=1 and a.id_customer = '" . $idr . "'";
+
+if (!empty($idk)) {
+	$sql .= " ORDER BY (a.id_penawaran = '" . $idk . "') DESC, a.created_time DESC";
+} else {
+	$sql .= " ORDER BY a.created_time DESC";
+}
+
+$sql .= " LIMIT 10";
 $rsms = $con->getResult($sql);
 
 $sqlOtherCost = "select keterangan, nominal 
@@ -69,12 +75,6 @@ $rsmOtherCost = $con->getResult($sqlOtherCost);
 						<li role="presentation" class="active">
 							<a href="#form-approval" aria-controls="form-approval" role="tab" data-toggle="tab">Form Approval</a>
 						</li>
-						<li role="presentation" class="">
-							<a href="#data-approval" aria-controls="data-approval" role="tab" data-toggle="tab">Data Penawaran</a>
-						</li>
-						<li role="presentation" class="">
-							<a href="#history-data-approval" aria-controls="history-data-approval" role="tab" data-toggle="tab">History Approval Penawaran</a>
-						</li>
 					</ul>
 					<div class="tab-content">
 						<div role="tabpanel" class="tab-pane active" id="form-approval">
@@ -89,13 +89,13 @@ $rsmOtherCost = $con->getResult($sqlOtherCost);
 							</div>
 						</div>
 
-						<div role="tabpanel" class="tab-pane" id="data-approval">
+						<!-- <div role="tabpanel" class="tab-pane" id="data-approval">
 							<?php require_once($public_base_directory . "/web/penawaran-history-data.php"); ?>
 						</div>
 
 						<div role="tabpanel" class="tab-pane" id="history-data-approval">
 							<?php require_once($public_base_directory . "/web/penawaran-history-approval.php"); ?>
-						</div>
+						</div> -->
 
 					</div>
 

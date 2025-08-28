@@ -19,6 +19,40 @@ $termPayment = $arr_payment[$jns_payment];
 	.inp-table {
 		min-width: 150px;
 	}
+
+	.ar-balance-wrapper {
+		width: 100%;
+		display: flex;
+		justify-content: left;
+	}
+
+	.ar-balance-table {
+		width: 50%;
+		min-width: 320px;
+		border-collapse: collapse;
+		margin-bottom: 15px;
+		font-family: Arial, sans-serif;
+		border: 1px solid #ccc;
+	}
+
+	.ar-balance-table th,
+	.ar-balance-table td {
+		border: 1px solid #ddd;
+		padding: 10px;
+	}
+
+	.ar-balance-table th {
+		background-color: #f9f9f9;
+		text-align: left;
+		font-weight: normal;
+		color: #333;
+	}
+
+	.ar-balance-table td {
+		text-align: right;
+		font-weight: bold;
+		color: #000;
+	}
 </style>
 
 <div class="table-responsive">
@@ -57,95 +91,71 @@ $termPayment = $arr_payment[$jns_payment];
 	</table>
 </div>
 
-
-
-
-
-<div class="table-responsive" style="width: 100%; margin-bottom: 15px; overflow-x: auto; overflow-y: hidden;">
-	<table class="table table-bordered" id="table-grid2">
-		<thead>
-			<tr>
-				<th class="text-center" colspan="6">Balance AR</th>
-			</tr>
-			<tr>
-				<th class="text-center" width="190">Not Yet</th>
-				<th class="text-center" width="190">Overdue 1-7 Days</th>
-				<th class="text-center" width="190">Overdue 8-30 Days</th>
-				<th class="text-center" width="190">Overdue 31-60 Days</th>
-				<th class="text-center" width="190">Overdue 61-90 Days</th>
-				<th class="text-center" width="190">Overdue > 90 Days</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td class="text-center">
-					<div class="form-group from-group-sm" style="margin-bottom:0px;">
-						<div class="input-group input-group-sm">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="not_yet" class="form-control input-po inp-table text-right hitung rimender" value="<?php echo $row['not_yet'] ?? $row12['not_yet']; ?>" <?php echo $disabled; ?> />
-						</div>
-					</div>
-				</td>
-				<td class="text-center">
-					<div class="form-group from-group-sm" style="margin-bottom:0px;">
-						<div class="input-group input-group-sm">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="ov_up_07" class="form-control input-po inp-table text-right hitung" value="<?php echo $row['ov_up_07'] ?? $row12['ov_up_07']; ?>" <?php echo $disabled; ?> />
-						</div>
-					</div>
-				</td>
-
-				<td class="text-center">
-
-					<div class="form-group from-group-sm" style="margin-bottom:0px;">
-						<div class="input-group input-group-sm">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="ov_under_30" class="form-control input-po inp-table text-right hitung rimender" value="<?php echo $row['ov_under_30'] ?? $row12['ov_under_30']; ?>" <?php echo $disabled; ?> />
-						</div>
-					</div>
-				</td>
-				<td class="text-center">
-					<div class="form-group from-group-sm" style="margin-bottom:0px;">
-						<div class="input-group input-group-sm">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="ov_under_60" class="form-control input-po inp-table text-right hitung rimender" value="<?php echo $row['ov_under_60'] ?? $row12['ov_under_60']; ?>" <?php echo $disabled; ?> />
-						</div>
-					</div>
-				</td>
-				<td class="text-center">
-
-
-					<div class="form-group from-group-sm" style="margin-bottom:0px;">
-						<div class="input-group input-group-sm">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="ov_under_90" class="form-control input-po inp-table text-right hitung rimender" value="<?php echo $row['ov_under_90'] ?? $row12['ov_under_90']; ?>" <?php echo $disabled; ?> />
-						</div>
-					</div>
-				</td>
-				<td class="text-center">
-
-					<div class="form-group from-group-sm">
-						<div class="input-group input-group-sm" style="margin-bottom:0px;">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="ov_up_90" class="form-control input-po inp-table text-right hitung rimender" value="<?php echo $row['ov_up_90'] ?? $row12['ov_up_90']; ?>" <?php echo $disabled; ?> />
-						</div>
-					</div>
-				</td>
-			</tr>
-
-			<tr>
-				<td class="text-right" colspan="5" style="vertical-align:middle;"><b>Remaining</b></td>
-				<td class="text-center">
-					<div class="form-group from-group-sm">
-						<div class="input-group input-group-sm">
-							<span class="input-group-addon">Rp.</span>
-							<input type="text" name="reminding" class="form-control input-po text-right hitung" value="<?php echo $row['reminding'] ?? $row12['reminding']; ?>" readonly />
-						</div>
-					</div>
-				</td>
-			</tr>
-
-		</tbody>
+<div class="ar-balance-wrapper">
+	<table class="ar-balance-table">
+		<tr>
+			<th>Credit Limit</th>
+			<td>
+				Rp <?php echo number_format($row['credit_limit'], 0, ',', '.'); ?>
+				<input type="hidden" name="credit_limit" readonly value="<?= $row12['credit_limit']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>Invoice not issued yet</th>
+			<td>
+				Rp <?php echo number_format($row['po_not_yet'], 0, ',', '.'); ?>
+				<input type="hidden" name="po_not_yet" readonly value="<?= $row12['po_not_yet']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>AR Not yet</th>
+			<td>
+				Rp <?php echo number_format($row12['not_yet'], 0, ',', '.'); ?>
+				<input type="hidden" name="not_yet" readonly value="<?= $row12['not_yet']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>AR Overdue 1–7 days</th>
+			<td>
+				Rp <?php echo number_format($row12['ov_up_07'], 0, ',', '.'); ?>
+				<input type="hidden" name="ov_up_07" readonly value="<?= $row12['ov_up_07']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>AR Overdue 8–30 days</th>
+			<td>
+				Rp <?php echo number_format($row12['ov_under_30'], 0, ',', '.'); ?>
+				<input type="hidden" name="ov_under_30" readonly value="<?= $row12['ov_under_30']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>AR Overdue 31–60 days</th>
+			<td>
+				Rp <?php echo number_format($row12['ov_under_60'], 0, ',', '.'); ?>
+				<input type="hidden" name="ov_under_60" readonly value="<?= $row12['ov_under_60']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>AR Overdue 61–90 days</th>
+			<td>
+				Rp <?php echo number_format($row12['ov_under_90'], 0, ',', '.'); ?>
+				<input type="hidden" name="ov_under_90" readonly value="<?= $row12['ov_under_90']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>AR Overdue > 90 days</th>
+			<td>
+				Rp <?php echo number_format($row12['ov_up_90'], 0, ',', '.'); ?>
+				<input type="hidden" name="ov_up_90" readonly value="<?= $row12['ov_up_90']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>Credit Limit Remaining</th>
+			<td>
+				Rp <?php echo number_format($row12['reminding'], 0, ',', '.'); ?>
+				<input type="hidden" name="reminding" readonly value="<?= $row12['reminding']; ?>">
+			</td>
+		</tr>
 	</table>
 </div>
 
@@ -302,7 +312,7 @@ $termPayment = $arr_payment[$jns_payment];
 
 	<hr style="margin:10px 0px 20px; border-top:4px double #ddd;">
 
-	<div class="row">
+	<!-- <div class="row">
 		<div class="col-md-6">
 			<div class="form-group form-group-sm">
 				<label class="control-label col-md-4">Schedule Payment</label>
@@ -318,9 +328,9 @@ $termPayment = $arr_payment[$jns_payment];
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> -->
 
-	<div class="_proposed <?php echo ($row['proposed_status'] == '1') ? '' : 'hidden'; ?>">
+	<!-- <div class="_proposed <?php echo ($row['proposed_status'] == '1') ? '' : 'hidden'; ?>">
 		<div class="row">
 			<div class="col-md-6">
 				<div class="form-group form-group-sm">
@@ -400,11 +410,11 @@ $termPayment = $arr_payment[$jns_payment];
 		<?php } ?>
 
 
-	</div>
+	</div> -->
 
 </div>
 
-<hr style="margin:10px 0px 20px; border-top:4px double #ddd;">
+<!-- <hr style="margin:10px 0px 20px; border-top:4px double #ddd;"> -->
 
 <div class="form-horizontal">
 	<?php

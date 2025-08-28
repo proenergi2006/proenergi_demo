@@ -92,6 +92,7 @@ if ($tot_record == 0) {
 		$arrPosisi	= array(1 => "SPV", "BM", "BM", "OM", "COO", "CEO");
 		$arrSetuju	= array(1 => "Disetujui", "Ditolak");
 
+		$hide = "";
 		if ($data['flag_approval'] == 0 && $data['flag_disposisi'] == 0) {
 			$status = "Terdaftar";
 		} else if ($data['flag_approval'] == 0 && $data['flag_disposisi']) {
@@ -101,6 +102,7 @@ if ($tot_record == 0) {
 				$status = "Verifikasi " . $arrPosisi[$data['flag_disposisi']];
 			}
 		} else if ($data['flag_approval']) {
+			$hide = "hide";
 			if ($data['flag_disposisi'] > 1 && $data['flag_disposisi'] < 4) {
 				$status = $arrSetuju[$data['flag_approval']] . " " . $arrPosisi[$data['flag_disposisi']] . " " . $data['nama_cabang'];
 				$status .= "<br /><i>" . ($data['tgl_approval'] ? date("d/m/Y H:i:s", strtotime($data['tgl_approval'])) . " WIB" : "") . "</i>";
@@ -135,7 +137,7 @@ if ($tot_record == 0) {
 				<td class="text-center" style="color: ' . ($data['penawaran_status'] == 'YA' ? 'green' : 'red') . ';">' . $data['penawaran_status'] . '</td>
 				<td class="text-center action">
 					<a class="margin-sm btn btn-action btn-info" title="Detail" href="' . $linkDetail . '"><i class="fa fa-table"></i></a>
-					<a class="margin-sm btn btn-action btn-danger " title="Delete" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>
+					<a class="margin-sm btn btn-action btn-danger ' . $hide . '"" title="Delete" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>
 					' . $linkExt01 . '
 				</td>
 			</tr>';

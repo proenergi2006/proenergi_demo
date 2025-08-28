@@ -108,7 +108,11 @@ if ($rsm['poc_approved'] == 1)
 else if ($rsm['poc_approved'] == 2) {
 	$disposisi = 'Ditolak ' . $arrPosisi[$rsm['disposisi']];
 } else if ($rsm['disposisi_poc'] == 0)
-	$disposisi = 'Terdaftar';
+	if ($rsm['is_draft'] == 1) {
+		$disposisi = 'Draft';
+	} else {
+		$disposisi = 'Terdaftar';
+	}
 else if ($rsm['disposisi_poc'] == 1)
 	$disposisi = 'Verifikasi ' . $arrPosisi[$rsm['disposisi']];
 else $disposisi = '';
@@ -348,6 +352,23 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 													<td><?php echo $rsm['sm_summary']; ?></td>
 												</tr>
 											<?php } ?>
+											<tr>
+												<td>
+													STATUS
+												</td>
+												<td>:</td>
+												<td>
+													<?php if (intval($cek_po) == 0) : ?>
+														<?php if ($rsm['is_draft'] == 1) : ?>
+															<b>OPEN (Draft)</b>
+														<?php else : ?>
+															<b>OPEN</b>
+														<?php endif ?>
+													<?php else : ?>
+														<b>CLOSED</b>
+													<?php endif ?>
+												</td>
+											</tr>
 										</table>
 									</div>
 

@@ -54,6 +54,8 @@ $sql1 = "
 		if(a.jenis_payment = 'CREDIT', a.top_payment, a.jenis_payment) as top_customer,
 		a.top_payment,
 		a.credit_limit,
+		a.credit_limit_used,
+		a.credit_limit_reserved,
 		c.not_yet as not_yet,
 		c.ov_up_07 as ov_up_07, 
 		c.ov_under_30 as ov_under_30,
@@ -80,10 +82,12 @@ $sql2 = "
 $row2 = $conSub->getResult($sql2);
 
 if ($row1 != null) {
-	$reminding = ($row1[0]['credit_limit'] ? $row1[0]['credit_limit'] - ($row1[0]['not_yet'] + $row1[0]['ov_up_07'] + $row1[0]['ov_under_30'] + $row1[0]['ov_under_60'] + $row1[0]['ov_under_90'] + $row1[0]['ov_up_90']) : 0);
+	$reminding = ($row1[0]['credit_limit'] ? $row1[0]['credit_limit'] - $row1[0]['credit_limit_reserved'] - ($row1[0]['not_yet'] + $row1[0]['ov_up_07'] + $row1[0]['ov_under_30'] + $row1[0]['ov_under_60'] + $row1[0]['ov_under_90'] + $row1[0]['ov_up_90']) : 0);
 
 	$answer['top_payment'] 	= $row1[0]['top_payment'];
 	$answer['credit_limit'] = 'Rp ' . ($row1[0]['credit_limit'] ? number_format($row1[0]['credit_limit']) : 0);
+	$answer['credit_limit_used'] = 'Rp ' . ($row1[0]['credit_limit_used'] ? number_format($row1[0]['credit_limit_used']) : 0);
+	$answer['credit_limit_reserved'] = 'Rp ' . ($row1[0]['credit_limit_reserved'] ? number_format($row1[0]['credit_limit_reserved']) : 0);
 	$answer['not_yet'] 		= 'Rp ' . ($row1[0]['not_yet'] ? number_format($row1[0]['not_yet']) : 0);
 	$answer['ov_up_07'] 	= 'Rp ' . ($row1[0]['ov_up_07'] ? number_format($row1[0]['ov_up_07']) : 0);
 	$answer['ov_under_30'] 	= 'Rp ' . ($row1[0]['ov_under_30'] ? number_format($row1[0]['ov_under_30']) : 0);

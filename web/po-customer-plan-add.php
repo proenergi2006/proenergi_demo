@@ -24,6 +24,32 @@ $cek = "select a.id_poc, lpad(a.id_poc,4,'0') as kode_po, a.nomor_poc, a.tanggal
 $row = $con->getRecord($cek);
 $asf = $row['volume_poc'] - $row['vol_plan'];
 $masa_akhir = $row['masa_akhir'];
+
+$sqlGetWil = "SELECT * FROM pro_master_cabang WHERE id_master='" . $row['id_cabang'] . "'";
+$rowWil = $con->getRecord($sqlGetWil);
+
+
+$year                 = date("y");
+$month                 = date("m");
+$arrRomawi             = array("1" => "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII");
+$monthnow_romawi     = $arrRomawi[intval($month)];
+$query_no_so = "SELECT * FROM pro_po_customer_plan WHERE no_so LIKE '%" . "/" . $rowWil['inisial_cabang'] . "/" . $year . "/" . $monthnow_romawi . "/" . "%' ORDER BY no_so DESC ";
+$row2 = $con->getRecord($query_no_so);
+
+if ($row2) {
+    $no_so = $row2['no_so'];
+    $explode = explode("/", $no_so);
+    $year_so = $explode[3];
+    $month_so = $explode[4];
+
+    $urut_so = $explode[5] + 1;
+    $no_so = sprintf("%03s", $urut_so);
+    $noms_so = 'SO/' . 'PE/' . $rowWil['inisial_cabang'] . '/' . $year_so . '/' . $arrRomawi[intval($month)] . '/' . $no_so;
+} else {
+    $urut_so    = 1;
+    $no_so    = sprintf("%03s", $urut_so);
+    $noms_so    = 'SO/' . 'PE/' . $rowWil['inisial_cabang'] . '/' . $year . '/' . $arrRomawi[intval($month)] . '/' . $no_so;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -133,7 +159,13 @@ $masa_akhir = $row['masa_akhir'];
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="col-sm-8">
+                                        <label class="control-label col-md-2">No Sales Order</label>
+                                        <div class="col-md-4">
+                                            <input type="text" id="no_so" name="no_so" class="form-control" value="<?php echo (isset($row['no_so'])) ?  $row['no_so'] : $noms_so; ?>" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-sm-6">
                                             <label>Catatan</label>
                                             <input type="text" id="catatan" name="catatan" class="form-control" autocomplete="off" />
                                         </div>
@@ -232,12 +264,39 @@ $masa_akhir = $row['masa_akhir'];
                     });
                 } else {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: 'Form berhasil disimpan.',
-                    }).then(function() {
-                        // Submit form setelah user klik OK di SweetAlert
-                        $("#gform").submit();
+                        title: "Anda yakin?",
+                        showCancelButton: true,
+                        confirmButtonText: "Ya",
+                        cancelButtonText: "Tidak",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            if (tanggalKirim != "" && alamat_kirim != "" && vol_kir != "") {
+                                $("#loading_modal").modal({
+                                    backdrop: 'static'
+                                });
+                                // Validasi apakah tanggal kirim lebih besar dari masa akhir (periode penawaran)
+                                if (tanggalKirimDate > masaAkhir) {
+                                    // Jika tanggal kirim melebihi masa akhir, tampilkan SweetAlert dan cegah submit
+                                    event.preventDefault(); // Mencegah form submit
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Tidak bisa disimpan',
+                                        text: 'Tanggal kirim melebihi periode penawaran!',
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil',
+                                        text: 'Form berhasil disimpan.',
+                                    }).then(function() {
+                                        // Submit form setelah user klik OK di SweetAlert
+                                        $("#gform").submit();
+                                    });
+                                }
+                            } else {
+                                $("#gform").submit();
+                            }
+                        }
                     });
                 }
             });

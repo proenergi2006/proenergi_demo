@@ -16,11 +16,22 @@ $idk	= htmlspecialchars($_POST["idk"], ENT_QUOTES);
 
 $alamat_kirim	= htmlspecialchars($_POST["alamat_kirim"], ENT_QUOTES);
 $tanggal_kirim	= htmlspecialchars($_POST["tanggal_kirim"], ENT_QUOTES);
+
+$harga_poc 		= str_replace(",", "", htmlspecialchars($_POST["harga_poc"], ENT_QUOTES));
+$customer 		= htmlspecialchars($_POST["customer"], ENT_QUOTES);
+$no_so 		= htmlspecialchars($_POST["no_so"], ENT_QUOTES);
+$kode_item 	= htmlspecialchars($_POST["kode_item"], ENT_QUOTES);
+
 $volume_kirim	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["vol_kir"]), ENT_QUOTES);
 $is_urgent		= isset($_POST["is_urgent"]) ? htmlspecialchars($_POST["is_urgent"], ENT_QUOTES) : 0;
 $status			= htmlspecialchars($_POST["catatan"], ENT_QUOTES);
 $tanggal_buat	= date("Y/m/d H:i:s");
 $sesname 		= paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]);
+
+$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+$rowget_cabang = $con->getRecord($queryget_cabang);
 
 if ($act == "delete") {
 	$idr = isset($enk["idr"]) ? htmlspecialchars($enk["idr"], ENT_QUOTES) : '';
@@ -65,14 +76,15 @@ if ($act == "delete") {
 		$con->close();
 		$flash->add("error", "Tanggal pengiriman tidak benar....", BASE_REFERER);
 	} else {
-		// if($cekHari == 0)
-		// 	$status .= "<br /><i>Urgent</i>";
-		// else if($cekHari == 1 && date("Hi", strtotime($tanggal_buat)) > '1300')
-		// 	$status .= "<br /><i>Lewat Jam 13:00 WIB</i>";
-		// else $status = $status;
+		if ($cekHari == 0)
+			$status .= "<br /><i>Urgent</i>";
+		else if ($cekHari == 1 && date("Hi", strtotime($tanggal_buat)) > '1300')
+			$status .= "<br /><i>Lewat Jam 13:00 WIB</i>";
+		else $status = $status;
 
-		$sql = "insert into pro_po_customer_plan(id_poc, id_lcr, tanggal_kirim, volume_kirim, is_urgent, status_jadwal, created_time, created_ip, created_by) values ('" . $idk . "', '" . $alamat_kirim . "', '" . tgl_db($tanggal_kirim) . "', '" . $volume_kirim . "', '" . $is_urgent . "', '" . $status . "', '" . $tanggal_buat . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . $sesname . "')";
-		$con->setQuery($sql);
+		$sql = "insert into pro_po_customer_plan(id_poc, id_lcr, no_so, tanggal_kirim, volume_kirim, is_urgent, status_jadwal, created_time, created_ip, created_by) values 
+				('" . $idk . "', '" . $alamat_kirim . "', '" . $no_so . "', '" . tgl_db($tanggal_kirim) . "', '" . $volume_kirim . "', '" . $is_urgent . "', '" . $status . "', '" . $tanggal_buat . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . $sesname . "')";
+		$id_plan = $con->setQuery($sql);
 		$oke = $oke && !$con->hasError();
 
 		$qvolume = "select volume_poc from pro_po_customer where id_poc = " . $idk;
