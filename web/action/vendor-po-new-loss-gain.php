@@ -109,8 +109,257 @@ if ($act == 'update') {
             $oke  = $oke && !$con->hasError();
 
             if ($oke) {
-                $con->commit();
-                $con->close();
+                //Save ke Accurate
+                $queryget = "SELECT c.nama_terminal,c.alamat_terminal,a.*,b.id_accurate AS id_vendor_accurate, b.kode_vendor, c.lokasi_terminal
+							FROM new_pro_inventory_vendor_po a
+							JOIN pro_master_vendor b ON a.id_vendor = b.id_master
+							JOIN pro_master_terminal c ON a.id_terminal = c. id_master
+							WHERE a.id_master =  '" . $idr . "'";
+				$rowget = $con->getRecord($queryget);
+
+				$querygetReceive = "SELECT volume_bol, id_accurate, no_terima, tgl_terima FROM new_pro_inventory_vendor_po_receive WHERE id_po_supplier = '" . $idr . "'";
+				$rowReceive = $con->getRecord($querygetReceive);
+
+				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $dt6 . "'";
+
+				$detail_alamat = strtoupper($rowget['nama_terminal']) . " - " . $rowget['lokasi_terminal'];
+
+				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+				$rowget_cabang = $con->getRecord($queryget_cabang);
+
+				$newkode =  explode("/", $rowget['nomor_po']);
+
+				// Tambahkan titik ke bagian pertama
+				$newkode[0] .= ".";
+
+				// Gabungkan lagi dengan "/"
+				$new_nopo = implode("/", $newkode);
+
+				$jenis_det = '';
+				if ($jenis == 1) {
+					$jenis_det = 'gain';
+				} else {
+					$jenis_det = 'loss';
+				}
+				$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+                	if ($rowget['id_accurate'] != null) {
+					// Data yang akan dikirim dalam format JSON
+					$data = array(
+						'id'         		=> $rowget['id_accurate'],
+						'vendorNo'         	=> $rowget['kode_vendor'],
+						'number'           	=> $rowget['nomor_po'],
+						'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+						'description'       => $ket,
+						'toAddress'     	=> $detail_alamat,
+						'manualClosed' 		=> true,
+						'closeReason' 		=> 'Close PO - ' . $jenis_det
+					);
+
+					// Mengonversi data menjadi format JSON
+					$jsonData = json_encode($data);
+
+					$result = curl_post($urlnya, $jsonData);
+					// $result = true;
+
+					if ($result['d'] == true) {
+
+						$query_delete = array(
+							'id' => $rowReceive['id_accurate'],
+						);
+
+						$urlnya_delete = 'https://zeus.accurate.id/accurate/api/receive-item/delete.do?' . $query_delete;
+
+						$result_delete = curl_delete($urlnya_delete, json_encode($query_delete));
+
+						$result_delete = true;
+
+						if ($result_delete == false) {
+							$con->rollBack();
+							$con->clearError();
+							$con->close();
+							$flash->add("error", $result_delete["d"][0] . " - Response dari Accurate", BASE_REFERER);
+						} else {
+							$query = http_build_query([
+								'id' => $rowget['id_accurate'],
+							]);
+							$urlnya_detail = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query;
+
+							$result_detail = curl_get($urlnya_detail);
+
+							if ($result_detail['s'] == true) {
+
+								$data_save = array(
+									'transDate'        	=> date("d/m/Y"),
+									'vendorNo'         	=> $rowget['kode_vendor'],
+									'number'           	=> $new_nopo,
+									'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+									'paymentTermName'  	=> $rowget['terms'] . ' ' . $rowget['terms_day'],
+									'charField1'    	=> $rowget['id_terminal'],
+									'charField2'    	=> $rowget['kategori_plat'],
+									'charField3'    	=> $rowget['kd_tax'],
+									'description'       => $ket,
+									"toAddress" 		=> $detail_alamat,
+									'detailItem'       	=> [],
+									'detailExpense'     => []
+								);
+
+								// Menggunakan foreach untuk mengisi detailItem
+								foreach ($result_detail['d']['detailItem'] as $item) {
+									$unitPriceLossGain = $item["item"]["itemType"] === 'INVENTORY' ? $dt16 : $item['unitPrice'];
+									$quantity = $item["item"]["itemType"] === 'INVENTORY' ? $rowReceive['volume_bol'] : $item['quantity'];
+
+
+									if (isset($item["item"]["itemType"]) && $item["item"]["itemType"] === 'INVENTORY') {
+										$data_save['detailItem'][] = [
+											'itemNo'       => $item['item']['no'],
+											'quantity'     => $quantity,
+											'unitPrice'    => $unitPriceLossGain,
+											'useTax1'    => $item['useTax1'],
+											'warehouseName' => $item['warehouse']['name']
+										];
+									}
+									if (isset($item["item"]["itemType"]) && $item["item"]["itemType"] === 'INVENTORY') {
+										$data_save['detailItem'][] = [
+											'itemNo'    => $item['item']['no'],
+											'quantity'  => $volume_loss_gain,
+											'unitPrice' => $dt16,
+											'useTax1'   => $item['useTax1'],
+											'warehouseName' => $item['warehouse']['name']
+										];
+									}else if (isset($item["item"]["itemType"]) && $item["item"]["itemType"] !== 'INVENTORY'){
+										$data_save['detailItem'][] = [
+											'itemNo'    => $item['item']['no'],
+											'quantity'  => $volume_loss_gain,
+											'unitPrice' => $dt16,
+											'useTax1'   => $item['useTax1'],
+										];
+									}
+								}
+							
+								// Menggunakan foreach untuk mengisi detailExpense
+								foreach ($result_detail['d']['detailExpense'] as $expense) {
+									if ($expense["expenseName"] === 'PBBKB') {
+										$data_save['detailExpense'][] = [
+											'accountNo' => $expense['account']['no'],
+											'expenseAmount'  => $pbbkb,
+											// 'expenseName' => $expense['expenseName'],
+											'allocateToItemCost' => $expense['allocateToItemCost']
+										];
+									} else if (strpos($expense["expenseName"], '22') !== false) {
+										$data_save['detailExpense'][] = [
+											'accountNo' => $expense['account']['no'],
+											'expenseAmount'  => $pph_22,
+											// 'expenseName' => $expense['expenseName'],
+											'allocateToItemCost' => $expense['allocateToItemCost']
+										];
+									} else {
+										$data_save['detailExpense'][] = [
+											'accountNo' => $expense['account']['no'],
+											'expenseAmount'  => $expense['expenseAmount'],
+											// 'expenseName' => $expense['expenseName'],
+											'allocateToItemCost' => $expense['allocateToItemCost']
+										];
+									}
+								}
+
+								// Mengonversi data_save menjadi format JSON
+								$jsonData_save = json_encode($data_save);
+
+								$result_save = curl_post($urlnya, $jsonData_save);
+
+								if ($result_save['s'] == true) {
+									$update = "UPDATE new_pro_inventory_vendor_po set id_accurate = '" . $result_save['r']['id'] . "' WHERE id_master = '" . $idr . "'";
+									$con->setQuery($update);
+
+									$urlnya_receive = 'https://zeus.accurate.id/accurate/api/receive-item/save.do';
+
+									$data_receive = array(
+										"receiveNumber" => $rowReceive['no_terima'],
+										"number" => $rowReceive['no_terima'],
+										"transDate" => date("d/m/Y", strtotime($rowReceive['tgl_terima'])),
+										"vendorNo" => $result_save['r']['vendor']['vendorNo'],
+										"description" => "Terima barang dari PO " . $result_save['r']['number'],
+										"toAddress" => $detail_alamat,
+										'branchName'  => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+										'detailItem' => []
+									);
+
+									foreach ($result_save['r']['detailItem'] as $item) {
+										if ($item["item"]["itemType"] === 'INVENTORY') {
+											$data_receive['detailItem'][] = [
+												'itemNo'    => $item['item']['no'],
+												'quantity'  => $item['quantity'],
+												'useTax1'   => $item['useTax1'],
+												'purchaseOrderNumber' => $result_save['r']['number']
+											];
+										}
+									}
+
+									$jsonData_receive = json_encode($data_receive);
+
+									$result_receive = curl_post($urlnya_receive, $jsonData_receive);
+
+									if ($result_receive['s'] == true) {
+										$update_receive = "UPDATE new_pro_inventory_vendor_po_receive set id_accurate = '" . $result_receive['r']['id'] . "' WHERE id_po_supplier = '" . $idr . "'";
+										$con->setQuery($update_receive);
+
+										$urlnya_closePO = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+
+										$data_tutup_po = array(
+											'id'         		=> $result_save['r']['id'],
+											'vendorNo'         	=> $result_save['r']['vendor']['vendorNo'],
+											'number'           	=> $result_save['r']['number'],
+											'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+											'toAddress'     	=> $detail_alamat,
+											'manualClosed' 		=> true,
+											'closeReason' 		=> 'Menunggu Approve'
+										);
+
+										// Mengonversi data menjadi format JSON
+										$jsonData_tutupPO = json_encode($data_tutup_po);
+
+										$result_tutupPO = curl_post($urlnya_closePO, $jsonData_tutupPO);
+
+										if ($result_tutupPO['s'] == true) {
+											$con->commit();
+											$con->close();
+											header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+											exit();
+										} else {
+											$con->rollBack();
+											$con->clearError();
+											$con->close();
+											$flash->add("error", $result_tutupPO["d"][0] . " - Response dari Accurate 1", BASE_REFERER);
+										}
+									} else {
+										$con->rollBack();
+										$con->clearError();
+										$con->close();
+										$flash->add("error", $result_receive["d"][0] . " - Response dari Accurate 2", BASE_REFERER);
+									}
+								} else {
+									$con->rollBack();
+									$con->clearError();
+									$con->close();
+									$flash->add("error", $result_save["d"][0] . " - Response dari Accurate 3", BASE_REFERER);
+								}
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_detail["d"][0] . " - Response dari Accurate 4", BASE_REFERER);
+							}
+						}
+					} else {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", $result["d"][0] . " - Response dari Accurate 5", BASE_REFERER);
+					}
+				}
+                // $con->commit();
+                // $con->close();
 
 
                 if ($isUpload) {
@@ -120,8 +369,8 @@ if ($act == 'update') {
                     $mantab  = move_uploaded_file($tempPhoto1, $tujuan);
                 }
 
-                header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
-                exit();
+                // header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+                // exit();
             } else {
                 $con->rollBack();
                 $con->clearError();

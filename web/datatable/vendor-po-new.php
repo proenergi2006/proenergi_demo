@@ -94,6 +94,9 @@ if ($tot_record <= 0) {
 
         else $status = '';
 
+        if ($data['is_resubmission'] == 1) {
+            $resubmit = '<div class="badge badge-warning">Pengajuan Ulang ke- ' . $data['resubmission_count'] . '</div>';
+        }
 
         $linkEdit    = BASE_URL_CLIENT . '/vendor-po-new-add.php?' . paramEncrypt('idr=' . $data['id_master']);
         $linkCancel    = BASE_URL_CLIENT . '/vendor-po-cancel.php?' . paramEncrypt('idr=' . $data['id_master']);
@@ -168,7 +171,11 @@ if ($tot_record <= 0) {
 
             // Hanya menambahkan tombol edit jika CEO result tidak sama dengan 1
             if ($data['ceo_result'] != 1) {
-                $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-pencil-alt"></i></a>';
+                // menambahkan kondisi apabila gain loss
+                if ($data['vol_terima'] == 0) {
+                    $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-pencil-alt"></i></a>';
+                }
+                // $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-pencil-alt"></i></a>';
             }
             if ($data['ceo_result'] == 1 && $data['revert_ceo'] == 1) {
                 $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-pencil-alt"></i></a>';
@@ -182,7 +189,8 @@ if ($tot_record <= 0) {
 
             // Hanya menambahkan tombol terima jika is_close dan is_cancel tidak aktif
             if ($data['is_close'] != 1 && $data['is_cancel'] != 1 && $data['ceo_result'] == 1 && $data['revert_ceo'] == 0) {
-                if ($data['vol_terima'] == 0) {
+                //kondisi tambahan apabila Edit setelah verifikasi CEO maks 3
+                if ($data['vol_terima'] == 0  && $data['resubmission_count'] < 3) {
                     $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-pencil-alt"></i></a>';
                     $content .= $linkTerima;
                 } else {

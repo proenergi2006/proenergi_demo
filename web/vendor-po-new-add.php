@@ -20,7 +20,19 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
 			join pro_master_produk b on a.id_produk = b.id_master 
 			join pro_master_vendor d on a.id_vendor = d.id_master 
 			join pro_master_terminal e on a.id_terminal = e.id_master 
-			left join new_pro_inventory_vendor_po_receive a1 on a.id_master = a1.id_po_supplier 
+			left join new_pro_inventory_vendor_po_receive a1 on a.id_master = a1.id_po_supplier
+            LEFT JOIN (
+                SELECT *
+                FROM new_pro_inventory_vendor_po_history h
+                WHERE (h.id_master, h.id_po_supplier) IN (
+                    SELECT 
+                        MAX(h2.id_master) AS max_id, h2.id_po_supplier
+                    FROM 
+                        new_pro_inventory_vendor_po_history h2
+                    GROUP BY 
+                        h2.id_po_supplier
+                )
+            ) f ON a.id_master = f.id_po_supplier
 			where a.id_master = '" . $idr . "'
 		";
     $rsm     = $con->getRecord($sql);
@@ -50,9 +62,88 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $dt12    = ($rsm['pph_22']) ? $rsm['pph_22'] : '';
     $dt13    = ($rsm['pbbkb']) ? $rsm['pbbkb'] : '';
     $dt14    = ($rsm['total_order']) ? $rsm['total_order'] : '';
+    $dpp11_12    = ($rsm['dpp_11_12']) ? $rsm['dpp_11_12'] : '';
+    $ppn12    = ($rsm['ppn_12']) ? $rsm['ppn_12'] : '';
     $iuran_migas = ($rsm['iuran_migas']) ? $rsm['iuran_migas'] : '';
     $nominal_iuran = ($rsm['nominal_migas']) ? $rsm['nominal_migas'] : '';
     $kategori_plat = ($rsm['kategori_plat']) ? $rsm['kategori_plat'] : '';
+    $is_biaya = ($rsm['is_biaya']) ? $rsm['is_biaya'] : '';
+
+    $kode_item = '';
+    $kode_oa = '';
+    $biaya_pbbkb = '';
+    $biaya_22 = '';
+    $biaya_migas = '';
+    $biaya_vat = '';
+    $biaya_oa = '';
+    $amount_vat='';
+
+    if ($rsm['id_accurate'] != null) {
+        //get detail PO
+        $query = http_build_query([
+            'id' => $rsm['id_accurate'],
+        ]);
+
+        $urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query;
+
+        $result_detail = curl_get($urlnya);
+
+        foreach ($result_detail['d']['detailItem'] as $item) {
+            if ($item["item"]["itemType"] === 'INVENTORY') {
+                $kode_item = $item["item"]["no"];
+            } else {
+                $kode_oa = $item["item"]["no"];
+            }
+        }
+
+        $biaya = [
+            'pbbkb' => null,
+            '22' => null,
+            'vat' => null,
+            'iuran' => null,
+            'oa' => null
+        ];
+
+        foreach ($result_detail['d']['detailExpense'] as $expense) {
+            $name = $expense["expenseName"];
+            $notes = $expense["expenseNotes"];
+            $amount = $expense["expenseAmount"];
+            $allocate = $expense["allocateToItemCost"];
+
+            if ($name === 'PBBKB' && $notes == 'null') {
+                $biaya['pbbkb'] = [
+                    'name' => $name,
+                    'notes' => $notes,
+                    'allocate' => $allocate
+                ];
+            } elseif (strpos($name, '22') !== false) {
+                $biaya['22'] = [
+                    'name' => $name,
+                    'notes' => $notes,
+                    'allocate' => $allocate
+                ];
+            } elseif (strpos($name, 'VAT') !== false) {
+                $biaya['vat'] = [
+                    'name' => $name,
+                    'notes' => $notes,
+                    'amount' => $amount,
+                    'allocate' => $allocate
+                ];
+            } elseif (stripos($notes, 'iuran') !== false || stripos($name, 'iuran') !== false) {
+                $biaya['iuran'] = [
+                    'name' => $name,
+                    'notes' => $notes,
+                    'allocate' => $allocate
+                ];
+            } elseif (stripos($name, 'cost') !== false) {
+                $biaya['oa'] = [
+                    'name' => $name,
+                    'notes' => $notes,
+                    'allocate' => $allocate
+                ];
+            }
+        }
+    }
 } else {
     $idr = null;
     $action     = "add";
@@ -62,8 +153,111 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $dt8         = "";
     $ket        = "";
     $dt10         = "";
+
+    $produk_acc = "SELECT * FROM pro_master_produk_accurate";
+    $res_produk_acc = $con->getResult($produk_acc);
 }
+
+// GET KODE ITEM ACCURATE
+$query_item = http_build_query([
+    'fields' => 'id,no,name',
+    'filter.itemType.val' => [
+        'INVENTORY',
+        'NON_INVENTORY',
+        'SERVICE'
+    ],
+]);
+
+$urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
+
+$result = curl_get($urlnya);
+
+if ($result['s'] == true) {
+    $data_item_get = http_build_query([
+        'fields' => 'id,no,name',
+        'sp.pageSize' => $result['sp']['rowCount'],
+    ]);
+
+    // Get the total number of pages
+    $pageCountItem = $result['sp']['pageCount'];
+
+    // Initialize the array to hold the accounts' details
+    $item_details = [];
+
+    // Loop through each page to fetch account details
+    for ($i = 1; $i <= $pageCountItem; $i++) {
+        // Update pagination for the current page
+        $data_item_get_paginated = $data_item_get . '&sp.page=' . $i;
+
+        // Make the request for the current page
+        $url_item = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $data_item_get_paginated;
+        $result_item = curl_get($url_item);
+
+        // If the request was successful, process the data
+        if ($result_item['s'] == true) {
+            foreach ($result_item['d'] as $key) {
+                $item_details[] = [
+                    'id' => $key['id'],
+                    'kode_barang' => $key['no'],
+                    'name' => $key['name']
+                ];
+            }
+        }
+    }
+} else {
+    $item_details = [];
+}
+
+//GET KODE AKUN ACCURATE
+$url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
+
+// Fetch initial data to get page count
+$result_getrow = curl_get($url_getrow);
+
+if ($result_getrow['sp'] == true) {
+    // Prepare data for pagination
+    $data_akun_get = http_build_query([
+        'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent,name',
+        'sp.pageSize' => $result_getrow['sp']['rowCount'],
+    ]);
+
+    // Get the total number of pages
+    $pageCount = $result_getrow['sp']['pageCount'];
+
+    // Initialize the array to hold the accounts' details
+    $akun_details = [];
+
+    // Loop through each page to fetch account details
+    for ($i = 1; $i <= $pageCount; $i++) {
+        // Update pagination for the current page
+        $data_akun_get_paginated = $data_akun_get . '&sp.page=' . $i;
+
+        // Make the request for the current page
+        $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get_paginated;
+        $result_akun = curl_get($url_akun);
+
+        // If the request was successful, process the data
+        if ($result_akun['s'] == true) {
+            foreach ($result_akun['d'] as $key) {
+                $akun_details[] = [
+                    'id' => $key['id'],
+                    'no' => $key['no'],
+                    'name' => $key['name'],
+                    'accountTypeName' => $key['accountTypeName'],
+                    'nameWithIndent' => $key['nameWithIndent'],
+                    'noWithIndent' => $key['noWithIndent']
+                ];
+            }
+        }
+    }
+
+    // Optionally, output or return the accumulated account details
+    // echo json_encode($akun_details);
+}
+
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <?php load_headHtml(BASE_PATH_CSS, BASE_PATH_JS, array("js" => array("formatNumber", "jqueryUI", "ckeditor"), "css" => array("jqueryUI"))); ?>
@@ -126,6 +320,27 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                                 <option></option>
                                                 <?php $con->fill_select("id_master", "concat(jenis_produk,' - ',merk_dagang)", "pro_master_produk", $rsm['id_produk'], "where is_active=1", "no_urut", false); ?>
                                             </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Parameter untuk Accurate -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-3">Kode Item Accurate *</label>
+                                        <div class="col-md-5">
+                                            <select name="kode_item" id="kode_item" class="form-control select2" style="width:100%;" required>>
+                                                <option value=""></option>
+                                                <?php foreach ($item_details as $key) :
+                                                ?>
+                                                    <option value="<?= $key['kode_barang'] ?>" <?= $kode_item == $key['kode_barang'] ? 'selected' : '' ?>><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" id="keterangan_item1" name="keterangan_item1" class="form-control" placeholder="Keterangan" />
                                         </div>
                                     </div>
                                 </div>
@@ -246,6 +461,42 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                 </div>
                             </div>
 
+                            <!-- Parameter untuk Accurate -->
+                            <div class="row <?php echo $kategori_oa == 2 ? "" : "hide" ?>" id="row_jenis_oa">
+                                <hr>
+                                <div class="col-md-8">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-3">Jenis OA *</label>
+                                        <div class="col-md-5">
+                                            <select name="jenis_oa" id="jenis_oa" class="form-control select2" style="width:100%;" value="<?php echo $is_biaya; ?>" required>
+                                                <option value=""></option>
+                                                <option <?php echo $is_biaya == 1 ? "selected" : "" ?> value="1">Sebagai Biaya</option>
+                                                <option <?php echo $is_biaya == 0 ? "selected" : "" ?> value="0">Sebagai Kode Item</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row <?php echo ($kategori_oa == 2)  ? "" : "hide" ?>" id="row_kode_item">
+                                <div class="col-md-8">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-3">Kode OA Accurate *</label>
+                                        <div class="col-md-5">
+                                            <select name="kode_item2" id="kode_item2" class="form-control select2" style="width:100%;">
+                                                <option value=""></option>
+                                                <?php foreach ($item_details as $key) : ?>
+                                                    <option value="<?= $key['kode_barang'] ?>" <?= $kode_oa == $key['kode_barang'] ? 'selected' : '' ?>><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" id="keterangan_item2" name="keterangan_item2" class="form-control" placeholder="Keterangan" value="" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Parameter -->
+
                             <div class="row <?php echo $kategori_oa == 2 ? "" : "hide" ?>" id="row_oa">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
@@ -275,6 +526,82 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                 </div>
                             </div>
 
+                              <!-- Parameter untuk Accurate -->
+                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya ==1) ? "" : "hide" ?>" id="row_biaya_oa">
+                                <div class="col-md-12">
+                                    <!-- Label utama di atas -->
+                                    <label class="control-label">Akun OA Accurate *</label>
+
+                                    <div class="form-group form-group-sm row" style="align-items:center; margin-top:5px;">
+
+                                        <!-- Select -->
+                                        <div class="col-md-3">
+                                            <select name="biaya_oa" id="biaya_oa" class="form-control select2" style="width:100%;">
+                                                <option value=""></option>
+                                                <?php foreach ($akun_details as $key) : ?>
+                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['oa']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                        <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
+                                                    </option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </div>
+
+                                        <!-- Input keterangan -->
+                                        <div class="col-md-3">
+                                            <input type="text" id="keterangan_biaya1" name="keterangan_biaya1" class="form-control" placeholder="Keterangan" value="<?php echo $biaya['oa']['notes'] ?>"/>
+                                        </div>
+
+                                        <!-- Checkbox -->
+                                        <div class="col-md-3" style="display:flex; align-items:center;">
+                                            <input type="checkbox" id="alokasi_barang1" name="alokasi_barang1" value="1" <?=  $biaya['oa']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
+                                            Alokasikan ke Barang
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <!-- Label utama di atas -->
+                                    <label class="control-label">Akun biaya lain *</label>
+
+                                    <div class="form-group form-group-sm row" style="align-items:center; margin-top:5px;">
+
+                                        <!-- Select -->
+                                        <div class="col-md-3">
+                                            <select name="biaya_lain" id="biaya_lain" class="form-control select2" style="width:100%;">
+                                                <option value=""></option>
+                                                <?php foreach ($akun_details as $key) : ?>
+                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['vat']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                        <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
+                                                    </option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </div>
+
+                                        <!-- Input jumlah -->
+                                        <div class="col-md-3">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Rp.</span>
+                                                <input type="text" id="jumlah_biaya" name="jumlah_biaya" class="form-control text-right hitung1"  value="<?php echo $biaya['vat']['amount'] ?>" />
+                                            </div>
+                                        </div>
+
+                                        <!-- Input keterangan -->
+                                        <div class="col-md-3">
+                                            <input type="text" id="keterangan_biaya2" name="keterangan_biaya2" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['vat']['notes'] ?>" />
+                                        </div>
+
+                                        <!-- Checkbox -->
+                                        <div class="col-md-3" style="display:flex; align-items:center;">
+                                            <input type="checkbox" id="alokasi_barang2" name="alokasi_barang2" value="1" <?=  $biaya['vat']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
+                                            Alokasikan ke Barang
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <!-- end parameter -->
+
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
@@ -288,7 +615,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" id="row-dt11">
+                            <div class="row hide" id="row-dt11">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">PPN 11% *</label>
@@ -302,6 +629,59 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                 </div>
                             </div>
 
+                            <!-- untuk PPN 12% DPP 11/12 -->
+                             <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-3">DPP 11/12 *</label>
+                                        <div class="col-md-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" style="font-size:12px;">Rp.</span>
+                                                <input type="text" id="dpp11_12" name="dpp11_12" class="form-control hitung" required value="<?php echo $dpp11_12; ?>" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" id="row-dt11">
+                                <div class="col-md-8">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-3">PPN 12% *</label>
+                                        <div class="col-md-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" style="font-size:12px;">Rp.</span>
+                                                <input type="text" id="ppn12" name="ppn12" class="form-control hitung" required value="<?php echo $ppn12; ?>" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Parameter untuk Accurate -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-2">Akun PPH22 Accurate *</label>
+                                        <div class="col-md-3">
+                                            <select name="kode_item3" id="kode_item3" class="form-control select2" style="width:100%;" <?php echo ($rsm && $rsm['kd_tax'] == 'E' ? 'disabled' : ''); ?> >
+                                                <option value=""></option>
+                                                <?php foreach ($akun_details as $key) : ?>
+                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['22']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                        <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
+                                                    </option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" id="keterangan_biaya3" name="keterangan_biaya3" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['22']['notes'] ?>" />
+                                        </div>
+                                        <div class="col-md-3" style="display:flex; align-items:center;">
+                                            <input type="checkbox" id="alokasi_barang3" name="alokasi_barang3" value="1" <?=  $biaya['22']['allocate'] ? 'checked' : '' ?>  style="margin-right:6px;">
+                                            Alokasikan ke Barang
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row" id="row-dt12">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
@@ -326,6 +706,32 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                                 <option></option>
                                                 <?php $con->fill_select("nilai_pbbkb", "concat(nilai_pbbkb, ' %')", "pro_master_pbbkb", $rsm['nilai_pbbkb'], "", "", false); ?>
                                             </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Parameter untuk Accurate -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-2">Akun PBBKB Accurate *</label>
+                                        <div class="col-md-3">
+                                            <select name="kode_biaya1" id="kode_biaya1" class="form-control select2" style="width:100%;" required>
+                                                <option value=""></option>
+                                                <?php foreach ($akun_details as $key) : ?>
+                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['pbbkb']['name'] == $key['name'] && $biaya['pbbkb']['name'] == "null" ? 'selected' : '' ?>>
+                                                        <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
+                                                    </option>
+                                                <?php endforeach ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" id="keterangan_biaya4" name="keterangan_biaya4" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['pbbkb']['keterangan'] ?>" />
+                                        </div>
+                                        <div class="col-md-3" style="display:flex; align-items:center;">
+                                            <input type="checkbox" id="alokasi_barang4" name="alokasi_barang4" value="1" <?=  $biaya['pbbkb']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
+                                            Alokasikan ke Barang
                                         </div>
                                     </div>
                                 </div>
@@ -361,6 +767,37 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     </div>
                                 </div>
                             </div>
+                            <!-- Parameter untuk Accurate -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-2">Akun Migas Accurate *</label>
+                                        <div class="col-md-3">
+                                            <select name="kode_biaya2" id="kode_biaya2" class="form-control select2" style="width:100%;">
+                                                <option value=""></option>
+                                                <?php foreach ($akun_details as $key) : ?>
+                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['iuran']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                        <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
+                                                    </option>
+                                                <?php endforeach ?>
+                                            </select>
+                                            <!-- <select name="kode_item4" id="kode_item4" class="form-control select2" style="width:100%;" disabled>
+                                                <option value=""></option>
+                                                <?php foreach ($item_details as $key) : ?>
+                                                    <option value="<?= $key['kode_barang'] ?>"><?= $key['name'] ?></option>
+                                                <?php endforeach ?>
+                                            </select> -->
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" id="keterangan_biaya5" name="keterangan_biaya5" class="form-control" placeholder="Keterangan" value="<?php echo $biaya['iuran']['notes'] ?>" />
+                                        </div>
+                                        <div class="col-md-3" style="display:flex; align-items:center;">
+                                            <input type="checkbox" id="alokasi_barang5" name="alokasi_barang5" value="1" <?= $biaya['iuran']['allocate'] ? 'checked' : '' ?>style="margin-right:6px;">
+                                            Alokasikan ke Barang
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="row">
                                 <div class="col-md-8">
@@ -387,6 +824,28 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Catatan apabila Pengajuan Ulang setelah verifikasi CEO -->
+                            <?php if ($rsm['ceo_result'] == 1 && $rsm['revert_ceo'] == 0) { ?>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Catatan Pengajuan Ulang PO *</label>
+                                            <div class="col-md-8">
+                                                <textarea id="ket_resubmission" name="ket_resubmission" class="form-control" required></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-sm">
+                                            <label><u>Keterangan Pengajuan Ulang Terakhir:</u></label>
+                                            <p><?php echo $rsm['keterangan_resubmission']; ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php } ?>
 
                             <hr style="border-top:4px double #ddd; margin:5px 0 20px;" />
                             <?php if ($rsm['revert_cfo'] == 1) { ?>
@@ -486,6 +945,17 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
 
     <script>
         $(document).ready(function() {
+
+            //Kondisi untuk Kode Accurate Iuran Migas
+            var checkbox = $('#iuran_migas'); // Mengakses checkbox dengan ID
+            if (checkbox.prop('checked')) { // Menggunakan .prop() untuk memeriksa status
+                $('#kode_biaya2').removeAttr("disabled", true);
+                $('#kode_biaya2').attr("required", true);
+            } else {
+                $('#kode_biaya2').attr("disabled", true);
+                $('#kode_biaya2').removeAttr("required", true);
+            }
+
             function customRound(num) {
                 // Check if the number is negative
                 if (num < 0) {
@@ -512,8 +982,12 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 var ongkos_angkut = parseFloat($('#ongkos_angkut').val()) || 0;
 
                 var kat_oa = $('#kategori_oa').val();
+
+                //Iuran Migas langsung menghitung
+                var iuran_migas = (((hargaDasar * 0.25) / 100) * volumePO);
+
                 // var iuran_migas = (customRound((hargaDasar * 0.25) / 100) * volumePO);
-                var iuran_migas = parseFloat($('#nominal_iuran').val()) || 0;
+                // var iuran_migas = parseFloat($('#nominal_iuran').val()) || 0;
 
                 if (kat_oa == 1) {
                     var subTotal = (volumePO * hargaDasar) + iuran_migas;
@@ -722,8 +1196,11 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 var pbbkb = parseFloat($('#dt13').val()) || 0;
                 var ongkos_angkut = parseFloat($('#ongkos_angkut').val()) || 0;
                 var iuran_migas = parseFloat($('#nominal_iuran').val()) || 0;
+                //biaya Accurate
+                var jumlah_biaya = parseFloat($('#jumlah_biaya').val()) || 0;
 
                 var kat_oa = $('#kategori_oa').val();
+                var jenis_oa = $('#jenis_oa').val();
 
                 if (kat_oa == 1) {
                     var subTotal = volumePO * hargaDasar + iuran_migas;
@@ -732,6 +1209,9 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         pph = (subTotal * 0.3) / 100;
                     }
                     var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                    //Hitung PPN 12% DPP 11/12
+                    var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                    var ppn12 = (12 * dpp11_12) / 100;
                 } else {
                     var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
                     var pph = 0;
@@ -740,8 +1220,14 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                     }
                     if (plat == "Hitam" || plat == "") {
                         var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
+                        //Hitung PPN 12% DPP 11/12
+                        var dpp11_12 = (volumePO * (hargaDasar + ongkos_angkut) * 11) / 12;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     } else {
                         var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
+                        //Hitung PPN 12% DPP 11/12
+                        var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                        var ppn12 = (dpp11_12 * 12) / 100;
                     }
                 }
 
@@ -756,7 +1242,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 // Hitung Sub Total
                 // var ppn11 = Math.round((11 * subTotal) / 100);
 
-                var totalOrder = (subTotal + ppn11 + pph + hasil);
+                var totalOrder = (subTotal + ppn11 + pph + hasil + jumlah_biaya);
 
                 // // Tampilkan hasil di input Sub Total
                 $('#dt9').val(subTotal.toFixed(4)); // Menampilkan dengan 2 angka desimal
@@ -764,6 +1250,10 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 $('#dt12').val(pph.toFixed(0)); // Menampilkan dengan 2 angka desimal
                 $('#dt13').val(hasil.toFixed(0));
                 $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
+
+                //Hitung untuk PPN DPP 11/12
+                $('#dpp11_12').val(dpp11_12.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
                 // $('#nominal_iuran').val(iuran_migas.toFixed(0));
                 // $('#iuran_migas').attr("checked", false);
                 // $('.icheckbox_square-blue').removeClass("checked");
@@ -844,20 +1334,36 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 if (kategori_oa == 1) {
                     var subTotal = volumePO * hargaDasar + iuran_migas;
                     var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                    //Hitung PPN 12% DPP 11/12
+                    var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                    var ppn12 = (12 * dpp11_12) / 100;
                 } else {
                     var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
                     if (plat == "Hitam" || plat == "") {
                         var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
+                        //Hitung PPN 12% DPP 11/12
+                        var dpp11_12 = ((volumePO * (hargaDasar + ongkos_angkut)) * 11) / 12;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     } else {
                         var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
+                        //Hitung PPN 12% DPP 11/12
+                        var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     }
                 }
 
                 var pph = 0;
                 if (kodeTax == 'EC') {
                     pph = ((volumePO * hargaDasar) * 0.3) / 100; // Pembulatan tanpa desimal
+                    //Kondisi untuk Kode Accurate 
+                    $("#kode_item3").removeAttr("disabled", true);
+                    $("#kode_item3").attr("required", true);
                 } else {
                     pph = 0;
+                    //Kondisi untuk Kode Accurate 
+                    $("#kode_item3").attr("disabled", true);
+                    $("#kode_item3").removeAttr("required", true);
+                    $("#kode_item3").select2("val", "");
                 }
 
                 var iuran_migas = 0;
@@ -890,6 +1396,33 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 else $("#terms_day").attr("readonly", "readonly");
             });
 
+            //Kondisi untuk Kode Accurate 
+            var pbbkb_edit = $("#pbbkb_tawar").val();
+            if (pbbkb_edit == 0 || pbbkb_edit == "") {
+                $("#kode_biaya1").attr('disabled', true);
+                $("#kode_biaya1").removeAttr('required', true);
+            } else {
+                $("#kode_biaya1").removeAttr('disabled', true);
+                $("#kode_biaya1").attr('required', true);
+            }
+
+            var kodeTax = $('#kd_tax').val();
+            if (kodeTax == 'EC') {
+                $("#kode_item3").removeAttr("disabled", true);
+                $("#kode_item3").attr("required", true);
+            } else {
+                $("#kode_item3").attr("disabled", true);
+                $("#kode_item3").removeAttr("required", true);
+                $("#kode_item3").select2("val", "");
+            }
+
+            var kategoriOA = $('#kategori_oa').val();
+            if (kategoriOA == 1) {
+                 $("#row_kode_item").addClass("hide");
+            } else {
+                  $("#row_kode_item").removeClass("hide");
+            }
+            // End kondisi
             $("#pbbkb_tawar").change(function() {
                 var plat = $('#kategori_plat').val();
                 var kategori_oa = $('#kategori_oa').val();
@@ -907,6 +1440,8 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         pph = (subTotal * 0.3) / 100; // Pembulatan tanpa desimal
                     }
                     var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                    var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                    var ppn12 = (12 * dpp11_12) / 100;
                 } else {
                     var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
                     var pph = 0;
@@ -915,9 +1450,25 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                     }
                     if (plat == "Hitam" || plat == "") {
                         var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
+                        //Hitung PPN 12% DPP 11/12
+                        var dpp11_12 = ((volumePO * (hargaDasar + ongkos_angkut)) * 11) / 12;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     } else {
                         var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
+                        //Hitung PPN 12% DPP 11/12
+                        var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     }
+                }
+
+                //Apabila PBBKB 0 kode biaya Accurate tidak muncul
+                if (pbbkb == 0) {
+                    $("#kode_biaya1").val("").trigger("change");
+                    $("#kode_biaya1").attr('disabled', true);
+                    $("#kode_biaya1").removeAttr('required', true);
+                } else {
+                    $("#kode_biaya1").removeAttr('disabled', true);
+                    $("#kode_biaya1").attr('required', true);
                 }
                 var iuran_migas = 0;
                 var total = volumePO * hargaDasar;
@@ -946,6 +1497,8 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
 
                     var subTotal = volumePO * hargaDasar + iuran_migas;
                     var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                    var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                    var ppn12 = (12 * dpp11_12) / 100;
                     var pph = 0;
                     if (kodeTax == 'EC') {
                         pph = (subTotal * 0.3) / 100; // Pembulatan tanpa desimal
@@ -963,6 +1516,17 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                     $("#kategori_plat").val(null).trigger("change");
                     $("#ongkos_angkut").removeAttr("required", true);
                     $("#kategori_plat").removeAttr("required", true);
+
+                    //Kode Accurate kondisi
+                    $("#row_jenis_oa").addClass("hide");
+                    $("#row_biaya_oa").addClass("hide");
+                    $("#row_kode_item").addClass("hide");
+                    $("#jenis_oa").val(null).trigger("change");
+                    $("#kode_item2").val(null).trigger("change");
+                    $("#biaya_lain").val(null).trigger("change");
+                    $("#biaya_oa").val(null).trigger("change");
+                    $("#jenis_oa").removeAttr("required", true);
+                    $("#kode_item2").removeAttr("required", true);
                     // $('#nominal_iuran').val(iuran_migas.toFixed(0));
                     // $('#iuran_migas').attr("checked", false);
                     // $('.icheckbox_square-blue').removeClass("checked");
@@ -998,11 +1562,109 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                     $("#ongkos_angkut").prop("required", true);
                     $("#kategori_plat").prop("required", true);
 
+                    $("#kode_item2").removeAttr("required", true);
+                    $("#row_jenis_oa").removeClass("hide");
+                    $("#row_kode_item").removeClass("hide");
+                    $("#kode_item2").prop("required", true);
+
                     // var iuran_migas = 0;
                     // $('#nominal_iuran').val(iuran_migas.toFixed(0));
                     // $('#iuran_migas').attr("checked", false);
                     // $('.icheckbox_square-blue').removeClass("checked");
                 }
+            })
+
+            //Untuk jenis OA
+            $("#jenis_oa").change(function() {
+                var val = $(this).val();
+                var plat = $('#kategori_plat').val();
+                var kodeTax = $('#kd_tax').val();
+                var pbbkb_tawar = $('#pbbkb_tawar').val();
+                var volumePO = parseFloat($('#dt10').val()) || 0;
+                var hargaDasar = parseFloat($('#dt8').val()) || 0;
+                var pbbkb = parseFloat($('#dt13').val()) || 0;
+                var ongkos_angkut = parseFloat($('#ongkos_angkut').val()) || 0;
+                var iuran_migas = parseFloat($('#nominal_iuran').val()) || 0;
+
+                if (val == 1) {
+                    var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
+                    var pph = 0;
+                    if (kodeTax == 'EC') {
+                        pph = ((volumePO * hargaDasar) * 0.3) / 100;
+                    }
+                    var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
+                    var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                    var ppn12 = (dpp11_12 * 12) / 100;
+
+                    $("#row_kode_item").addClass("hide");
+                    $("#row_biaya_oa").removeClass("hide");
+                    $("#biaya_oa").prop("required", true);
+                    $("#biaya_lain").prop("required", true);
+                    $("#jumlah_biaya").prop("required", true);
+
+                    $("#kode_item2").removeAttr("required", true);
+                    $("#kode_item2").val(null).trigger("change");
+                    $("#keterangan_item2").val(null).trigger("change");
+                } else if (val == 0) {
+                    var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
+                    var pph = 0;
+                    if (kodeTax == 'EC') {
+                        pph = ((volumePO * hargaDasar) * 0.3) / 100;
+                    }
+                    if (plat == "Hitam" || plat == "") {
+                        var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
+                        var dpp11_12 = (volumePO * (hargaDasar + ongkos_angkut) * 11) / 12;
+                        var ppn12 = (12 * dpp11_12) / 100;
+                    } else {
+                        var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
+                        var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                        var ppn12 = (dpp11_12 * 12) / 100;
+                    }
+
+                    $("#row_biaya_oa").addClass("hide");
+                    $("#row_kode_item").removeClass("hide");
+                    $("#kode_item2").prop("required", true);
+
+                    $("#biaya_lain").removeAttr("required", true);
+                    $("#biaya_lain").val(null).trigger("change");
+                    $("#biaya_oa").removeAttr("required", true);
+                    $("#biaya_oa").val(null).trigger("change");
+                    $("#jumlah_biaya").removeAttr("required", true);
+                    $("#jumlah_biaya").val(null).trigger("change");
+
+                    $("#keterangan_biaya1").val(null).trigger("change");
+                    $("#keterangan_biaya2").val(null).trigger("change");
+                    $("#jumlah_biaya").val(null).trigger("change");
+                }else{
+
+                    $("#row_kode_item").addClass("hide");
+                    $("#row_biaya_oa").addClass("hide");
+                    $("#biaya_oa").removeAttr("required", true);
+                    $("#biaya_lain").removeAttr("required", true);
+                    $("#jumlah_biaya").removeAttr("required", true);
+
+                    $("#kode_item2").removeAttr("required", true);
+                    $("#kode_item2").val(null).trigger("change");
+                    $("#keterangan_item2").val(null).trigger("change");
+                }
+
+                if (pbbkb_tawar != "") {
+                    var total = volumePO * hargaDasar;
+                    var hasil = (total * pbbkb_tawar) / 100;
+                } else {
+                    var hasil = pbbkb;
+                }
+                var iuran_migas = 0;
+
+                var totalOrder = (subTotal + ppn11 + pph + hasil);
+
+                $('#dt9').val(subTotal.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                $('#dt11').val(ppn11.toFixed(0)); // Menampilkan dengan 2 angka desimal
+                $('#dt12').val(pph.toFixed(0)); // Menampilkan dengan 2 angka desimal
+                $('#dt13').val(hasil.toFixed(0));
+                $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                $('#dpp11_12').val(dpp11_12.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
             })
 
         });

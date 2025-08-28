@@ -31,8 +31,28 @@ if (!$idnya02) {
 	$action 		= "add";
 	$tgl_terima 	= "";
 	$harga_tebus 	= $rsm['harga_tebus'];
-	$volume_terima 	= "";
+	$volume_terima 	= $rsm['volume_po'];
+	$volume_bol 	= $rsm['volume_po'];
 	$nama_pic 		= "";
+
+	//Buka apabila ingin penomoran otomatis
+	//get vendor
+	// $data = http_build_query([
+	// 	'fields' => 'id,receiveNumber,no',
+	// 	'sp.sort' => 'id|desc',
+	// 	'sp.pageSizefields' => 1,
+	// ]);
+
+	// $urlnya = 'https://zeus.accurate.id/accurate/api/receive-item/list.do?' . $data;
+
+	// $result = curl_get($urlnya);
+
+	// if ($result['s'] == true) {
+	// 	$no_terima = $result['d'][0]['receiveNumber'];
+	// } else {
+	// 	echo "get list receiveNumber accurate not found";
+	// }
+	$no_terima ='';
 } else {
 	$sql = "
 			select a.nomor_po, a.tanggal_inven, a.harga_tebus, a.volume_po, a.id_terminal, b.jenis_produk, b.merk_dagang, 
@@ -71,6 +91,21 @@ if (!$idnya02) {
 			</div>';
 	}
 }
+
+//GET DETAIL PO ACCURATE
+$query = http_build_query([
+	'id' => $rsm['id_accurate'],
+]);
+
+$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query;
+
+$result = curl_get($urlnya);
+
+$kode_item_accurate = $result['d']['detailItem'][0]['item']['no'];
+$unitPrice = $result['d']['detailItem'][0]['unitPrice'];
+
+$sql = "select * FROM pro_master_cabang WHERE id_master='" . $rsm['id_cabang'] . "'";
+$row = $con->getRecord($sql);
 
 ?>
 <!DOCTYPE html>
@@ -147,6 +182,18 @@ if (!$idnya02) {
 						</div>
 					</div>
 
+					<!-- Parameter yang dibutuhkan untuk Accurate -->
+					<div class="row">
+						<div class="col-md-8">
+							<div class="form-group form-group-sm">
+								<label class="control-label col-md-3">Nomor Terima *</label>
+								<div class="col-md-4">
+									<input type="text" name="no_terima" id="no_terima" class="form-control" value="<?php echo $no_terima; ?>" required />
+								</div>
+							</div>
+						</div>
+					</div>
+
 					<div class="row">
 						<div class="col-md-8">
 							<div class="form-group form-group-sm">
@@ -187,6 +234,18 @@ if (!$idnya02) {
 										<span class="input-group-addon">Liter</span>
 									</div>
 								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Parameter untuk ke Accurate -->
+					<div class="row">
+						<div class="col-md-8">
+							<div class="form-group form-group-sm">
+								<input type="hidden" name="gudang" value="<?= paramEncrypt($row['inisial_cabang']) ?>" readonly>
+								<input type="hidden" name="kode_item_accurate" value="<?= paramEncrypt($kode_item_accurate) ?>" readonly>
+								<input type="hidden" name="unit_price" value="<?= paramEncrypt($unitPrice) ?>" readonly>
+								<input type="hidden" name="nomor_po" value="<?= paramEncrypt($rsm['nomor_po']) ?>" readonly>
 							</div>
 						</div>
 					</div>
