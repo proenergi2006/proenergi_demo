@@ -54,6 +54,7 @@ function load_helper()
 			require_once($document_root . "/libraries/helper/paging.php");
 			require_once($document_root . "/libraries/helper/pagination.php");
 			require_once($document_root . "/libraries/helper/class.authenticate.php");
+			require_once($document_root . "/libraries/helper/curl.php");
 		}
 		if (in_array("htmlawed", $args)) {
 			require_once($document_root . "/libraries/helper/htmLawed.php");
