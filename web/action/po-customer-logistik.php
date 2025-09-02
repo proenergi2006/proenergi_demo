@@ -21,6 +21,7 @@ $con->clearError();
 
 $arrExtraData = array();
 if (isset($_POST["newdt4"])) {
+	$no = 1;
 	foreach ($_POST['newdt4'] as $idx1 => $val1) {
 		foreach ($_POST['newdt4'][$idx1] as $idx2 => $val2) {
 			$cek01 		= htmlspecialchars($_POST['newcek'][$idx1][$idx2], ENT_QUOTES);

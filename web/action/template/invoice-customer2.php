@@ -305,7 +305,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         </th>
         <th align="center" class="b2 b3">
             <b>
-                Disc %
+                Discount
             </b>
         </th>
         <th align="center" class="b2 b3">
@@ -615,9 +615,9 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                             <br>
                             <?= number_format($pbbkb, 2) ?>
                         <?php else : ?>
-                            <?= number_format($harga) ?>
+                            <?= (fmod($harga, 1) !== 0.0000) ? number_format($harga, 4, ".", ",") : number_format($harga) ?>
                             <br>
-                            <?= number_format($pbbkb) ?>
+                            <?= (fmod($pbbkb, 1) !== 0.0000) ? number_format($pbbkb, 4, ".", ",") : number_format($pbbkb)  ?>
                         <?php endif ?>
 
                     </td>
@@ -689,11 +689,11 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     <?php elseif ($res03['pembulatan'] == 0) : ?>
                         <?= number_format($harga, 2) ?>
                     <?php else : ?>
-                        <?= number_format($harga, 0) ?>
+                        <?= (fmod($harga, 1) !== 0.0000) ? number_format($harga, 4, ".", ",") : number_format($harga, 0) ?>
                     <?php endif ?>
                 </td>
                 <td valign="top" align="center">
-                    0
+                    <?= number_format($res03['total_disc']) ?>
                 </td>
                 <td valign="top" align="center">
                     -

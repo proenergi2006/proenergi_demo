@@ -36,6 +36,7 @@ $masa_awal_tier = htmlspecialchars($_POST["masa_awal"], ENT_QUOTES);
 $masa_akhir_tier = htmlspecialchars($_POST["masa_akhir"], ENT_QUOTES);
 $pbbkb		= htmlspecialchars($_POST["pbbkb_tawar"], ENT_QUOTES);
 $flagHitung	= htmlspecialchars($_POST["perhitungan"], ENT_QUOTES);
+$alat_ukur	= htmlspecialchars($_POST["alat_ukur"], ENT_QUOTES);
 $hargaDasar = htmlspecialchars(str_replace(array(","), array(""), $_POST["harga_dasar"]), ENT_QUOTES);
 $is_rinci 	= isset($_POST["is_rinci"]) ? htmlspecialchars($_POST["is_rinci"], ENT_QUOTES) : 0;
 if ($is_rinci == '') $is_rinci = 0;
@@ -163,12 +164,12 @@ if ($act == "add") {
 
 		$sql1 = "insert ignore into pro_penawaran(id_customer, nomor_surat, id_cabang, id_group, id_area, gelar, nama_up, jabatan_up, alamat_up, telp_up, fax_up, jenis_payment, jenis_net, 
 					jangka_waktu, masa_awal, masa_akhir, volume_tawar, perhitungan, harga_dasar, is_rinci, detail_rincian, detail_formula, produk_tawar, pbbkb_tawar, method_order, 
-					catatan, refund_tawar, ket_harga, harga_asli, oa_kirim, other_cost, tol_susut, lok_kirim, created_time, created_ip, created_by, term_condition, metode, 
+					catatan, refund_tawar, ket_harga, harga_asli, oa_kirim, other_cost, tol_susut, alat_ukur, lok_kirim, created_time, created_ip, created_by, term_condition, metode, 
 					kalkulasi_oa, pembulatan, gabung_oa, all_in, gabung_pbbkb, gabung_pbbkboa, harga_tier, tier) 
 					values ('" . $idr . "', '" . $noms . "', '" . $cabang . "', '" . $grcb . "', '" . $area . "', 
 					'" . $gelar . "', '" . $nama_up . "', '" . $jabatan_up . "', '" . $alamat_up . "', '" . $telp_up . "', '" . $fax_up . "', '" . $jns_waktu . "', '" . $jenis_net . "', '" . $top . "', '" . tgl_db($masa_awal) . "', 
 					'" . tgl_db($masa_akhir) . "', '" . $volume . "', '" . $flagHitung . "', '" . $hargaDasar . "', '" . $is_rinci . "', '" . json_encode($rincian) . "', '" . json_encode($formula) . "', 
-					'" . $produk . "', '" . $pbbkb . "', '" . $order . "', '" . $catatan . "', '" . $refund . "', '" . $ket_harga . "', '" . $harga_asli . "', '" . $oa_kirim . "', '" . $other_cost . "', '" . $tol_susut . "', 
+					'" . $produk . "', '" . $pbbkb . "', '" . $order . "', '" . $catatan . "', '" . $refund . "', '" . $ket_harga . "', '" . $harga_asli . "', '" . $oa_kirim . "', '" . $other_cost . "', '" . $tol_susut . "', '" . $alat_ukur . "',
 					'" . $lok_kirim . "', NOW(), '" . $user_ip . "', '" . $user_pic . "', '" . $term_condition . "', '" . $metode . "', '" . json_encode($kalkulasi_oa) . "', '" . $pembulatan . "', '" . $gabung_oa . "', '" . $all_in . "', '" . $gabung_pbbkb . "', '" . $gabung_pbbkboa . "', '" . $harga_tier . "', '" . $tier . "')";
 		// print_r($sql1);
 		// exit();
@@ -257,7 +258,7 @@ if ($act == "add") {
 					masa_akhir = '" . tgl_db($masa_akhir) . "', id_area = '" . $area . "', volume_tawar = '" . $volume . "', perhitungan = '" . $flagHitung . "', harga_dasar = '" . $hargaDasar . "', 
 					is_rinci = '" . $is_rinci . "', detail_rincian = '" . json_encode($rincian) . "', detail_formula = '" . json_encode($formula) . "', produk_tawar = '" . $produk . "', 
 					pbbkb_tawar = '" . $pbbkb . "', method_order = '" . $order . "', refund_tawar = '" . $refund . "', ket_harga = '" . $ket_harga . "', catatan = '" . $catatan . "', harga_asli = '" . $harga_asli . "', 
-					oa_kirim = '" . $oa_kirim . "', other_cost = '" . $other_cost . "', tol_susut = '" . $tol_susut . "', lok_kirim = '" . $lok_kirim . "',
+					oa_kirim = '" . $oa_kirim . "', other_cost = '" . $other_cost . "', tol_susut = '" . $tol_susut . "', alat_ukur = '" . $alat_ukur . "', lok_kirim = '" . $lok_kirim . "',
 					lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', lastupdate_by = '" . $user_pic . "', 
 					term_condition = '" . $term_condition . "', metode = '" . $metode . "', kalkulasi_oa = '" . json_encode($kalkulasi_oa) . "', pembulatan = '" . $pembulatan . "', gabung_oa = '" . $gabung_oa . "', all_in = '" . $all_in . "', gabung_pbbkb = '" . $gabung_pbbkb . "',  gabung_pbbkboa = '" . $gabung_pbbkboa . "', harga_tier = '" . $harga_tier . "',  tier = '" . $tier . "', is_edited=1
 					where id_penawaran = '" . $idk . "'";

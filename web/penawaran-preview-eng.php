@@ -383,7 +383,7 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == '11') {
                             <div class="div-table-cell" style="width:30px;">8.</div>
                             <div class="div-table-cell" style="width:190px;">Tolerance</div>
                             <div class="div-table-cell text-center" style="width:40px;">:</div>
-                            <div class="div-table-cell" style=""><?php echo $rsm['tol_susut']; ?> % from total delivery</div>
+                            <div class="div-table-cell" style=""><?php echo $rsm['tol_susut']; ?> % from total delivery <?= $rsm['alat_ukur'] != NULL ? "based on " . $rsm['alat_ukur'] . " "  : "" ?></div>
                         </div>
                     </div>
                 </div>

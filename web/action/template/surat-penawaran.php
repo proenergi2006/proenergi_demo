@@ -183,7 +183,13 @@
                             $total_pbbkb = $rincian[0]['biaya'] + $rincian[3]['biaya'];
                             $grand_total = $rincian[0]['biaya'] + $rincian[1]['biaya'] + $rincian[2]['biaya'] + $rincian[3]['biaya'];
                             unset($rincian[3]);
-                            $harga_dasar = ($pembulatan ? number_format($grand_total, 0, ',', '.') : number_format($grand_total, 2, ',', '.'));
+                            if ($pembulatan == 1) {
+                                $harga_dasar = number_format($grand_total, 0, ',', '.');
+                            } elseif ($pembulatan == 2) {
+                                $harga_dasar = number_format($grand_total, 4, ',', '.');
+                            } else {
+                                $harga_dasar = number_format($grand_total, 2, ',', '.');
+                            }
                             $textInclude = "(Harga sudah termasuk ";
                             $harga_gabung = 0;
                             echo '<div class="div-table">';
@@ -193,7 +199,13 @@
                                         $harga_gabung = $harga_gabung + ($temp['biaya'] ? $temp['biaya'] : 0);
                                     } else if ($rsm['gabung_oa'] && $idxT == 1) {
                                         $harga_gabung = $harga_gabung + ($temp['biaya'] ? $temp['biaya'] : 0);
-                                        $harga_gabung = ($pembulatan ? number_format($harga_gabung, 0, ',', '.') : number_format($harga_gabung, 2, ',', '.'));
+                                        if ($pembulatan == 1) {
+                                            $harga_gabung = number_format($harga_gabung, 0, ',', '.');
+                                        } elseif ($pembulatan == 2) {
+                                            $harga_gabung = number_format($harga_gabung, 4, ',', '.');
+                                        } else {
+                                            $harga_gabung = number_format($harga_gabung, 2, ',', '.');
+                                        }
 
                                         echo '
 									<div class="div-table-row">
@@ -207,9 +219,21 @@
                                         $biayanya = ($temp['biaya'] ? $temp['biaya'] : '');
                                         if ($biayanya) {
                                             if ($temp['rincian'] == 'Harga Dasar') {
-                                                $biayanya = ($pembulatan ? number_format($total_pbbkb, 0, ',', '.') : number_format($total_pbbkb, 2, ',', '.'));
+                                                if ($pembulatan == 1) {
+                                                    $biayanya = number_format($total_pbbkb, 0, ',', '.');
+                                                } elseif ($pembulatan == 2) {
+                                                    $biayanya = number_format($total_pbbkb, 4, ',', '.');
+                                                } else {
+                                                    $biayanya = number_format($total_pbbkb, 2, ',', '.');
+                                                }
                                             } else {
-                                                $biayanya = ($pembulatan ? number_format($biayanya, 0, ',', '.') : number_format($biayanya, 2, ',', '.'));
+                                                if ($pembulatan == 1) {
+                                                    $biayanya = number_format($biayanya, 0, ',', '.');
+                                                } elseif ($pembulatan == 2) {
+                                                    $biayanya = number_format($biayanya, 4, ',', '.');
+                                                } else {
+                                                    $biayanya = number_format($biayanya, 2, ',', '.');
+                                                }
                                             }
 
                                             echo '
@@ -236,7 +260,13 @@
                             $total_pbbkboa = $rincian[0]['biaya'] + $rincian[3]['biaya'] + $rincian[1]['biaya'];
                             $grand_total = $rincian[0]['biaya'] + $rincian[1]['biaya'] + $rincian[2]['biaya'] + $rincian[3]['biaya'];
                             unset($rincian[3], $rincian[1]);
-                            $harga_dasar = ($pembulatan ? number_format($grand_total, 0, ',', '.') : number_format($grand_total, 2, ',', '.'));
+                            if ($pembulatan == 1) {
+                                $harga_dasar = number_format($grand_total, 0, ',', '.');
+                            } elseif ($pembulatan == 2) {
+                                $harga_dasar = number_format($grand_total, 4, ',', '.');
+                            } else {
+                                $harga_dasar = number_format($grand_total, 2, ',', '.');
+                            }
                             $textInclude = "(Harga sudah termasuk ";
                             $harga_gabung = 0;
                             echo '<div class="div-table">';
@@ -246,7 +276,13 @@
                                         $harga_gabung = $harga_gabung + ($temp['biaya'] ? $temp['biaya'] : 0);
                                     } else if ($rsm['gabung_oa'] && $idxT == 1) {
                                         $harga_gabung = $harga_gabung + ($temp['biaya'] ? $temp['biaya'] : 0);
-                                        $harga_gabung = ($pembulatan ? number_format($harga_gabung, 0, ',', '.') : number_format($harga_gabung, 2, ',', '.'));
+                                        if ($pembulatan == 1) {
+                                            $harga_gabung = number_format($harga_gabung, 0, ',', '.');
+                                        } elseif ($pembulatan == 2) {
+                                            $harga_gabung = number_format($harga_gabung, 4, ',', '.');
+                                        } else {
+                                            $harga_gabung = number_format($harga_gabung, 2, ',', '.');
+                                        }
 
                                         echo '
 									<div class="div-table-row">
@@ -260,9 +296,21 @@
                                         $biayanya = ($temp['biaya'] ? $temp['biaya'] : '');
                                         if ($biayanya) {
                                             if ($temp['rincian'] == 'Harga Dasar') {
-                                                $biayanya = ($pembulatan ? number_format($total_pbbkboa, 0, ',', '.') : number_format($total_pbbkboa, 2, ',', '.'));
+                                                if ($pembulatan == 1) {
+                                                    $biayanya = number_format($total_pbbkboa, 0, ',', '.');
+                                                } elseif ($pembulatan == 2) {
+                                                    $biayanya = number_format($total_pbbkboa, 4, ',', '.');
+                                                } else {
+                                                    $biayanya = number_format($total_pbbkboa, 2, ',', '.');
+                                                }
                                             } else {
-                                                $biayanya = ($pembulatan ? number_format($biayanya, 0, ',', '.') : number_format($biayanya, 2, ',', '.'));
+                                                if ($pembulatan == 1) {
+                                                    $biayanya = number_format($biayanya, 0, ',', '.');
+                                                } elseif ($pembulatan == 2) {
+                                                    $biayanya = number_format($biayanya, 4, ',', '.');
+                                                } else {
+                                                    $biayanya = number_format($biayanya, 2, ',', '.');
+                                                }
                                             }
 
                                             echo '
@@ -287,7 +335,13 @@
                             echo '<p style="margin:3px 0px;">' . ($rsm['ket_harga'] ? $rsm['ket_harga'] : '') . '</p>';
                         } else {
                             $grand_total = $rincian[0]['biaya'] + $rincian[1]['biaya'] + $rincian[2]['biaya'] + $rincian[3]['biaya'];
-                            $harga_dasar = ($pembulatan ? number_format($grand_total, 0, ',', '.') : number_format($grand_total, 2, ',', '.'));
+                            if ($pembulatan == 1) {
+                                $harga_dasar = number_format($grand_total, 0, ',', '.');
+                            } elseif ($pembulatan == 2) {
+                                $harga_dasar = number_format($grand_total, 4, ',', '.');
+                            } else {
+                                $harga_dasar = number_format($grand_total, 2, ',', '.');
+                            }
                             // $harga_dasar = ($pembulatan ? number_format($rsm['harga_dasar'], 0, ',', '.') : number_format($rsm['harga_dasar'], 2, ',', '.'));
                             $textInclude = "(Harga sudah termasuk ";
                             $harga_gabung = 0;
@@ -298,7 +352,13 @@
                                         $harga_gabung = $harga_gabung + ($temp['biaya'] ? $temp['biaya'] : 0);
                                     } else if ($rsm['gabung_oa'] && $idxT == 1) {
                                         $harga_gabung = $harga_gabung + ($temp['biaya'] ? $temp['biaya'] : 0);
-                                        $harga_gabung = ($pembulatan ? number_format($harga_gabung, 0, ',', '.') : number_format($harga_gabung, 2, ',', '.'));
+                                        if ($pembulatan == 1) {
+                                            $harga_gabung = number_format($harga_gabung, 0, ',', '.');
+                                        } elseif ($pembulatan == 2) {
+                                            $harga_gabung = number_format($harga_gabung, 4, ',', '.');
+                                        } else {
+                                            $harga_gabung = number_format($harga_gabung, 2, ',', '.');
+                                        }
 
                                         echo '
                                         <div class="div-table-row">
@@ -311,7 +371,13 @@
                                         $textInclude .= ($idxT > 0) ? $temp['rincian'] . ', ' : '';
                                         $biayanya = ($temp['biaya'] ? $temp['biaya'] : '');
                                         if ($biayanya) {
-                                            $biayanya = ($pembulatan ? number_format($biayanya, 0, ',', '.') : number_format($biayanya, 2, ',', '.'));
+                                            if ($pembulatan == 1) {
+                                                $biayanya = number_format($biayanya, 0, ',', '.');
+                                            } elseif ($pembulatan == 2) {
+                                                $biayanya = number_format($biayanya, 4, ',', '.');
+                                            } else {
+                                                $biayanya = number_format($biayanya, 2, ',', '.');
+                                            }
 
                                             echo '
                                             <div class="div-table-row">
@@ -335,7 +401,13 @@
                             echo '<p style="margin:3px 0px;">' . ($rsm['ket_harga'] ? $rsm['ket_harga'] : '') . '</p>';
                         }
                     } else if ($rsm['perhitungan'] == 1 && $rsm['all_in'] == 1 &&  $breakdown) {
-                        $harga_dasar = ($pembulatan ? number_format($rsm['harga_dasar'], 0, ',', '.') : number_format($rsm['harga_dasar'], 2, ',', '.'));
+                        if ($pembulatan == 1) {
+                            $harga_dasar = number_format($rsm['harga_dasar'], 0, ',', '.');
+                        } elseif ($pembulatan == 2) {
+                            $harga_dasar = number_format($rsm['harga_dasar'], 4, ',', '.');
+                        } else {
+                            $harga_dasar = number_format($rsm['harga_dasar'], 2, ',', '.');
+                        }
                         echo '<div class="div-table">';
                         echo '
                     <div class="">
@@ -382,7 +454,7 @@
                 <div class="div-table-cell" style="width:30px;">8.</div>
                 <div class="div-table-cell" style="width:190px;">Toleransi</div>
                 <div class="div-table-cell text-center" style="width:40px;">:</div>
-                <div class="div-table-cell" style=""><?php echo $rsm['tol_susut']; ?> % dari total jumlah pengiriman</div>
+                <div class="div-table-cell" style=""><?php echo $rsm['tol_susut']; ?> % dari total jumlah pengiriman <?= $rsm['alat_ukur'] != NULL ? "berdasarkan " . $rsm['alat_ukur'] . " "  : "" ?></div>
             </div>
         </div>
     </div>

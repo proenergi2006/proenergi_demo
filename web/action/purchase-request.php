@@ -19,6 +19,11 @@ $revert = isset($_POST["revert"]) ? htmlspecialchars($_POST["revert"], ENT_QUOTE
 $dis_lo = isset($_POST["dis_lo"]) ? htmlspecialchars($_POST["dis_lo"], ENT_QUOTES) : null;
 $revisi_dr = htmlspecialchars($_POST["revisiDR"], ENT_QUOTES);
 $backlog = htmlspecialchars($_POST["backlog"], ENT_QUOTES);
+$id_accurate = htmlspecialchars($_POST["id_accurate"], ENT_QUOTES);
+$no_so = htmlspecialchars($_POST["no_so"], ENT_QUOTES);
+// $kode_customer = htmlspecialchars($_POST["kode_customer"], ENT_QUOTES);
+$alamat = htmlspecialchars(paramDecrypt($_POST["alamat"]), ENT_QUOTES);
+$tgl_kirim = htmlspecialchars($_POST["tgl_kirim"], ENT_QUOTES);
 
 
 $filePhoto 	= htmlspecialchars($_FILES['attachment_condition']['name'], ENT_QUOTES);
@@ -46,6 +51,7 @@ $pic	= paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']);
 $oke = true;
 $con->beginTransaction();
 $con->clearError();
+$item_po = [];
 
 if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 	$arrDepo = array();
@@ -396,8 +402,6 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$year = date("y");
 			}
 
-			// Mendapatkan nomor bulan romawi
-			$bulan_romawi = $arrRomawi[intval(date("m"))];
 			$query_no_do = "select * FROM pro_pr_detail WHERE cabang = '" . $inisial_cabang . "' AND (no_do_syop IS NOT NULL AND no_do_syop LIKE '%/" . $year . "/" . $bulan_romawi . "/%') ORDER BY no_do_syop DESC";
 			$row2 = $con->getRecord($query_no_do);
 
@@ -422,6 +426,8 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$urut_do = 0;
 			}
 
+			$kode_customer_array = [];
+
 			foreach ($_POST['dp3'] as $idx => $val) {
 				$chk 	= htmlspecialchars($_POST['cek'][$idx], ENT_QUOTES);
 				$dt1 	= htmlspecialchars($_POST['dv1'][$idx], ENT_QUOTES);
@@ -432,14 +438,32 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$ipr 	= htmlspecialchars($_POST['pr1'][$idx], ENT_QUOTES);
 				$nop 	= htmlspecialchars($_POST['np1'][$idx], ENT_QUOTES);
 				$dt13 	= htmlspecialchars($_POST['dp13'][$idx], ENT_QUOTES);
+				$hd 	= htmlspecialchars($_POST['Harga_Dasar'][$idx], ENT_QUOTES);
+				$oa 	= htmlspecialchars($_POST['Ongkos_Angkut'][$idx], ENT_QUOTES);
+				$pbbkb 	= htmlspecialchars($_POST['PBBKB'][$idx], ENT_QUOTES);
+				$jenis_penawaran = htmlspecialchars($_POST['jenis_penawaran'][$idx], ENT_QUOTES);
+				$kode_customer 	= htmlspecialchars($_POST['kode_customer'][$idx], ENT_QUOTES);
 				$dt10 	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dp10'][$idx]), ENT_QUOTES);
 				$volume = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['volume'][$idx]), ENT_QUOTES);
 				$top_plan 	= htmlspecialchars($_POST['top_plan'][$idx], ENT_QUOTES);
 				$credit_limit 	= htmlspecialchars($_POST['credit_limit'][$idx], ENT_QUOTES);
 				$idpro 	    = htmlspecialchars($_POST['id_pro'][$idx], ENT_QUOTES);
+				$idplans 	    = htmlspecialchars($_POST['id_plan'][$idx], ENT_QUOTES);
 
 				$cek1 = "select inisial_cabang, urut_lo from pro_master_cabang where id_master = '" . $idw . "' for update";
 				$row1 = $con->getRecord($cek1);
+
+				if (!isset($kode_customer_array[$kode_customer])) {
+					$kode_customer_array[$kode_customer] = [];
+					// $kode_customer_array[$kode_customer][$idplans]["items"] = [];
+				}
+
+
+				if (!isset($kode_customer_array[$kode_customer][$idplans])) {
+					$kode_customer_array[$kode_customer][$idplans] = [
+						'items' => [] // Inisialisasi array 'items' jika belum ada
+					];
+				}
 
 				//cek no do apakah sudah ada
 				$cek_nodo = "select no_do_syop from pro_pr_detail where id_prd = '" . $idx . "'";
@@ -465,6 +489,76 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$con->setQuery($sql_update_cabang);
 				$oke  = $oke && !$con->hasError();
 
+				$get_gudang = "select * FROM vw_terminal_inventory_receive WHERE nomor_po_supplier='" . $nop . "'";
+				$nama_gudang = $con->getRecord($get_gudang);
+
+				//get gudang accurate
+				$get_insial_cabang = "select * FROM pro_master_cabang WHERE id_master='" . $nama_gudang['id_cabang'] . "'";
+				$row_inisial = $con->getRecord($get_insial_cabang);
+
+				//get item by Detail PO Supplier
+				$get_idpo = "select id_accurate FROM new_pro_inventory_vendor_po WHERE nomor_po='" . $nop . "'";
+				$id_po_acc = $con->getRecord($get_idpo);
+
+				$query_po = http_build_query([
+					'id' => $id_po_acc['id_accurate']
+				]);
+
+				$url_po = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query_po;
+
+				$result_po = curl_get($url_po);
+				$detailItem_po = $result_po['d']['detailItem'];
+
+				if ($jenis_penawaran == 'gabung_oa') {
+					$kode_customer_array[$kode_customer][$idplans]["items"][] = [
+						'itemNo' => 'PBBKB',
+						'unitPrice' => $pbbkb,
+						'quantity' => $dt10
+					];
+					$harga_dasar = $hd + $oa;
+				} else if ($jenis_penawaran == 'gabung_pbbkb') {
+					$kode_customer_array[$kode_customer][$idplans]["items"][] = [
+						'itemNo' => 'NS-001',
+						'unitPrice' => $oa,
+						'quantity' => $dt10
+					];
+					$harga_dasar = ($hd) + ($pbbkb);
+				} else if ($jenis_penawaran == 'break_all') {
+					$kode_customer_array[$kode_customer][$idplans]["items"] = [
+						[
+							'itemNo' => 'PBBKB',
+							'unitPrice' => $pbbkb,
+							'quantity' => $dt10
+						],
+						[
+							'itemNo' => 'NS-001',
+							'unitPrice' => $oa,
+							'quantity' => $dt10
+						]
+					];
+					$harga_dasar = $hd;
+				} else {
+					$harga_dasar = $hd + $pbbkb + $oa;
+				}
+
+				foreach ($detailItem_po as $items) {
+					if ($items['item']['itemType'] == 'INVENTORY') {
+						$kode_customer_array[$kode_customer][$idplans]["items"][] = [
+							'itemNo'       => $items['item']['no'],
+							'quantity'     => $dt10,
+							'unitPrice'    => $harga_dasar,
+							'warehouseName' => $row_inisial['inisial_cabang'],
+						];
+						// array_unshift($kode_customer_array[$kode_customer][$idplans]["items"], [
+						// 	'itemNo'       => $items['item']['no'],
+						// 	'quantity'     => $volume,
+						// 	'unitPrice'    => $harga_dasar,
+						// 	'warehouseName' => $row_inisial['inisial_cabang'],
+						// ]);
+						break;
+					}
+				}
+
 				if ($chk && !$dis_lo) {
 					//$tmp1++;
 
@@ -477,6 +571,9 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 					$noms_do = 'DO/' . 'PE/' . $inisial_cabang . '/' . $year . '/' . $bulan_romawi . '/' . $no_do;
 
 					$nomor_do = ($row_nodo['no_do_syop'] ? "" : "no_do_syop = '$noms_do',");
+					$nomor_do_accurate = ($row_nodo['no_do_syop'] ? $row_nodo['no_do_syop'] : $noms_do);
+
+					$kode_customer_array[$kode_customer][$idplans]["nomor_do"] = $nomor_do_accurate;
 
 					$sql1 = "update pro_pr_detail set " . $eks1 . " vol_potongan = '" . $volume . "', pr_top = '" . $top_plan . "', pr_kredit_limit = '" . $credit_limit . "', pr_vendor = '" . $dt1 . "', pr_harga_beli = '" . $dt2 . "', 
 							pr_price_list = '" . $dt7 . "', pr_po = '" . $dt13 . "', pr_terminal = '" . $dt8 . "',  nomor_lo_pr = '" . $noms . "', " . $nomor_do . " nomor_po_supplier= '" . $nop . "', id_po_supplier = '" . $ips . "', id_po_receive = '" . $ipr . "'  where id_prd = '" . $idx . "'";
@@ -484,15 +581,12 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$con->setQuery($sql1);
 				$oke  = $oke && !$con->hasError();
 
-				$cek_idprd = "select * from new_pro_inventory_depot where id_prd = '" . $idx . "'";
-				$row_idprd = $con->getRecord($cek_idprd);
+				$sql4 = "insert into new_pro_inventory_depot (id_datanya, id_jenis, id_produk, id_terminal, id_vendor, id_po_supplier, id_po_receive, tanggal_inven, out_inven_virtual, keterangan, created_time, created_ip, created_by, id_pr, id_prd) VALUES
+				    ('generate DR', '6', '" . $idpro . "', '" . $dt8 . "', '" . $dt1 . "', '" . $ips . "', '" . $ipr . "', NOW(), '" . $volume . "', 'Out Stock Virtual', NOW(), '" . $_SERVER['REMOTE_ADDR'] . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "','" . $idr . "', '" . $idx . "')";
+				$con->setQuery($sql4);
+				$oke  = $oke && !$con->hasError();
 
-				if (!$row_idprd) {
-					$sql4 = "insert into new_pro_inventory_depot (id_datanya, id_jenis, id_produk, id_terminal, id_vendor, id_po_supplier, id_po_receive, tanggal_inven, out_inven_virtual, keterangan, created_time, created_ip, created_by, id_pr, id_prd) VALUES
-						('generate DR', '6', '" . $idpro . "', '" . $dt8 . "', '" . $dt1 . "', '" . $ips . "', '" . $ipr . "', NOW(), '" . $volume . "', 'Out Stock Virtual', NOW(), '" . $_SERVER['REMOTE_ADDR'] . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "','" . $idr . "', '" . $idx . "')";
-					$con->setQuery($sql4);
-					$oke  = $oke && !$con->hasError();
-				}
+				$kode_customer_array[$kode_customer][$idplans]["id_prd"] = $idx;
 
 				// $sql4 = "insert into new_pro_inventory_depot (id_datanya, id_jenis, id_produk, id_terminal, id_vendor, id_po_supplier, id_po_receive, tanggal_inven, out_inven_virtual, keterangan, created_time, created_ip, created_by, id_pr, id_prd) VALUES
 				//     ('generate DR', '6', '" . $idpro . "', '" . $dt8 . "', '" . $dt1 . "', '" . $ips . "', '" . $ipr . "', NOW(), '" . $volume . "', 'Out Stock Virtual', NOW(), '" . $_SERVER['REMOTE_ADDR'] . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "','" . $idr . "', '" . $idx . "')";
@@ -507,13 +601,35 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 					$pr_vendor 		= htmlspecialchars($_POST['newdv1'][$idx], ENT_QUOTES);
 					$pr_harga_beli 	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['newdp2'][$idx]), ENT_QUOTES);
 					$pr_terminal 	= htmlspecialchars($_POST['newdp8'][$idx], ENT_QUOTES);
-					$newnop 			= htmlspecialchars($_POST['newnp1'][$idx], ENT_QUOTES);
+					$newnop 		= htmlspecialchars($_POST['newnp1'][$idx], ENT_QUOTES);
 					$newnp 			= htmlspecialchars($_POST['newnp1'][$idx], ENT_QUOTES);
 					$newips 		= htmlspecialchars($_POST['newps1'][$idx], ENT_QUOTES);
 					$newipr 		= htmlspecialchars($_POST['newpr1'][$idx], ENT_QUOTES);
 					$volume_pr 		= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['newVolume'][$idx]), ENT_QUOTES);
 					$idx_pr 		= htmlspecialchars($_POST['newIdx'][$idx], ENT_QUOTES);
 					$volume 		= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dp10'][$idx_pr]), ENT_QUOTES);
+					$newidplans 	= htmlspecialchars($_POST['newid_plan'][$idx], ENT_QUOTES);
+					$idpro 	    = htmlspecialchars($_POST['newid_pro'][$idx], ENT_QUOTES);
+
+					$get_gudang = "select * FROM vw_terminal_inventory_receive WHERE nomor_po_supplier='" . $newnop . "'";
+					$nama_gudang = $con->getRecord($get_gudang);
+
+					//get gudang accurate
+					$get_insial_cabang = "select * FROM pro_master_cabang WHERE id_master='" . $nama_gudang['id_cabang'] . "'";
+					$row_inisial = $con->getRecord($get_insial_cabang);
+
+					//get item by Detail PO Supplier
+					$get_idpo = "select id_accurate FROM new_pro_inventory_vendor_po WHERE nomor_po='" . $newnop . "'";
+					$id_po_acc = $con->getRecord($get_idpo);
+
+					$query_po = http_build_query([
+						'id' => $id_po_acc['id_accurate']
+					]);
+
+					$url_po = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query_po;
+
+					$result_po = curl_get($url_po);
+					$detailItem_po = $result_po['d']['detailItem'];
 
 					$sql3 = "
 						insert into new_pro_inventory_potongan_stock(id_pr, id_prd, volume, pr_terminal, pr_harga_beli, nomor_po_supplier, id_po_supplier, id_po_receive)
@@ -524,7 +640,7 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 					$oke  = $oke && !$con->hasError();
 
 					$sql4 = "insert into new_pro_inventory_depot (id_datanya, id_jenis, id_produk, id_terminal, id_vendor, id_po_supplier, id_po_receive, tanggal_inven, out_inven_virtual, keterangan, created_time, created_ip, created_by, id_pr, id_prd) VALUES
-			        ('generate DR', '6', '13', '" . $pr_terminal . "', '" . $pr_vendor . "', '" . $newips  . "', '" . $newipr  . "', NOW(), '" . $volume_pr . "', 'Out Stock Virtual', NOW(), '" . $_SERVER['REMOTE_ADDR'] . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "', '" . $idr . "', '" . $idx_pr . "')";
+			        ('generate DR', '6', '" . $idpro . "', '" . $pr_terminal . "', '" . $pr_vendor . "', '" . $newips  . "', '" . $newipr  . "', NOW(), '" . $volume_pr . "', 'Out Stock Virtual', NOW(), '" . $_SERVER['REMOTE_ADDR'] . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "', '" . $idr . "', '" . $idx_pr . "')";
 					$con->setQuery($sql4);
 					$oke  = $oke && !$con->hasError();
 
@@ -750,42 +866,260 @@ if ($oke) {
 		$mail->send();
 	}
 
-	$con->commit();
-	$con->close();
-	$flash->add("success", "SUKSES_MASUK", BASE_REFERER);
-	header("location: " . $url);
-	exit();
+	if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 5) {
+		if ($revisi_dr == 1) {
+			$sqlacc = 'select id_do_accurate,id_plan from pro_pr_detail where id_pr = "' . $idr . '"';
+			$id_accurate = $con->getResult($sqlacc);
 
-	// if ($oke) {
-	// 	$mantab  = true;
-	// 	if ($uploadnya) {
-	// 		$tmpPot = glob($pathfile . "/URG_" . $idr . "_*.{jpg,jpeg,gif,png,pdf}", GLOB_BRACE);
+			foreach ($id_accurate as $res) {
+				if ($res['id_do_accurate'] != null) {
+					// Data yang akan dikirim dalam format JSON
+					$data = array(
+						'id' => $res['id_do_accurate'],
+					);
 
-	// 		if (count($tmpPot) > 0) {
-	// 			foreach ($tmpPot as $datj)
-	// 				if (file_exists($datj)) unlink($datj);
-	// 		}
-	// 		$tujuan  = $pathfile . "/" . $nqu;
-	// 		$mantab  = $mantab && move_uploaded_file($tempPhoto, $tujuan);
-	// 		if (file_exists($tempPhoto)) unlink($tempPhoto);
-	// 	}
-	// 	$con->commit();
-	// 	$con->close();
-	// 	if ($backlog) {
-	// 		$flash->add("success", "Data DP berhasil dikembalikan ke Logistik.");
-	// 		header("location: " . $url);
-	// 		exit();
-	// 	} else {
-	// 		$flash->add("success", "Data DR telah berhasil disimpan", $url);
-	// 		header("location: " . $url);
-	// 		exit();
-	// 	}
-	// } else {
-	// 	$con->rollBack();
-	// 	$con->clearError();
-	// 	$con->close();
-	// 	$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
-	// }
+					$url_del = 'https://zeus.accurate.id/accurate/api/delivery-order/delete.do';
+					$delete_accurate_do = curl_delete($url_del, json_encode($data));
+
+					if ($delete_accurate_do['s'] == true) {
+						$update02 = 'update pro_pr_detail set id_do_accurate = NULL where id_pr = "' . $idr . '"';
+						$con->setQuery($update02);
+						$oke  = $oke && !$con->hasError();
+
+						$sqlid_acc = 'select id_accurate from pro_po_customer_plan where id_plan = "' . $res['id_plan'] . '"';
+						$id_accurate_so = $con->getRecord($sqlid_acc);
+
+						$data_so = array(
+							'id' => $id_accurate_so['id_accurate'],
+						);
+
+						$url_del_so = 'https://zeus.accurate.id/accurate/api/sales-order/delete.do';
+						$delete_accurate_so = curl_delete($url_del_so, json_encode($data_so));
+
+						if ($delete_accurate_so['s'] == true) {
+							$update02 = 'update pro_po_customer_plan set id_accurate = NULL where id_plan = "' . $res['id_plan'] . '"';
+							$con->setQuery($update02);
+							$oke  = $oke && !$con->hasError();
+						} else {
+							$con->rollBack();
+							$con->clearError();
+							$con->close();
+							$flash->add("error", $delete_accurate_so['d'][0] . '- response dari accurate so', BASE_REFERER);
+						}
+					} else {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", $delete_accurate_do['d'][0] . '- response dari accurate do', BASE_REFERER);
+					}
+				}
+			}
+
+
+			// if ($delete_accurate['s'] == true) {
+			// 	$con->commit();
+			// 	$con->close();
+			// 	header("location: " . $url);
+			// 	exit();
+			// } else {
+			// 	$con->rollBack();
+			// 	$con->clearError();
+			// 	$con->close();
+			// 	$flash->add("error", $delete_accurate['d'][0] . '- response dari accurate', BASE_REFERER);
+			// }
+		} else {
+			$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+			$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+			$rowget_cabang = $con->getRecord($queryget_cabang);
+
+			$get_gudang = "select * FROM vw_terminal_inventory_receive WHERE nomor_po_supplier='" . $nop . "'";
+			$nama_gudang = $con->getRecord($get_gudang);
+
+			// //get gudang accurate
+			// $get_insial_cabang = "select * FROM pro_master_cabang WHERE id_master='" . $nama_gudang['id_cabang'] . "'";
+			// $row_inisial = $con->getRecord($get_insial_cabang);
+
+			// //get item by Detail PO Supplier
+			// $get_idpo = "select id_accurate FROM new_pro_inventory_vendor_po WHERE nomor_po='" . $nop . "'";
+			// $id_po_acc = $con->getRecord($get_idpo);
+
+			// $query_po = http_build_query([
+			// 	'id' => $id_po_acc['id_accurate']
+			// ]);
+
+			// $url_po = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query_po;
+
+			// $result_po = curl_get($url_po);
+			// $detailItem_po = $result_po['d']['detailItem'];
+
+			// foreach ($detailItem_po as $items) {
+			// 	if ($items['item']['itemType'] == 'INVENTORY') {
+			// 		$item_po['detailItem'][] = [
+			// 			'itemNo'       => $items['item']['no'],
+			// 			'quantity'     => $dt10,
+			// 			'unitPrice'    => $harga_dasar,
+			// 			'warehouseName' => $row_inisial,
+			// 		];
+			// 	}
+			// }
+
+
+			foreach ($kode_customer_array as $i => $subData) {
+				$detailItems = [];
+
+				foreach ($subData as $subKey => $items) {
+
+					$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+					$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+					$rowget_cabang = $con->getRecord($queryget_cabang);
+
+					$queryget_po = "SELECT a.no_so, a.tanggal_kirim, b.*, c.alamat_customer, c.postalcode_customer, d.nama_prov, e.nama_kab FROM pro_po_customer_plan a JOIN pro_po_customer b ON a.id_poc = b.id_poc JOIN pro_customer c ON b.id_customer = c.id_customer JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov JOIN pro_master_kabupaten e ON c.kab_customer = e.id_kab WHERE a.id_plan = '" . $subKey . "'";
+					$rowget_po = $con->getRecord($queryget_po);
+
+					$alamat_customer = $rowget_po['alamat_customer'] . " " . $rowget_po['nama_prov'] . " " . $rowget_po['nama_kab'] . " Kode Pos : " . $rowget_po['postalcode_customer'];
+
+					$url_so = 'https://zeus.accurate.id/accurate/api/sales-order/save.do';
+					// Data yang akan dikirim dalam format JSON
+					$data_so = array(
+						"customerNo"        => $i,
+						"number"           	=> $rowget_po['no_so'],
+						"toAddress" 		=> $alamat_customer,
+						"description" 		=> 'SO dari PO ' . $rowget_po['nomor_poc'],
+						"poNumber" 			=> $rowget_po['nomor_poc'],
+						"transDate" 		=> date("d/m/Y"),
+						"shipDate" 			=> date("d/m/Y", strtotime($rowget_po['tanggal_kirim'])),
+						"taxable" 			=> true,
+						"branchName"  		=> $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+						"detailItem"       	=> $items['items']
+					);
+					// $data_so['detailItem'][]=$detailItems;
+
+
+					$jsonData_so = json_encode($data_so);
+					$result_so = curl_post($url_so, $jsonData_so);
+
+					if ($result_so['s'] == true) {
+						$cek = true;
+						$id_accurate_so = $result_so['r']['id'];
+
+						$sql_up = "update pro_po_customer_plan set id_accurate = '" . $id_accurate_so . "' WHERE id_plan = '" . $subKey . "'";
+						$con->setQuery($sql_up);
+
+						$sql_plan = "SELECT tanggal_loading FROM pro_po_customer_plan WHERE id_plan = '" . $subKey . "'";
+						$row_plan = $con->getRecord($sql_plan);
+
+
+						$cek = $cek && !$con->hasError();
+
+						if ($cek) {
+
+							// $all_idprd = implode(",", $idprd_all);
+							$urlnya2 = 'https://zeus.accurate.id/accurate/api/delivery-order/save.do';
+							// Data yang akan dikirim dalam format JSON
+							$data2 = array(
+								"customerNo"        => $i,
+								"number"           	=> $items['nomor_do'],
+								"description"       => $_POST["summary"],
+								"poNumber" 			=> $rowget_po['nomor_poc'],
+								"toAddress" 		=> $alamat_customer,
+								"transDate" 		=> date("d/m/Y", strtotime($row_plan['tanggal_loading'])),
+								"branchName"  		=> $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> []
+							);
+
+							// Mengonversi data menjadi format JSON
+							foreach ($items['items'] as $item2) {
+
+								$dataItem = [
+									'itemNo'       => $item2['itemNo'],
+									'quantity'     => $item2['quantity'],
+									'salesOrderNumber' => $rowget_po['no_so']
+								];
+
+								// Jika ada 'warehouseName', tambahkan ke data
+								if (isset($item2['warehouseName'])) {
+									$dataItem['warehouseName'] = $item2['warehouseName'];
+								}
+
+								// Tambahkan item ke dalam detailItem
+								$data2['detailItem'][] = $dataItem;
+							}
+							$jsonData2 = json_encode($data2);
+							$result = curl_post($urlnya2, $jsonData2);
+
+							if ($result['s'] == true) {
+								$id_accurate = $result['r']['id'];
+
+								$sql3 = 'update pro_pr_detail set id_do_accurate = "' . $id_accurate . '" where id_prd = "' . $items['id_prd'] . '"';
+								$con->setQuery($sql3);
+								$oke  = $oke && !$con->hasError();
+
+								// $con->commit();
+								// $con->close();
+								// $flash->add("success", "SUKSES_MASUK", BASE_REFERER);
+								// header("location: " . $url);
+								// exit();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result['d'][0] . " - Response dari Accurate DO", BASE_REFERER);
+							}
+						} else {
+							$con->rollBack();
+							$con->clearError();
+							$con->close();
+							$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
+						}
+					} else {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", $result_so['d'][0] . " - Response dari Accurate SO", BASE_REFERER);
+					}
+				}
+			}
+		}
+	} else {
+		$con->commit();
+		$con->close();
+		$flash->add("success", "SUKSES_MASUK", BASE_REFERER);
+		header("location: " . $url);
+		exit();
+	}
+
+	if ($oke) {
+		$mantab  = true;
+		if ($uploadnya) {
+			$tmpPot = glob($pathfile . "/URG_" . $idr . "_*.{jpg,jpeg,gif,png,pdf}", GLOB_BRACE);
+
+			if (count($tmpPot) > 0) {
+				foreach ($tmpPot as $datj)
+					if (file_exists($datj)) unlink($datj);
+			}
+			$tujuan  = $pathfile . "/" . $nqu;
+			$mantab  = $mantab && move_uploaded_file($tempPhoto, $tujuan);
+			if (file_exists($tempPhoto)) unlink($tempPhoto);
+		}
+		$con->commit();
+		$con->close();
+		if ($backlog) {
+			$flash->add("success", "Data DP berhasil dikembalikan ke Logistik.");
+			header("location: " . $url);
+			exit();
+		} else {
+			$flash->add("success", "Data DR telah berhasil disimpan", $url);
+			header("location: " . $url);
+			exit();
+		}
+	} else {
+		$con->rollBack();
+		$con->clearError();
+		$con->close();
+		$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
+	}
 } else {
 	$con->rollBack();
 	$con->clearError();

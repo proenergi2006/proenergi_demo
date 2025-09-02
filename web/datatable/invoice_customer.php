@@ -34,7 +34,7 @@ if ($sesrol == '25') {
 }
 
 $p = new paging;
-$sql = "SELECT a.*, b.nama_customer, b.jenis_payment, b.top_payment, c.nama_cabang, d.fullname as nama_marketing
+$sql = "SELECT a.*, a.id_accurate as id_aol_invoice, b.nama_customer, b.jenis_payment, b.top_payment, c.nama_cabang, d.fullname as nama_marketing
 		from pro_invoice_admin a 
 		join pro_customer b on a.id_customer = b.id_customer 
 		join pro_master_cabang c on b.id_wilayah = c.id_master
@@ -126,11 +126,44 @@ if ($tot_record == 0) {
 			$total_invoice = number_format($data['total_invoice'], 0);
 		}
 
-		if ($data['jenis'] == "all_in" || $data['jenis'] == "harga_dasar" || $data['jenis'] == "harga_dasar_oa") {
+		if ($data['jenis'] == "all_in" || $data['jenis'] == "harga_dasar" || $data['jenis'] == "harga_dasar_oa" || $data['jenis'] == "harga_dasar_pbbkb") {
 			$refund = "Refund : " . $result02['refund_tawar'];
 		} else {
 			$refund = "";
 		}
+
+		$harga_dasar_penawaran = 0;
+		$ongkos_angkut_penawaran = 0;
+		$pbbkb_penawaran = 0;
+		$ppn_penawaran = 0;
+		foreach ($decode as $arr1) {
+			if ($arr1['rincian'] == "Harga Dasar") {
+				$harga_dasar_penawaran = ($arr1['biaya']) ? $arr1['biaya'] : 0;
+				$nilai_harga_dasar = $arr1['nilai'];
+				$rincian_harga_dasar = $arr1['rincian'];
+			}
+
+			if ($arr1['rincian'] == "Ongkos Angkut") {
+				$ongkos_angkut_penawaran = ($arr1['biaya']) ? $arr1['biaya'] : 0;
+				$nilai_ongkos_angkut = $arr1['nilai'];
+				$rincian_ongkos_angkut = $arr1['rincian'];
+			}
+
+			if ($arr1['rincian'] == "PBBKB") {
+				$pbbkb_penawaran = ($arr1['biaya']) ? $arr1['biaya'] : 0;
+				$nilai_pbbkb = $arr1['nilai'];
+				$rincian_pbbkb = $arr1['rincian'];
+			}
+
+			if ($arr1['rincian'] == "PPN") {
+				$ppn_penawaran = ($arr1['biaya']) ? $arr1['biaya'] : 0;
+				$nilai_ppn = $arr1['nilai'];
+				$rincian_ppn = $arr1['rincian'];
+			}
+		}
+
+		// echo json_encode($pbbkb_penawaran);
+		// exit();
 
 		foreach ($decode as $arr1) {
 			if ($data['jenis'] == "all_in") {
@@ -236,17 +269,36 @@ if ($tot_record == 0) {
 				}
 			}
 		}
+
+
+
 		$sql_volume = "SELECT * FROM pro_invoice_admin_detail WHERE id_invoice='" . $data['id_invoice'] . "'";
 		$res_volume = $con->getResult($sql_volume);
 		$total_volume = 0;
 		foreach ($res_volume as $rv) {
 			$total_volume += $rv['vol_kirim'];
 		}
+		if (fmod($total_volume, 1) !== 0.0000) {
+			$grandtotal_volume = number_format((float)$total_volume, 4, '.', '');
+		} else {
+			$grandtotal_volume = number_format((float)$total_volume);
+		}
 
 		$count++;
 		$linkDetail	= BASE_URL_CLIENT . '/invoice_customer_detail.php?' . paramEncrypt('idr=' . $data['id_invoice']);
-		$linkEdit	= BASE_URL_CLIENT . '/invoice_customer_add.php?' . paramEncrypt('idr=' . $data['id_invoice']);
-		$linkHapus	= paramEncrypt("invoice_customer#|#" . $data['id_invoice']);
+		if ($data['total_bayar'] > 0 || $data['is_lunas'] == 1) {
+			$btnEdit = "";
+		} else {
+			$linkEdit	= BASE_URL_CLIENT . '/invoice_customer_add.php?' . paramEncrypt('idr=' . $data['id_invoice']);
+			$btnEdit = '<a class="margin-sm btn btn-action btn-info" title="Ubah Data" href="' . $linkEdit . '"><i class="fa fa-edit"></i></a>';
+
+			// if ($data['jenis'] == "all_in" || $data['jenis'] == "harga_dasar" || $data['jenis'] == "harga_dasar_oa" || $data['jenis'] == "harga_dasar_pbbkb") {
+			// 	$btnEdit = '<a class="margin-sm btn btn-action btn-info" title="Ubah Data" href="' . $linkEdit . '"><i class="fa fa-edit"></i></a>';
+			// } else {
+			// 	$btnEdit = "";
+			// }
+		}
+		$linkHapus	= paramEncrypt("invoice_customer#|#" . $data['id_invoice'] . "#|#" . $data['id_aol_invoice']);
 
 		if ($data['tgl_invoice_dikirim'] == NULL) {
 			if (($data['tgl_invoice'] >= '2024-04-01' && $data['total_bayar'] != $data['total_invoice'] && $data['is_lunas'] == NULL) && $data['tgl_invoice'] < '2024-10-07' && $data['total_bayar'] != $data['total_invoice'] && $data['is_lunas'] == NULL) {
@@ -261,14 +313,12 @@ if ($tot_record == 0) {
 				$btnBayar = '';
 			}
 		} else {
-			if ($data['total_bayar'] != $data['total_invoice']) {
-				if ($data['is_lunas'] != 1) {
-					$linkBayar	= BASE_URL_CLIENT . '/invoice_customer_bayar.php?' . paramEncrypt('idr=' . $data['id_invoice']);
-					if ($sesrol == '25') {
-						$btnBayar = "";
-					} else {
-						$btnBayar = '<a target="_blank" class="margin-sm btn btn-action btn-success" title="Pembayaran" href="' . $linkBayar . '"><i class="fas fa-file-invoice"></i></a>';
-					}
+			if ($data['is_lunas'] != 1) {
+				$linkBayar	= BASE_URL_CLIENT . '/invoice_customer_bayar.php?' . paramEncrypt('idr=' . $data['id_invoice']);
+				if ($sesrol == '25') {
+					$btnBayar = "";
+				} else {
+					$btnBayar = '<a target="_blank" class="margin-sm btn btn-action btn-success" title="Pembayaran" href="' . $linkBayar . '"><i class="fas fa-file-invoice"></i></a>';
 				}
 			} else {
 				$linkBayar = "";
@@ -291,11 +341,13 @@ if ($tot_record == 0) {
 			}
 		}
 
-		if ($data['tgl_invoice_dikirim'] != NULL) {
-			$due_date = 'Due Date : ' . tgl_indo(date('Y-m-d', strtotime($data['tgl_invoice_dikirim'] . "+" . $data['top_payment'] . " days")));
-		} else {
-			$due_date = "Due Date : -";
-		}
+		// if ($data['tgl_invoice_dikirim'] != NULL) {
+		// 	$due_date = 'Due Date : ' . tgl_indo(date('Y-m-d', strtotime($data['tgl_invoice_dikirim'] . "+" . $data['top_payment'] . " days")));
+		// } else {
+		// 	$due_date = "Due Date : -";
+		// }
+
+		$due_date = 'Due Date : ' . tgl_indo(date('Y-m-d', strtotime($data['tgl_invoice'] . "+" . $data['top_payment'] . " days")));
 
 		if ($data['is_lunas'] == 1 || ($data['total_bayar'] == $data['total_invoice'])) {
 			$btnHapus 	= '';
@@ -377,7 +429,7 @@ if ($tot_record == 0) {
 		}
 
 		$content .= '
-			<tr class="clickable-row" data-href="' . $linkDetail . '" ' . $background . '>
+			<tr>
 				<td class="text-center">' . $count . '<input type="hidden" id="uriExp" value="' . $linkExport . '" /></td>
 				<td>
 				' . $data['nama_customer'] . '
@@ -402,7 +454,7 @@ if ($tot_record == 0) {
 					<p>' . $jenis . '</p>
 					<p>' . $refund . '</p>
 				</td>
-				<td class="text-right">' . number_format($total_volume) . '</td>
+				<td class="text-right">' . $grandtotal_volume . '</td>
 				<td class="text-right">' . $total_invoice . '</td>
 				<td class="text-right">
 				' . number_format($data['total_bayar'], 0) . '
@@ -414,9 +466,8 @@ if ($tot_record == 0) {
 				</td>
 				<td class="text-center action">
 					' . $btnCetak . '
-					<a class="margin-sm btn btn-action btn-info ' . $class . '" title="Ubah Data" href="' . $linkEdit . '"><i class="fa fa-edit"></i></a>
+					' . $btnEdit . '
 					' . $btnHapus . '
-					' . $btnBayar . '
 				</td>
 			</tr>';
 	}

@@ -203,7 +203,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			$con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
 
-			$total_order = $total_volume * $harga_liter;
+			$total_order = $volume_close * $harga_liter;
 			$sql = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved - $total_order WHERE id_customer = '" . $customer . "'";
 
 			$con->setQuery($sql);

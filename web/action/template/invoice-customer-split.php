@@ -305,7 +305,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         </th>
         <th align="center" class="b2 b3">
             <b>
-                Disc %
+                Discount
             </b>
         </th>
         <th align="center" class="b2 b3">
@@ -322,12 +322,14 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     <?php
     $sub_total = 0;
     $total_vol_kirim = 0;
+    $total_discount = 0;
     ?>
     <tbody>
         <?php foreach ($res02 as $key) : ?>
             <?php
             $volume       = (int)$key['vol_kirim'];
             $total_vol_kirim += $volume;
+            $total_discount += (int)$key['discount'];
 
             if ($tipe == "split_oa") {
                 $decode = json_decode($key['detail_rincian'], true);
@@ -347,11 +349,14 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 $harga_kirim = $oa;
                 $total_harga = $harga_kirim * $total_vol_kirim;
                 $sub_total = $total_harga;
-                if ($key['pembulatan'] == 1) {
-                    $hitung_ppn = round($harga_kirim * $nilai_ppn / 100);
-                } else {
-                    $hitung_ppn = $harga_kirim * $nilai_ppn / 100;
-                }
+                // if ($key['pembulatan'] == 1) {
+                //     // $total_ppn = round($total_harga * $nilai_ppn / 100);
+                //     $total_ppn = (round(($oa * $nilai_ppn) / 100)) * $total_vol_kirim;
+                // } else {
+                //     $total_ppn = (($oa * $nilai_ppn) / 100) * $total_vol_kirim;
+                // }
+                $total_ppn = (($oa * $nilai_ppn) / 100) * $total_vol_kirim;
+                $hitung_ppn = ($oa * $nilai_ppn) / 100;
                 $total_ppn = $hitung_ppn * $total_vol_kirim;
                 // $total_ppn = $total_harga * $nilai_ppn / 100;
                 $grand_total = $sub_total + $total_ppn;
@@ -383,7 +388,19 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 $total_harga = $harga_kirim * $total_vol_kirim;
                 $sub_total = $total_harga;
                 // $hitung_ppn = $harga_kirim * $nilai_ppn / 100;
-                $total_ppn = $total_harga * $nilai_ppn / 100;
+                // if ($key['pembulatan'] == 1) {
+                //     $total_ppn = round($total_harga * $nilai_ppn / 100);
+                // } else {
+                //     $total_ppn = $total_harga * $nilai_ppn / 100;
+                // }
+                // if ($key['pembulatan'] == 1) {
+                //     // $total_ppn = round($total_harga * $nilai_ppn / 100);
+                //     $total_ppn = (round(($hsd  * $nilai_ppn) / 100)) * $total_vol_kirim;
+                // } else {
+                //     $total_ppn = (($hsd * $nilai_ppn) / 100) * $total_vol_kirim;
+                // }
+                $total_ppn = (($hsd * $nilai_ppn) / 100) * $total_vol_kirim;
+
                 $grand_total = $sub_total + $total_ppn;
             } elseif ($tipe == "harga_dasar_oa") {
                 $decode = json_decode($key['detail_rincian'], true);
@@ -407,23 +424,39 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     }
                 }
 
-                if ($key['gabung_pbbkb'] == 1) {
-                    $ket_pbbkb = "PBBKB";
-                    // $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
-                    $harga_kirim = $hsd + $pbbkb;
-                    $total_pbbkb = 0;
-                } else {
-                    // $ket_pbbkb = "PBBKB";
-                    $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
-                    $harga_kirim = $hsd;
-                    $total_pbbkb = $pbbkb * $total_vol_kirim;
-                }
+                // if ($key['gabung_pbbkb'] == 1) {
+                //     $ket_pbbkb = "PBBKB";
+                //     // $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
+                //     $harga_kirim = $hsd + $pbbkb;
+                //     $total_pbbkb = 0;
+                // } else {
+                //     // $ket_pbbkb = "PBBKB";
+                //     $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
+                //     $harga_kirim = $hsd;
+                //     $total_pbbkb = $pbbkb * $total_vol_kirim;
+                // }
+                $ket_pbbkb = "PBBKB";
+                $total_pbbkb = 0;
                 $produk = $res03['produk'];
                 $harga_kirim = $hsd + $oa;
-                $total_harga = $harga_kirim * $total_vol_kirim;
+
+                if ($key['discount'] > 0) {
+                    $jumlah_harga = ($harga_kirim * $total_vol_kirim) - $total_discount;
+                    $total_ppn = ($jumlah_harga * $nilai_ppn) / 100;
+                    $total_harga = $jumlah_harga;
+                } else {
+                    $total_harga = $harga_kirim * $total_vol_kirim;
+                    $hitung_ppn = ($harga_kirim * $nilai_ppn) / 100;
+                    $total_ppn = $hitung_ppn * $total_vol_kirim;
+                }
                 $sub_total = $total_harga;
-                // $total_ppn = $sub_total * $nilai_ppn / 100;
-                $total_ppn = $total_harga * $nilai_ppn / 100;
+                // if ($key['pembulatan'] == 1) {
+                //     // $total_ppn = round($total_harga * $nilai_ppn / 100);
+                //     $total_ppn = (round((($hsd + $oa) * $nilai_ppn) / 100)) * $total_vol_kirim;
+                // } else {
+                //     $total_ppn = ((($hsd + $oa) * $nilai_ppn) / 100) * $total_vol_kirim;
+                // }
+                // $total_ppn = ((($hsd + $oa) * $nilai_ppn) / 100) * $total_vol_kirim;
                 $grand_total = $sub_total + $total_ppn;
             } elseif ($tipe == "harga_dasar_pbbkb") {
                 $decode = json_decode($key['detail_rincian'], true);
@@ -453,15 +486,27 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     $harga_kirim = $hsd;
                     $total_pbbkb = $pbbkb * $total_vol_kirim;
                 }
-                $produk = $res03['produk'];
-                $total_harga = $harga_kirim * $total_vol_kirim;
-                $sub_total = $total_harga;
-                if ($key['pembulatan'] == 1) {
-                    $hitung_ppn = round($harga_kirim * $nilai_ppn / 100);
+
+
+
+                if ($key['discount'] > 0) {
+                    $jumlah_harga = ($harga_kirim * $total_vol_kirim) - $total_discount;
+                    $total_ppn = ($jumlah_harga * $nilai_ppn) / 100;
+                    $total_harga = $jumlah_harga;
                 } else {
-                    $hitung_ppn = $harga_kirim * $nilai_ppn / 100;
+                    $total_harga = $harga_kirim * $total_vol_kirim;
+                    $hitung_ppn = ($harga_kirim * $nilai_ppn) / 100;
+                    $total_ppn = $hitung_ppn * $total_vol_kirim;
                 }
-                $total_ppn = $hitung_ppn * $total_vol_kirim;
+                $produk = $res03['produk'];
+                $sub_total = $total_harga;
+                // if ($key['pembulatan'] == 1) {
+                //     $hitung_ppn = round(($harga_kirim * $nilai_ppn) / 100);
+                // } else {
+                //     $hitung_ppn = ($harga_kirim * $nilai_ppn) / 100;
+                // }
+
+
                 // $total_ppn = $total_harga * $nilai_ppn / 100;
                 $grand_total = $sub_total + $total_ppn;
             }
@@ -485,11 +530,11 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <?php elseif ($res03['pembulatan'] == 0) : ?>
                     <?= number_format($harga_kirim, 2) ?>
                 <?php else : ?>
-                    <?= number_format($harga_kirim, 0) ?>
+                    <?= (fmod($harga_kirim, 1) !== 0.0000) ? number_format($harga_kirim, 4, ".", ",") : number_format($harga_kirim, 0) ?>
                 <?php endif ?>
             </td>
             <td valign="top" align="center">
-                0
+                <?= number_format($res03['total_disc']) ?>
             </td>
             <td valign="top" align="center">
                 -

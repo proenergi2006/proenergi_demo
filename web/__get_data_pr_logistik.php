@@ -191,6 +191,17 @@
 	</div>
 </div>
 
+<div class="modal fade" id="loading_modal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header bg-blue">
+				<h4 class="modal-title">Loading Data ...</h4>
+			</div>
+			<div class="modal-body text-center modal-loading"></div>
+		</div>
+	</div>
+</div>
+
 <div class="form-group row">
 	<?php if ($res[0]['sm_result']) { ?>
 		<!-- <div class="col-sm-6">
@@ -350,14 +361,15 @@
 				cancelButtonText: 'Batal'
 			}).then((result) => {
 				if (result.isConfirmed) {
+					$("#loading_modal").modal({
+						backdrop: 'static'
+					});
 					var idrValue = $('#idr').val();
 					// Data yang akan dikirim
 					var dataToSend = {
 						revisiDR: 1,
 						idr: idrValue
 					};
-
-					console.log("Data yang akan dikirim: ", dataToSend);
 
 					// Kirim AJAX request
 					$.ajax({
@@ -382,7 +394,6 @@
 									text: response.message
 								});
 							}
-							console.log(response); // Melihat respons di konsol
 						},
 						error: function(xhr, status, error) {
 							// Tangani kesalahan

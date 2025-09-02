@@ -119,19 +119,19 @@ if ($prnya == 'bm') {
 				break;
 			}
 
-			// if ($vol01 == '0' || $vol02 == '0') {
-			// 	$valid = false;
-			// 	$pesan = "Kolom [Volume] harus diisi semua " . $vol01 . " - " . $vol02 . "";
-			// } else if ($jml_vol > $total_vol[$_POST['newIdx'][$idx]]) {
-			// 	$valid = false;
-			// 	$pesan = "Perubahan volume delivery [" . $jml_vol . "] lebih besar daripada volume awal [" . $total_vol[$_POST['newIdx'][$idx]] . "]";
-			// } else if ($jml_vol < $total_vol[$_POST['newIdx'][$idx]]) {
-			// 	$valid = false;
-			// 	$pesan = "Perubahan volume delivery [" . $jml_vol . "] lebih kecil daripada volume awal [" . $total_vol[$_POST['newIdx'][$idx]] . "]";
-			// } else if ($jml_vol > $newsi) {
-			// 	$valid = false;
-			// 	$pesan = "Volume delivery [" . $jml_vol . "] lebih besar dari sisa stock [" . $newsi . "]";
-			// }
+			if ($vol01 == '0' || $vol02 == '0') {
+				$valid = false;
+				$pesan = "Kolom [Volume] harus diisi semua " . $vol01 . " - " . $vol02 . "";
+			} else if ($jml_vol > $total_vol[$_POST['newIdx'][$idx]]) {
+				$valid = false;
+				$pesan = "Perubahan volume delivery [" . $jml_vol . "] lebih besar daripada volume awal [" . $total_vol[$_POST['newIdx'][$idx]] . "]";
+			} else if ($jml_vol < $total_vol[$_POST['newIdx'][$idx]]) {
+				$valid = false;
+				$pesan = "Perubahan volume delivery [" . $jml_vol . "] lebih kecil daripada volume awal [" . $total_vol[$_POST['newIdx'][$idx]] . "]";
+			} else if ($jml_vol > $newsi) {
+				$valid = false;
+				$pesan = "Volume delivery [" . $jml_vol . "] lebih besar dari sisa stock [" . $newsi . "]";
+			}
 		}
 	}
 
@@ -149,10 +149,10 @@ if ($prnya == 'bm') {
 			$valid = false;
 			$pesan = "Ada PO Supplier yang belum di pilih";
 		} else {
-			// if ($arrTotalVolume[$id] > $arrTempStok[$id]) {
-			// 	$valid = false;
-			// 	$pesan = "Perubahan volume delivery [" . number_format($arrTotalVolume[$id]) . "] lebih besar daripada stock terminal [" . number_format($arrTempStok[$id]) . "]";
-			// }
+			if ($arrTotalVolume[$id] > $arrTempStok[$id]) {
+				$valid = false;
+				$pesan = "Perubahan volume delivery [" . number_format($arrTotalVolume[$id]) . "] lebih besar daripada stock terminal [" . number_format($arrTempStok[$id]) . "]";
+			}
 		}
 	}
 } else if ($prnya == 'cfo') {

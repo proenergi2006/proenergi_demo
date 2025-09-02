@@ -18,7 +18,7 @@ $sesrole 	= paramDecrypt($_SESSION['sinori' . SESSIONID]['id_group']);
 
 if ($idr != "") {
 	$sql = "
-			select a.*, b.nama_customer as nm_customer, c.nama_cabang 
+			select a.*, b.nama_customer as nm_customer, c.nama_cabang
 			from pro_invoice_admin a 
 			join pro_customer b on a.id_customer = b.id_customer 
 			join pro_master_cabang c on b.id_wilayah = c.id_master 
@@ -219,7 +219,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 								</div>
 							</div>
 							<?php if ($action == 'add') : ?>
-								<div class="row">
+								<div class="row hide" id="row-split-invoice">
 									<div class="col-md-6">
 										<div class="form-group form-group-sm">
 											<label class="control-label col-md-4">Split Invoice</label>
@@ -234,6 +234,96 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 										</div>
 									</div>
 								</div>
+							<?php endif ?>
+
+							<?php if ($action == 'update') : ?>
+								<hr>
+								<input type="hidden" value="<?= $model['jenis'] ?>" name="split_invoice" id="split_invoice">
+								<?php if ($model['jenis'] == "harga_dasar_oa" || $model['jenis'] == "harga_dasar_pbbkb" || $model['jenis'] == "harga_dasar" || $model['jenis'] == "all_in") : ?>
+									<div class="row">
+										<div class="col-md-6">
+											<button type="button" id="tambah-do" class="btn btn-primary">Tambah DO</button>
+											<button type="button" id="batal-tambah-do" class="btn btn-danger hide">Batal</button>
+										</div>
+									</div>
+								<?php endif ?>
+								<div class="row hide" id="row-invoice-by">
+									<div class="col-md-6">
+										<div class="form-group form-group-sm">
+											<label class="control-label col-md-4">Invoice by *</label>
+											<div class="col-md-4">
+												<select name="tipe" id="tipe" class="form-control">
+													<option value="">--PILIH--</option>
+													<option value="tanggal">Tanggal</option>
+													<option value="periode">Periode</option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row" id="row-jenis-tanggal">
+									<div class="col-md-6">
+										<div class="form-group form-group-sm">
+											<label class="control-label col-md-4">Periode by *</label>
+											<div class="col-md-4">
+												<input type="radio" id="delivered" name="jenis_tanggal" value="delivered" class="form-control"><label for="delivered">Tanggal Delivered</label>
+											</div>
+											<div class="col-md-4">
+												<input type="radio" id="kirim" name="jenis_tanggal" value="kirim" class="form-control"><label for="kirim">Tanggal Kirim</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row hide" id="row-tanggal">
+									<div class="col-md-6">
+										<div class="form-group form-group-sm">
+											<label class="control-label col-md-4">Tanggal Delivered *</label>
+											<div class="col-md-4">
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+													<input type="text" id="tanggal" name="tanggal" class="form-control datepicker" value="" autocomplete="off" required />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row" id="row-periode">
+									<div class="col-md-6">
+										<div class="form-group form-group-sm">
+											<label class="control-label col-md-4">Periode Awal *</label>
+											<div class="col-md-4">
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+													<input type="text" id="tgl_kirim_awal" name="tgl_kirim_awal" class="form-control datepicker" value="" autocomplete="off" required />
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group form-group-sm">
+											<label class="control-label col-md-4">Periode Akhir *</label>
+											<div class="col-md-4">
+												<div class="input-group">
+													<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+													<input type="text" id="tgl_kirim_akhir" name="tgl_kirim_akhir" class="form-control datepicker" value="" autocomplete="off" required />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row hide" id="generate-update">
+									<div class="col-md-12">
+										<div class="form-group form-group-sm">
+											<div class="col-md-12">
+												<button type="button" name="btn-generate" id="btn-generate" class="btn btn-sm btn-info">Generate</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<hr>
+							<?php else : ?>
 								<div class="row">
 									<div class="col-md-6">
 										<div class="form-group form-group-sm">
@@ -268,8 +358,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											<div class="col-md-4">
 												<div class="input-group">
 													<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-													<?php $currval = ($model['tgl_kirim_awal'] ? date("d/m/Y", strtotime($model['tgl_kirim_awal'])) : ''); ?>
-													<input type="text" id="tanggal" name="tanggal" class="form-control datepicker" value="<?php echo $currval; ?>" autocomplete="off" required />
+													<input type="text" id="tanggal" name="tanggal" class="form-control datepicker" value="" autocomplete="off" required />
 												</div>
 											</div>
 										</div>
@@ -302,11 +391,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 										</div>
 									</div>
 								</div>
-							<?php endif ?>
 
-
-
-							<?php if ($action == 'add') { ?>
 								<div class="row">
 									<div class="col-md-12">
 										<div class="form-group form-group-sm">
@@ -316,7 +401,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 										</div>
 									</div>
 								</div>
-							<?php } ?>
+							<?php endif ?>
 
 							<div class="table-responsive">
 								<table class="table table-bordered table-dasar">
@@ -324,10 +409,10 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 										<tr>
 											<th class="text-center" width="50">No</th>
 											<th class="text-center" width="300">No PO Customer</th>
-											<th class="text-center" width="200">Referensi</th>
 											<th class="text-center" width="120">Tanggal</th>
 											<th class="text-center" width="150">Volume Realisasi</th>
 											<th class="text-center" width="200">Harga</th>
+											<th class="text-center" width="200">Discount</th>
 											<th class="text-center" width="180">Jumlah</th>
 											<th class="text-center" width="70">Aksi</th>
 										</tr>
@@ -395,7 +480,8 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 															d.pembulatan, 
 															d.refund_tawar, 
 															d.id_penawaran,
-															'truck' AS jenisnya
+															'truck' AS jenisnya,
+															IF(d.gabung_oa =1,'gabung_oa',IF(d.all_in = 1,'all_in', IF(d.gabung_pbbkb,'gabung_pbbkb',IF(d.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
 														FROM 
 															pro_invoice_admin_detail a
 														JOIN 
@@ -417,7 +503,8 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 															d.pembulatan, 
 															d.refund_tawar, 
 															d.id_penawaran,
-															'kapal' AS jenisnya
+															'kapal' AS jenisnya,
+															IF(d.gabung_oa =1,'gabung_oa',IF(d.all_in = 1,'all_in', IF(d.gabung_pbbkb,'gabung_pbbkb',IF(d.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
 														FROM 
 															pro_invoice_admin_detail a
 														JOIN 
@@ -459,7 +546,10 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													$total_penawaran = (float)$harga_dasar_penawaran + (float)$ongkos_angkut_penawaran + (float)$pbbkb_penawaran + (float)$ppn_penawaran;
 												}
 
+												$readonly = "";
+
 												if ($data1['jenis'] == "all_in") {
+													$readonly = "";
 													if (fmod($harga_dasar_penawaran, 1) !== 0.0000) {
 														$jenis .= "<p>" . 'Harga Dasar' . " : " . number_format($harga_dasar_penawaran, 4, ".", ",") . "</p>";
 													} else {
@@ -522,6 +612,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													// 	}
 													// }
 												} elseif ($data1['jenis'] == "harga_dasar") {
+													$readonly = "";
 													$total_hsd_ppn = ($harga_dasar_penawaran * $nilai_ppn) / 100;
 
 													if (fmod($harga_dasar_penawaran, 1) !== 0.0000) {
@@ -547,6 +638,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													// 	}
 													// }
 												} elseif ($data1['jenis'] == "harga_dasar_oa") {
+													$readonly = "";
 													$total_hsd_oa_ppn = ($harga_dasar_penawaran + $ongkos_angkut_penawaran) * $nilai_ppn / 100;
 
 													if (fmod($harga_dasar_penawaran, 1) !== 0.0000) {
@@ -586,6 +678,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													// 	}
 													// }
 												} elseif ($data1['jenis'] == "harga_dasar_pbbkb") {
+													$readonly = "";
 													$total_hsd_ppn = ($harga_dasar_penawaran + $pbbkb_penawaran) * $nilai_ppn / 100;
 
 													if (fmod($harga_dasar_penawaran, 1) !== 0.0000) {
@@ -617,6 +710,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													// 	}
 													// }
 												} elseif ($data1['jenis'] == "split_oa") {
+													$readonly = "";
 													$total_oa_ppn = $ongkos_angkut_penawaran * $nilai_ppn / 100;
 
 													if (fmod($ongkos_angkut_penawaran, 1) !== 0.0000) {
@@ -631,24 +725,65 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 														$jenis .= "<p>" . 'PPN' . " : " . number_format($total_oa_ppn, 0, ".", ",") . "</p>";
 													}
 												}
-												$harga_kirim = $data1['harga_kirim'] ? number_format($data1['harga_kirim']) : 0;
 
-												$jumlah_harga = (float)$data1['vol_kirim'] * (float)$data1['harga_kirim'];
+												if ($data1['pembulatan'] == 1) {
+													$harga_kirim = ($data1['harga_kirim']) ? number_format($data1['harga_kirim']) : 0;
+												} elseif ($data1['pembulatan'] == 0) {
+													if (fmod($data1['harga_kirim'], 1) !== 0.0000) {
+														$harga_kirim = ($data1['harga_kirim']) ? number_format((float)$data1['harga_kirim'], 2, '.', ',') : 0;
+													} else {
+														$harga_kirim = ($data1['harga_kirim']) ? number_format($data1['harga_kirim']) : 0;
+													}
+												} elseif ($data1['pembulatan'] == 2) {
+													if (fmod($data1['harga_kirim'], 1) !== 0.0000) {
+														$harga_kirim = ($data1['harga_kirim']) ? number_format((float)$data1['harga_kirim'], 4, '.', ',') : 0;
+													} else {
+														$harga_kirim = ($data1['harga_kirim']) ? number_format($data1['harga_kirim']) : 0;
+													}
+												}
+
+												if ($data1['jenis'] == "harga_dasar") {
+													$jumlah = ((float)$data1['vol_kirim'] * (float)$harga_dasar_penawaran) - $data1['discount'];
+													$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
+												} elseif ($data1['jenis'] == "harga_dasar_oa") {
+													$jumlah = (((float)$harga_dasar_penawaran + (float)$ongkos_angkut_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
+													$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
+												} elseif ($data1['jenis'] == "harga_dasar_pbbkb") {
+													$jumlah = (((float)$harga_dasar_penawaran + (float)$pbbkb_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
+													$total_ppnnya = (((float)$harga_dasar_penawaran * (float)$data1['vol_kirim']) * $nilai_ppn) / 100;
+													$jumlah_harga = $jumlah + $total_ppnnya;
+												} elseif ($data1['jenis'] == "split_pbbkb") {
+													$jumlah = (((float)$pbbkb_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
+													$jumlah_harga = $jumlah;
+												} elseif ($data1['jenis'] == "split_oa") {
+													$jumlah = (((float)$ongkos_angkut_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
+													$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
+												} else {
+													if ($result02['biaya_ppn'] == 'gabung_pbbkb' || $result02['biaya_ppn'] == 'gabung_pbbkboa') {
+														$jumlah = (((float)$harga_dasar_penawaran + (float)$ongkos_angkut_penawaran + (float)$pbbkb_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
+														$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
+													} else {
+														$jumlah = (((float)$harga_dasar_penawaran + (float)$ongkos_angkut_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
+														$jumlah_pbbkb = (float)$pbbkb_penawaran * (float)$data1['vol_kirim'];
+														$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100) + $jumlah_pbbkb;
+													}
+												}
+
+												$total_ppn = (float)$ppn_penawaran * $data1['vol_kirim'];
 												$total_invoice 	= $total_invoice + $jumlah_harga;
-												$jumlah_harga_fix = number_format(round($jumlah_harga));
+												$jumlah_harga_fix = round($jumlah_harga);
 												$total_invoice_fix = number_format(round($total_invoice));
 
 												echo '
                                             <tr data-id="' . $no_urut . '">
                                                 <td class="text-center"><span class="frmnodasar" data-row-count="' . $no_urut . '">' . $no_urut . '</span></td>
 												<td class="text-left">
-													<p style="margin-bottom:3px;">No PO Customer : ' . $data1['nomor_poc'] . '</p>
-													<p style="margin-bottom:3px;">No DN : ' . $data1['no_dn'] . '</p>
 													<p style="margin-bottom:3px;">Jenis Angkutan : ' . strtoupper($data1['jenisnya']) . '</p>
 													<p style="margin-bottom:0px;">' . ($data1['jenisnya'] == 'truck' ? 'No Plat : ' . $data1['angkutan'] . ' (' . $data1['sopir'] . ')' : 'Vessel : ' . $data1['angkutan'] . ' (' . $data1['sopir'] . ')') . '</p>
-
-												</td> 
-												<td class="text-left">
+													<hr>
+													Referensi :
+													<p style="margin-bottom:3px;">No PO Customer : ' . $data1['nomor_poc'] . '</p>
+													<p style="margin-bottom:3px;">No DN : ' . $data1['no_dn'] . '</p>
 													<p style="margin-bottom:3px;">Nomor DO : ' . $no_do . '</p>
 													<p style="margin-bottom:3px;">Nomor LO : ' . $data1['nomor_lo_pr'] . '</p>
 													<p style="margin-bottom:3px;">Nomor SPJ : ' . $data1['no_spj'] . '</p>
@@ -664,14 +799,36 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												<td class="text-left">
 													<input type="text" id="harga_kirim' . $no_urut . '" name="harga_kirim[]" class="form-control input-sm text-right harganya" value="' . $harga_kirim . '" readonly/>
 
+													<input type="hidden" id="harga_dasar" name="harga_dasar[]" class="form-control input-sm text-right harga_dasarnya" value="' . $harga_dasar_penawaran . '" readonly />
+
+													<input type="hidden" id="ongkos_angkut" name="ongkos_angkut[]" class="form-control input-sm text-right oanya" value="' . $ongkos_angkut_penawaran . '" readonly />
+													
+													<input type="hidden" id="pbbkb" name="pbbkb[]" class="form-control input-sm text-right pbbkbnya" value="' . $pbbkb_penawaran . '" readonly />
+
+													<input type="hidden" id="jumlah_ppn" name="jumlah_ppn[]" class="form-control input-sm text-right jumlahnya_ppn" value="' . $total_ppn . '" readonly />
+
+													<input type="hidden" id="nilai_ppn" name="nilai_ppn[]" class="form-control input-sm text-right ppn_nya" value="' . $nilai_ppn . '" readonly />
+
+													<input class="jenis_invoicenya" type="hidden" name="" value="' . $data1['jenis'] . '" />
+
+													<input class="biaya_ppnnya" type="hidden" name="" value="' . $result02['biaya_ppn'] . '" />
+
 													<input type="hidden" id="harga_kirim' . $no_urut . '" name="harga_kirim_fix[]" class="form-control input-sm text-right harganya_luar" value="' . $data1['harga_kirim'] . '" readonly/>
 													<br>
 													' . $jenis . '
 												</td>
 												<td class="text-left">
+													<input type="text" name="discount[]" id="discount" class="form-control input-sm text-right discountnya" placeholder="Masukkan discount" value="' . $data1['discount'] . '" ' . $readonly . ' />
+												</td>
+												<td class="text-left">
 													<input type="hidden" name="id_dsd[]" value="' . $data1['id_dsd'] . '" />
 													<input type="hidden" name="jenisnya[]" value="' . $data1['jenisnya'] . '" />
 													<input type="text" id="jumlah_harga' . $no_urut . '" name="jumlah_harga[]" class="form-control input-sm text-right jumlahnya" value="' . $jumlah_harga_fix . '" readonly />
+													<input type="hidden" id="jumlah_harga_dasar_oa' . $no_urut . '" name="jumlah_harga_dasar_oa[]" class="form-control input-sm text-right jumlahnya_harga_dasar_oa" value="' . $jumlah_harga_fix . '" readonly />
+													<input type="hidden" id="jumlah_harga_dasar_pbbkb' . $no_urut . '" name="jumlah_harga_dasar_pbbkb[]" class="form-control input-sm text-right jumlahnya_harga_dasar_pbbkb" value="' . $jumlah_harga_fix . '" readonly />
+													<input type="hidden" id="jumlah_pbbkb' . $no_urut . '" name="jumlah_pbbkb[]" class="form-control input-sm text-right jumlahnya_pbbkb" value="' . $jumlah_harga_fix . '" readonly />
+													<input type="hidden" id="jumlah_ongkos_angkut' . $no_urut . '" name="jumlah_ongkos_angkut[]" class="form-control input-sm text-right jumlahnya_ongkos_angkut" value="' . $jumlah_harga_fix . '" readonly />
+													<input type="hidden" id="jumlah_harga_dasar' . $no_urut . '" name="jumlah_harga_dasar[]" class="form-control input-sm text-right jumlahnya_harga_dasar" value="' . $jumlah_harga_fix . '" readonly />
 												</td>
                                             </tr>';
 											}
@@ -679,7 +836,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											echo '<tr><td class="text-center" colspan="8">Tidak Ada Data</td></tr>';
 										}
 										?>
-										<tr>
+										<tr class="total-row">
 											<td class="text-center" colspan="6"><b>T O T A L</b></td>
 											<td class="text-left">
 												<input type="text" id="total_invoice_edit" name="total_invoice" class="form-control input-sm text-right hitung" value="<?php echo $total_invoice_fix; ?>" readonly />
@@ -752,6 +909,30 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 	</style>
 	<script>
 		$(document).ready(function() {
+			function formatUang(val) {
+				return parseFloat(val)
+					.toLocaleString('id-ID')
+					.replace(/\./g, '#') // Sementara: titik ribuan jadi #
+					.replace(/,/g, '.') // Koma desimal jadi titik
+					.replace(/#/g, ','); // # jadi koma ribuan
+			}
+
+			$("#tambah-do").click(function() {
+				$("#row-invoice-by").removeClass("hide");
+				$("#row-tanggal").removeClass("hide");
+				$("#generate-update").removeClass("hide");
+				$("#batal-tambah-do").removeClass("hide");
+				$("#tambah-do").addClass("hide");
+			})
+			$("#batal-tambah-do").click(function() {
+				$("#tipe").val("").trigger("change");
+				$("#row-invoice-by").addClass("hide");
+				$("#row-tanggal").addClass("hide");
+				$("#generate-update").addClass("hide");
+				$("#batal-tambah-do").addClass("hide");
+				$("#tambah-do").removeClass("hide");
+			})
+
 			$("#split_invoice").change(function() {
 				var value = $(this).val();
 				if (value == "split_oa") {
@@ -761,6 +942,10 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$("#akun_pbbkb").attr("required", true);
 					$(".row-kode2").addClass("hide");
 					$("#kode_pbbkb").removeAttr("required", true);
+					$('#total_invoice_harga_dasar_pbbkb').attr('type', 'hidden');
+					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
+					$("#total_invoice_harga_dasar_oa, #total_invoice_harga_dasar_pbbkb").number(true, 0, ".", ",");
+					$('#total_invoice').attr('type', 'text');
 				} else if (value == "split_pbbkb") {
 					$(".row-kode").addClass("hide");
 					$("#kode_oa").removeAttr("required", true);
@@ -771,6 +956,10 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 						opacity: 1
 					}, 400, "swing");
 					$("#kode_pbbkb").attr("required", true);
+					$('#total_invoice_harga_dasar_pbbkb').attr('type', 'hidden');
+					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
+					$('#total_invoice').attr('type', 'text');
+					$("#total_invoice_harga_dasar_oa, #total_invoice_harga_dasar_pbbkb").number(true, 0, ".", ",");
 				} else if (value == "split_all") {
 					$(".row-kode").removeClass("hide");
 					$("#kode_oa").removeAttr("required", true);
@@ -778,6 +967,9 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$("#akun_pbbkb").removeAttr("required", true);
 					$(".row-kode2").removeClass("hide");
 					$("#kode_pbbkb").attr("required", true);
+					$('#total_invoice_harga_dasar_pbbkb').attr('type', 'hidden');
+					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
+					$('#total_invoice').attr('type', 'text');
 				} else {
 					$(".row-kode").addClass("hide");
 					$("#kode_oa").removeAttr("required", true);
@@ -785,6 +977,9 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$("#akun_pbbkb").attr("required", true);
 					$(".row-kode2").addClass("hide");
 					$("#kode_pbbkb").removeAttr("required", true);
+					$('#total_invoice_harga_dasar_pbbkb').attr('type', 'hidden');
+					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
+					$('#total_invoice').attr('type', 'text');
 				}
 			})
 
@@ -806,6 +1001,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 				$("#row-jenis-tanggal").hide();
 				$("#row-periode").hide();
 			} else {
+				$("#row-jenis-tanggal").hide();
 				var tgl_kirim_awal = `<?= $model['tgl_kirim_awal'] ?>`;
 				var tgl_kirim_akhir = `<?= $model['tgl_kirim_akhir'] ?>`;
 				if (tgl_kirim_awal == tgl_kirim_akhir) {
@@ -818,7 +1014,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 			}
 
 			$(".volumenya").number(true, 4, ".", ",");
-			$(".jumlahnya, #total_invoice_edit").number(true, 0, ".", ",");
+			$(".jumlahnya, #total_invoice_edit, .discountnya").number(true, 0, ".", ",");
 
 
 			var formValidasiCfg = {
@@ -876,13 +1072,195 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 			});
 
 
-			$(".table-dasar").on("input", "input.volumenya, input.harganya_luar", function() {
+			$(".table-dasar").on("input", "input.volumenya, input.discountnya", function() {
 				var row = $(this).closest("tr");
+				var act = `<?= $action ?>`;
 				var volumeKirim = parseFloat(row.find("input.volumenya").val()) || 0;
+				var discount = parseFloat(row.find("input.discountnya").val()) || 0;
+				var jumlah_ppn = parseFloat(row.find("input.jumlahnya_ppn").val()) || 0;
+				var ppn_nya = parseFloat(row.find("input.ppn_nya").val()) || 0;
+				var harga_dasarnya = parseFloat(row.find("input.harga_dasarnya").val()) || 0;
+				var oanya = parseFloat(row.find("input.oanya").val()) || 0;
+				var pbbkbnya = parseFloat(row.find("input.pbbkbnya").val()) || 0;
+				var biaya_ppnnya = row.find("input.biaya_ppnnya").val();
+				var jenis_invoicenya = $("#split_invoice").val();
 				var hargaKirim = parseFloat(row.find("input.harganya_luar").val().replace(/,/g, '')) || 0;
-				// console.log(hargaKirim)
-				var jumlahHarga = Math.round((volumeKirim * hargaKirim));
-				row.find("input.jumlahnya").val(jumlahHarga);
+
+				if (discount > 0) {
+
+					if (act == "add") {
+						if (biaya_ppnnya == "gabung_pbbkb" || biaya_ppnnya == "gabung_pbbkboa") {
+							var jumlahHarga = Math.round(((volumeKirim * hargaKirim)) - discount) - jumlah_ppn;
+							var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+							row.find("input.jumlahnya").val(totalHarga);
+
+						} else {
+							// var jumlahHarga = Math.round(((volumeKirim * hargaKirim)) - discount) - jumlah_ppn;
+							// var total_ppn_pbbkb = (pbbkbnya * ppn_nya) / 100;
+							// var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100)) - total_ppn_pbbkb;
+							var jumlahHargaOa = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+
+							var jumlahHargaPbbkb = Math.round(pbbkbnya * volumeKirim);
+
+							var jumlahPpn = Math.round((jumlahHargaOa * ppn_nya) / 100);
+
+							var totalnya = jumlahHargaOa + jumlahHargaPbbkb + jumlahPpn;
+
+							row.find("input.jumlahnya").val(totalnya);
+
+						}
+
+						var hargaDasarPBBKB = Math.round(((harga_dasarnya + pbbkbnya) * volumeKirim) - discount);
+						var total_hargaDasarPBBKB = hargaDasarPBBKB + Math.round(((hargaDasarPBBKB * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_harga_dasar_pbbkb").val(total_hargaDasarPBBKB);
+
+						var hargaDasarOA = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+						var total_hargaDasarOA = hargaDasarOA + Math.round(((hargaDasarOA * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_harga_dasar_oa").val(total_hargaDasarOA);
+
+						var hargaDasar = Math.round((harga_dasarnya * volumeKirim) - discount);
+						var total_hargaDasar = hargaDasar + Math.round(((hargaDasar * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_harga_dasar").val(total_hargaDasar);
+					} else {
+						if (jenis_invoicenya == "harga_dasar") {
+							var jumlahHarga = Math.round(((volumeKirim * harga_dasarnya)) - discount);
+							var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+							row.find("input.jumlahnya").val(totalHarga);
+						} else if (jenis_invoicenya == "harga_dasar_pbbkb") {
+							var totalHsd = Math.round(harga_dasarnya * volumeKirim) - discount;
+
+							var total_ppnnya = Math.round((totalHsd * ppn_nya) / 100);
+
+							var jumlahPbbkb = Math.round(pbbkbnya * volumeKirim);
+
+							var totalHarga = jumlahPbbkb + totalHsd + total_ppnnya;
+
+							row.find("input.jumlahnya").val(totalHarga);
+						} else if (jenis_invoicenya == "harga_dasar_oa") {
+							var jumlahHarga = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+							var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+							row.find("input.jumlahnya").val(totalHarga);
+						} else if (jenis_invoicenya == "split_pbbkb") {
+							var jumlahHarga = Math.round((pbbkbnya * volumeKirim) - discount);
+							row.find("input.jumlahnya").val(jumlahHarga);
+						} else if (jenis_invoicenya == "split_oa") {
+							var totalOA = Math.round(oanya * volumeKirim) - discount;
+
+							var total_ppnnya = Math.round((totalOA * ppn_nya) / 100);
+
+							var totalHarga = totalOA + total_ppnnya;
+
+							row.find("input.jumlahnya").val(totalHarga);
+						} else {
+							if (biaya_ppnnya == "gabung_pbbkb" || biaya_ppnnya == "gabung_pbbkboa") {
+								var jumlahHarga = Math.round(((volumeKirim * hargaKirim)) - discount) - jumlah_ppn;
+								var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+								row.find("input.jumlahnya").val(totalHarga);
+
+							} else {
+								var jumlahHargaOa = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+
+								var jumlahHargaPbbkb = Math.round(pbbkbnya * volumeKirim);
+
+								var jumlahPpn = Math.round((jumlahHargaOa * ppn_nya) / 100);
+
+								var totalnya = jumlahHargaOa + jumlahHargaPbbkb + jumlahPpn;
+
+								row.find("input.jumlahnya").val(totalnya);
+
+							}
+						}
+
+					}
+				} else {
+					if (act == "add") {
+						if (biaya_ppnnya == "gabung_pbbkb" || biaya_ppnnya == "gabung_pbbkboa") {
+							var jumlahHarga = Math.round(((volumeKirim * hargaKirim)) - discount) - jumlah_ppn;
+							var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+							row.find("input.jumlahnya").val(totalHarga);
+
+						} else {
+							var jumlahHargaOa = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+
+							var jumlahHargaPbbkb = Math.round(pbbkbnya * volumeKirim);
+
+							var jumlahPpn = Math.round((jumlahHargaOa * ppn_nya) / 100);
+
+							var totalnya = jumlahHargaOa + jumlahHargaPbbkb + jumlahPpn;
+
+							row.find("input.jumlahnya").val(totalnya);
+
+						}
+
+						var hargaDasarPBBKB = Math.round(((harga_dasarnya + pbbkbnya) * volumeKirim) - discount);
+						var total_hargaDasarPBBKB = hargaDasarPBBKB + Math.round(((hargaDasarPBBKB * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_harga_dasar_pbbkb").val(total_hargaDasarPBBKB);
+
+						var hargaDasarOA = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+						var total_hargaDasarOA = hargaDasarOA + Math.round(((hargaDasarOA * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_harga_dasar_oa").val(total_hargaDasarOA);
+
+						var hargaDasar = Math.round((harga_dasarnya * volumeKirim) - discount);
+						var total_hargaDasar = hargaDasar + Math.round(((hargaDasar * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_harga_dasar").val(total_hargaDasar);
+					} else {
+						if (jenis_invoicenya == "harga_dasar") {
+							var jumlahHarga = Math.round(((volumeKirim * harga_dasarnya)) - discount);
+							var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+							row.find("input.jumlahnya").val(totalHarga);
+						} else if (jenis_invoicenya == "harga_dasar_pbbkb") {
+							var totalHsd = Math.round(harga_dasarnya * volumeKirim) - discount;
+
+							var total_ppnnya = Math.round((totalHsd * ppn_nya) / 100);
+
+							var jumlahPbbkb = Math.round(pbbkbnya * volumeKirim);
+
+							var totalHarga = jumlahPbbkb + totalHsd + total_ppnnya;
+
+							row.find("input.jumlahnya").val(totalHarga);
+						} else if (jenis_invoicenya == "harga_dasar_oa") {
+							var jumlahHarga = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+							var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+							row.find("input.jumlahnya").val(totalHarga);
+						} else if (jenis_invoicenya == "split_pbbkb") {
+							var jumlahHarga = Math.round((pbbkbnya * volumeKirim) - discount);
+							row.find("input.jumlahnya").val(jumlahHarga);
+						} else if (jenis_invoicenya == "split_oa") {
+							var totalOA = Math.round(oanya * volumeKirim) - discount;
+
+							var total_ppnnya = Math.round((totalOA * ppn_nya) / 100);
+
+							var totalHarga = totalOA + total_ppnnya;
+
+							row.find("input.jumlahnya").val(totalHarga);
+						} else {
+							if (biaya_ppnnya == "gabung_pbbkb" || biaya_ppnnya == "gabung_pbbkboa") {
+								var jumlahHarga = Math.round(((volumeKirim * hargaKirim)) - discount) - jumlah_ppn;
+								var totalHarga = jumlahHarga + Math.round(((jumlahHarga * ppn_nya) / 100));
+								row.find("input.jumlahnya").val(totalHarga);
+
+							} else {
+								var jumlahHargaOa = Math.round(((harga_dasarnya + oanya) * volumeKirim) - discount);
+
+								var jumlahHargaPbbkb = Math.round(pbbkbnya * volumeKirim);
+
+								var jumlahPpn = Math.round((jumlahHargaOa * ppn_nya) / 100);
+
+								var totalnya = jumlahHargaOa + jumlahHargaPbbkb + jumlahPpn;
+
+								row.find("input.jumlahnya").val(totalnya);
+
+							}
+						}
+
+					}
+				}
 
 				recalculateTotal();
 			});
@@ -917,6 +1295,8 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 				let nilai03 = $("#tgl_kirim_akhir").val();
 				let nilai04 = $("#tanggal").val();
 				let selected_value = $("input[name='jenis_tanggal']:checked").val();
+				let act = `<?= $action ?>`;
+				let jenis_invoice = $("#split_invoice").val();
 
 				if (tipe) {
 
@@ -942,14 +1322,38 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 									dataType: "json",
 									success: function(data) {
 										if (data.items.length > 0) {
+											$("#row-split-invoice").removeClass("hide");
 											$("#btnSbmt").removeAttr("disabled");
+
 											var tabel = $(".table-dasar");
+											var $tbody = tabel.find("tbody");
+
+											// ====== HAPUS baris generate & total yang lama dulu ======
+											$tbody.find("tr.gen-row, tr.total-row").remove();
+
+											// ====== HAPUS baris placeholder/no-data ======
+											$tbody.find("tr.no-data").remove(); // kalau ada class no-data
+
+											// fallback: hapus baris dengan teks "Tidak Ada Data"
+											$tbody.find("tr").filter(function() {
+												var $tr = $(this);
+												var txt = $tr.text().trim().toLowerCase();
+												var hasColspanFull = $tr.find("td[colspan]").length > 0;
+												return txt === "tidak ada data" || (hasColspanFull && txt.indexOf("tidak ada data") !== -1);
+											}).remove();
+
 											var arrId = tabel.find("tbody > tr").map(function() {
 												return parseFloat($(this).data("id")) || 0;
 											}).toArray();
 											var rwNom = Math.max.apply(Math, arrId);
+
 											var newId = (rwNom == 0) ? 1 : (rwNom + 1);
-											var newId = 1;
+											if (act == "update") {
+												newId = newId;
+											} else {
+												var newId = 1;
+											}
+
 											var total01 = 0;
 											var total02 = 0;
 											var total03 = 0;
@@ -975,6 +1379,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												var total_penawaran = 0;
 												var total_penawaran_2 = 0;
 												biaya_ppn = row.biaya_ppn
+
 												$.each(penawaran_detail, function(i, res) {
 													if (res.rincian == "Harga Dasar") {
 														harga_dasar = res.biaya;
@@ -990,146 +1395,240 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 														pbbkb = res.biaya;
 													}
 
-													total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+													if (row.pembulatan == 2 || row.pembulatan == 1) {
+														let val = parseFloat(res.biaya);
+														let parts = val.toString().split('.');
+														let decimalPart = parts[1] || '';
+														decimalPart = decimalPart.padEnd(4, '0');
+														let firstFour = decimalPart.slice(0, 4);
 
-													if (row.pembulatan == 2) {
-														biaya = parseFloat(res.biaya).toFixed(4).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-
-														if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
-
-															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+														if (parseInt(firstFour) === 0) {
+															biaya = formatUang(val.toFixed(0));
 														} else {
-															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
-
-															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+															biaya = formatUang(val.toFixed(4));
 														}
-
-													} else if (row.pembulatan == 0) {
-														biaya = parseFloat(res.biaya).toFixed(4).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-
-														if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
-
-															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
-														} else {
-															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
-
-															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
-														}
-
 
 													} else {
-														biaya = parseFloat(res.biaya).toFixed(4).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-														if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
+														let val = parseFloat(res.biaya);
+														let parts = val.toString().split('.');
+														let decimalPart = parts[1] || '';
+														decimalPart = decimalPart.padEnd(2, '0');
+														let firstFour = decimalPart.slice(0, 2);
 
-															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+														if (parseInt(firstFour) === 0) {
+															biaya = formatUang(val.toFixed(0));
 														} else {
-															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
-
-															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+															biaya = formatUang(val.toFixed(4));
 														}
 													}
 
-													penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
-												})
+													if (act == "update") {
 
-												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-													var jumlahnya = Math.round(((row.volume_po * total_penawaran) * nilai_ppn / 100)) + (row.volume_po * total_penawaran);
+														if (jenis_invoice == "harga_dasar") {
+															total_penawaran_luar = parseFloat(harga_dasar);
+
+															if (res.rincian == "Harga Dasar") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+															if (res.rincian == "PPN") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(ppn);
+															total_penawaran_2 = parseFloat(harga_dasar);
+
+														} else if (jenis_invoice == "harga_dasar_oa") {
+															total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+															if (res.rincian == "Harga Dasar") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+															if (res.rincian == "Ongkos Angkut") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+															if (res.rincian == "PPN") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+														} else if (jenis_invoice == "harga_dasar_pbbkb") {
+															total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(pbbkb);
+
+															if (res.rincian == "Harga Dasar") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+															if (res.rincian == "PBBKB") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+															if (res.rincian == "PPN") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(pbbkb) + parseFloat(ppn);
+															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(pbbkb) + parseFloat(ppn);
+
+														} else if (jenis_invoice == "split_oa") {
+															total_penawaran_luar = parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+															if (res.rincian == "Ongkos Angkut") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+															if (res.rincian == "PPN") {
+																penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+															}
+
+															total_penawaran = parseFloat(ongkos_angkut) + parseFloat(ppn);
+															total_penawaran_2 = parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+														} else if (jenis_invoice == "split_pbbkb") {
+															total_penawaran_luar = parseFloat(pbbkb);
+															if (res.rincian == "PBBKB") {
+																penawaran = "";
+															}
+
+															total_penawaran = parseFloat(pbbkb);
+															total_penawaran_2 = parseFloat(pbbkb);
+
+														} else if (jenis_invoice == "all_in") {
+															total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+														}
+
+													} else {
+														total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+
+														if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
+															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+
+														} else if (biaya_ppn == "all_in") {
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+
+														} else {
+															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
+															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb)
+														}
+
+														penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+													}
+
+												}); // end $.each(penawaran_detail)
+
+												// ===== Hitung jumlah baris ini =====
+												var jumlahnya;
+												if (act == "update") {
+													jumlahnya = row.volume_po * parseFloat(total_penawaran);
 												} else {
-													var jumlahnya = Math.round(((row.volume_po * total_penawaran) * nilai_ppn / 100)) + (row.volume_po * total_penawaran) + (row.volume_po * pbbkb);
-
+													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+														jumlahnya = ((row.volume_po * parseFloat(total_penawaran)) * nilai_ppn / 100) + (row.volume_po * parseFloat(total_penawaran));
+													} else if (biaya_ppn == "all_in") {
+														jumlahnya = row.volume_po * parseFloat(total_penawaran);
+													} else {
+														jumlahnya = ((row.volume_po * parseFloat(total_penawaran)) * nilai_ppn / 100) + (row.volume_po * parseFloat(total_penawaran)) + (row.volume_po * pbbkb);
+													}
 												}
-												// var jumlahnya = row.volume_po * total_penawaran;
+
 												total01 = total01 + jumlahnya;
 
+												// ===== Komponen total parsial =====
+												var jumlah_harga_dasar, jumlah_ongkos_angkut, jumlah_pbbkb, jumlah_ppn, jumlah_harga_dasar_oa, jumlah_harga_dasar_pbbkb;
+
 												if (row.pembulatan == 2 || row.pembulatan == 0) {
-
-													var jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
-
-													var jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) * row.volume_po) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100) * row.volume_po;
-
-													var jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
-
-													var jumlah_harga_dasar_oa = ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+													jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
+													jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) * row.volume_po) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+													jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
+													jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
+													jumlah_harga_dasar_oa = ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
 													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-														var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 													} else {
-														var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
+														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 													}
 
-													total02 = total02 + parseFloat(jumlah_harga_dasar);
-													total03 = total03 + parseFloat(jumlah_ongkos_angkut);
-													total04 = total04 + parseFloat(jumlah_pbbkb);
-													total05 = total05 + parseFloat(jumlah_harga_dasar_oa);
-													total06 = total06 + parseFloat(jumlah_harga_dasar_pbbkb);
-
 												} else {
-													var jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
-
-													var jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100)) * row.volume_po;
-
-													var jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
-
-													var jumlah_harga_dasar_oa = (parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + (parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+													jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
+													jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100)) * row.volume_po;
+													jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
+													jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
+													jumlah_harga_dasar_oa = (parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + (parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
 													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-														var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
+														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
 													} else {
-														var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
+														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
 													}
-
-													total02 = total02 + parseFloat(jumlah_harga_dasar);
-													total03 = total03 + parseFloat(jumlah_ongkos_angkut);
-													total04 = total04 + parseFloat(jumlah_pbbkb);
-													total05 = total05 + parseFloat(jumlah_harga_dasar_oa);
-													total06 = total06 + parseFloat(jumlah_harga_dasar_pbbkb);
 												}
 
-												if (row.no_do_acurate == null) {
-													var no_do = row.no_do_syop;
-												} else {
-													var no_do = row.no_do_acurate;
-												}
+												total02 += parseFloat(jumlah_harga_dasar);
+												total03 += parseFloat(jumlah_ongkos_angkut);
+												total04 += parseFloat(jumlah_pbbkb);
+												total05 += parseFloat(jumlah_harga_dasar_oa);
+												total06 += parseFloat(jumlah_harga_dasar_pbbkb);
+
+												var no_do = (row.no_do_acurate == null) ? row.no_do_syop : row.no_do_acurate;
+
+												const value = row.realisasi_volumenya;
+
+												// Cek apakah ada pecahan desimal
+												const formatted = Number(value) % 1 === 0 ?
+													new Intl.NumberFormat("ja-JP", {
+														minimumFractionDigits: 0,
+														maximumFractionDigits: 0
+													}).format(value) // tanpa desimal
+													:
+													new Intl.NumberFormat("ja-JP", {
+														minimumFractionDigits: 4,
+														maximumFractionDigits: 4
+													}).format(value);
+
+												// ====== BANGUN HTML BARIS (dengan class .gen-row) ======
 												var isiHtml =
-													'<tr data-id="' + newId + '">' +
+													'<tr class="gen-row" data-id="' + newId + '">' +
 													'<td class="text-center"><span class="frmnodasar" data-row-count="' + newId + '"></span></td>' +
 													'<td class="text-left">' +
+													'<p style="margin-bottom:3px;">Jenis Angkutan : ' + row.jenisnya.toUpperCase() + '</p>' +
+													'<p style="margin-bottom:0px;">' + (row.jenisnya == "truck" ? "No Plat : " + row.angkutan + " (" + row.sopir + ")" : "Vessel : " + row.angkutan + " (" + row.sopir + ")") + '</p>' +
+													'<hr><strong>Referensi : </strong>' +
 													'<p style="margin-bottom:3px;">No PO Customer : ' + row.nomor_poc + '</p>' +
 													'<p style="margin-bottom:3px;">No DN : ' + row.no_dn + '</p>' +
 													'<p style="margin-bottom:3px;">No SPJ : ' + row.no_spj + '</p>' +
 													'<p style="margin-bottom:3px;">No Penawaran : ' + row.nomor_surat + '</p>' +
-													'<p style="margin-bottom:3px;">Jenis Angkutan : ' + row.jenisnya.toUpperCase() + '</p>' +
-													'<p style="margin-bottom:0px;">' + (row.jenisnya == 'truck' ? 'No Plat : ' + row.angkutan + ' (' + row.sopir + ')' : 'Vessel : ' + row.angkutan + ' (' + row.sopir + ')') + '</p>' +
-													'</td>' +
-													'<td class="text-left">' +
 													'<p style="margin-bottom:3px;">No DO : ' + no_do + '</p>' +
 													'<p style="margin-bottom:3px;">No LO : ' + row.nomor_lo_pr + '</p>' +
 													'<p style="margin-bottom:3px;">Refund : ' + row.refund_tawar + '</p>' +
 													'</td>' +
 													'<td class="text-left">' +
-													'<input type="text" id="tgl_delivered' + newId + '" name="tgl_delivered[]" class="form-control input-sm" value="' + row.tgl_delivered + '" data-rule-dateNL="true" readonly />' +
+													'<input type="text" id="tgl_delivered' + newId + '" name="tgl_delivered[]" class="form-control input-sm" value="' + row.tgl_delivered + '" readonly />' +
 													'</td>' +
 													'<td class="text-left">' +
 													'<input type="text" id="vol_kirim' + newId + '" name="vol_kirim[]" class="form-control input-sm text-right volumenya" value="' + row.volume_po + '"/>' +
-													'<p style="margin-bottom:3px;">Volume PO : ' + new Intl.NumberFormat("ja-JP").format(row.volume_po) + '</p>' +
-													'<p style="margin-bottom:3px;">Realisasi : ' + new Intl.NumberFormat("ja-JP").format(row.realisasi_volume) + '</p>' +
+													'<p style="margin-bottom:3px;">Volume PO : ' + new Intl.NumberFormat("ja-JP").format(row.volumenya_po) + '</p>' +
+													'<p style="margin-bottom:3px;">Realisasi : ' + formatted + '</p>' +
 													'<td class="text-left" width="200">' +
-													'<input type="text" id="harga_kirim' + newId + '" name="harga_kirim[]" class="form-control input-sm text-right harganya" value="' + total_penawaran_2 + '"  readonly />' +
-													'<input type="hidden" id="harga_kirim' + newId + '" name="harga_kirim_fix[]" class="form-control input-sm text-right harganya_luar" value="' + total_penawaran_luar + '"  readonly />' +
-													'<input type="hidden" id="pembulatan' + newId + '" name="pembulatan[]" class="form-control input-sm text-right pembulatannya" value="' + row.pembulatan + '"  readonly />' +
+													'<input type="text" id="harga_kirim' + newId + '" name="harga_kirim[]" class="form-control input-sm text-right harganya" value="' + total_penawaran_2 + '" readonly />' +
+													'<input type="hidden" id="harga_kirim' + newId + '" name="harga_kirim_fix[]" class="form-control input-sm text-right harganya_luar" value="' + total_penawaran_luar + '" readonly />' +
+													'<input type="hidden" id="pembulatan' + newId + '" name="pembulatan[]" class="form-control input-sm text-right pembulatannya" value="' + row.pembulatan + '" readonly />' +
 													'<input type="hidden" id="harga_dasar' + newId + '" name="harga_dasar[]" class="form-control input-sm text-right harga_dasarnya" value="' + harga_dasar + '" readonly />' +
-													'<input type="hidden" id="ongkos_angkut' + newId + '" name="ongkos_angkut[]" class="form-control input-sm text-right oanya" value="' + ongkos_angkut + '"  readonly />' +
-													'<input type="hidden" id="ppn' + newId + '" name="ppn[]" class="form-control input-sm text-right total_ppn_nya" value="' + ppn + '"  readonly />' +
-													'<input type="hidden" id="nilai_ppn' + newId + '" name="nilai_ppn[]" class="form-control input-sm text-right ppn_nya" value="' + nilai_ppn + '"  readonly />' +
-													'<input type="hidden" id="pbbkb' + newId + '" name="pbbkb[]" class="form-control input-sm text-right pbbkbnya" value="' + pbbkb + '"  readonly />' + penawaran +
+													'<input type="hidden" id="ongkos_angkut' + newId + '" name="ongkos_angkut[]" class="form-control input-sm text-right oanya" value="' + ongkos_angkut + '" readonly />' +
+													'<input type="hidden" id="ppn' + newId + '" name="ppn[]" class="form-control input-sm text-right total_ppn_nya" value="' + ppn + '" readonly />' +
+													'<input type="hidden" id="nilai_ppn' + newId + '" name="nilai_ppn[]" class="form-control input-sm text-right ppn_nya" value="' + nilai_ppn + '" readonly />' +
+													'<input type="hidden" id="pbbkb' + newId + '" name="pbbkb[]" class="form-control input-sm text-right pbbkbnya" value="' + pbbkb + '" readonly />' + penawaran +
+													'</td>' +
+													'<td>' +
+													'<input type="text" name="discount[]" id="discount' + newId + '" class="form-control input-sm text-right discountnya" placeholder="Masukkan discount" />' +
 													'</td>' +
 													'<td class="text-left">' +
 													'<input type="hidden" name="id_dsd[]" value="' + row.id_dsd + '" />' +
 													'<input type="hidden" name="jenisnya[]" value="' + row.jenisnya + '" />' +
-													'<input type="hidden" name="kategori[]" value="' + row.biaya_ppn + '" />' +
+													'<input class="biaya_ppnnya" type="hidden" name="kategori[]" value="' + row.biaya_ppn + '" />' +
 													'<input type="hidden" name="refund_tawar[]" value="' + row.refund_tawar + '" />' +
 													'<input type="text" id="jumlah_harga' + newId + '" name="jumlah_harga[]" class="form-control input-sm text-right jumlahnya" value="' + jumlahnya + '" readonly />' +
 													'<input type="hidden" id="jumlah_harga_dasar' + newId + '" name="jumlah_harga_dasar[]" class="form-control input-sm text-right jumlahnya_harga_dasar" value="' + jumlah_harga_dasar + '" readonly />' +
@@ -1137,19 +1636,25 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													'<input type="hidden" id="jumlah_harga_dasar_oa' + newId + '" name="jumlah_harga_dasar_oa[]" class="form-control input-sm text-right jumlahnya_harga_dasar_oa" value="' + jumlah_harga_dasar_oa + '" readonly />' +
 													'<input type="hidden" id="jumlah_ongkos_angkut' + newId + '" name="jumlah_ongkos_angkut[]" class="form-control input-sm text-right jumlahnya_ongkos_angkut" value="' + jumlah_ongkos_angkut + '" readonly />' +
 													'<input type="hidden" id="jumlah_harga_dasar_pbbkb' + newId + '" name="jumlah_harga_dasar_pbbkb[]" class="form-control input-sm text-right jumlahnya_harga_dasar_pbbkb" value="' + jumlah_harga_dasar_pbbkb + '" readonly />' +
+													'<input type="hidden" id="jumlah_ppn' + newId + '" name="jumlah_ppn[]" class="form-control input-sm text-right jumlahnya_ppn" value="' + jumlah_ppn + '" readonly />' +
 													'</td>' +
 													'<td class="text-center">' +
 													'<a class="btn btn-action btn-danger hRow jarak-kanan">&nbsp;<i class="fa fa-times"></i>&nbsp;</a>' +
-													'' +
 													'</td>' +
 													'</tr>';
-												if (newId == 1) {
-													tabel.find('tbody').html(isiHtml);
+
+												// ====== SISIPKAN SELALU SEBAGAI BARIS KE-2 (setelah baris statis terakhir) ======
+												var $lastStaticRow = $tbody.find('tr').not('.gen-row,.total-row').last();
+												if ($lastStaticRow.length) {
+													$lastStaticRow.after(isiHtml);
 												} else {
-													tabel.find('tbody > tr:last').after(isiHtml);
+													$tbody.append(isiHtml);
 												}
-												$("#tgl_delivered" + newId).datepicker(config.datepicker);
+
+												// Number formatting per baris
 												$("#vol_kirim" + newId).number(true, 4, '.', ',');
+												$("#discount" + newId).number(true);
+
 												if (row.pembulatan == 2) {
 													$("#jumlah_harga" + newId).number(true, 0, '.', ',');
 													$("#harga_kirim" + newId).number(true, 4, '.', ',');
@@ -1160,13 +1665,18 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													$("#jumlah_harga" + newId).number(true, 0, '.', ',');
 													$("#harga_kirim" + newId).number(true, 0, '.', ',');
 												}
+
 												newId++;
-											});
+											}); // end $.each(data.items)
+
+											// ====== Penomoran ulang kolom No ======
 											tabel.find("span.frmnodasar").each(function(i, v) {
 												$(v).text(i + 1);
 											});
-											var isiHtml =
-												'<tr>' +
+
+											// ====== BARIS TOTAL (selalu satu) ======
+											var totalHtml =
+												'<tr class="total-row">' +
 												'<td class="text-center" colspan="6"><b>T O T A L</b></td>' +
 												'<td class="text-left">' +
 												'<input type="text" id="total_invoice" name="total_invoice" class="form-control input-sm text-right" value="' + Math.round(total01) + '" readonly />' +
@@ -1178,8 +1688,12 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												'</td>' +
 												'<td class="text-center">&nbsp;</td>' +
 												'</tr>';
-											tabel.find('tbody > tr:last').after(isiHtml);
 
+											// Pastikan tidak dobel
+											$tbody.find('tr.total-row').remove();
+											$tbody.append(totalHtml);
+
+											// Format angka total
 											if (data.items[0].pembulatan == 2) {
 												$("#total_invoice").number(true, 0, '.', ',');
 												$("#total_invoice_harga_dasar").number(true, 4, '.', ',');
@@ -1203,26 +1717,38 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												$("#total_invoice_harga_dasar_pbbkb").number(true, 0, '.', ',');
 											}
 
-											// if (biaya_ppn == 'gabung_pbbkb' || biaya_ppn == 'gabung_pbbkboa' || biaya_ppn == 'all_in') {
-											// 	$("#group_items").show(400, "swing");
-											// 	$("#group_akun").hide(400, "swing");
-											// } else {
-											// 	$("#group_akun").show(400, "swing");
-											// 	$("#group_items").hide(400, "swing");
-											// }
+											// Recalc untuk mode update (tetap dipertahankan)
+											if (act == "update") {
+												recalculateTotal();
+											}
+
 
 										} else {
-											var isiHtml =
-												'<tr><td class="text-center" colspan="8">Tidak Ada Data</td></tr>' +
-												'<tr>' +
-												'<td class="text-center" colspan="6"><b>T O T A L</b></td>' +
-												'<td class="text-left">' +
-												'<input type="text" id="total_invoice" name="total_invoice" class="form-control input-sm text-right" value="" readonly />' +
-												'</td>' +
-												'<td class="text-center">&nbsp;</td>' +
-												'</tr>';
-											$(".table-dasar").find('tbody').html(isiHtml);
-											$("#total_invoice").number(true, 0, ',', '.');
+											$("#row-split-invoice").addClass("hide");
+											Swal.fire({
+												title: "Uppss..",
+												text: "Data tidak ditemukan",
+												icon: "error"
+											});
+											// if (act == "update") {
+											// 	Swal.fire({
+											// 		title: "Uppss..",
+											// 		text: "Data tidak ditemukan",
+											// 		icon: "error"
+											// 	});
+											// } else {
+											// 	var isiHtml =
+											// 		'<tr><td class="text-center" colspan="8">Tidak Ada Data</td></tr>' +
+											// 		'<tr>' +
+											// 		'<td class="text-center" colspan="6"><b>T O T A L</b></td>' +
+											// 		'<td class="text-left">' +
+											// 		'<input type="text" id="total_invoice" name="total_invoice" class="form-control input-sm text-right" value="" readonly />' +
+											// 		'</td>' +
+											// 		'<td class="text-center">&nbsp;</td>' +
+											// 		'</tr>';
+											// 	$(".table-dasar").find('tbody').html(isiHtml);
+											// 	$("#total_invoice").number(true, 0, ',', '.');
+											// }
 										}
 									}
 								});
@@ -1251,14 +1777,38 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 								dataType: "json",
 								success: function(data) {
 									if (data.items.length > 0) {
+										$("#row-split-invoice").removeClass("hide");
 										$("#btnSbmt").removeAttr("disabled");
+
 										var tabel = $(".table-dasar");
+										var $tbody = tabel.find("tbody");
+
+										// ====== HAPUS baris generate & total yang lama dulu ======
+										$tbody.find("tr.gen-row, tr.total-row").remove();
+
+										// ====== HAPUS baris placeholder/no-data ======
+										$tbody.find("tr.no-data").remove(); // kalau ada class no-data
+
+										// fallback: hapus baris dengan teks "Tidak Ada Data"
+										$tbody.find("tr").filter(function() {
+											var $tr = $(this);
+											var txt = $tr.text().trim().toLowerCase();
+											var hasColspanFull = $tr.find("td[colspan]").length > 0;
+											return txt === "tidak ada data" || (hasColspanFull && txt.indexOf("tidak ada data") !== -1);
+										}).remove();
+
 										var arrId = tabel.find("tbody > tr").map(function() {
 											return parseFloat($(this).data("id")) || 0;
 										}).toArray();
 										var rwNom = Math.max.apply(Math, arrId);
+
 										var newId = (rwNom == 0) ? 1 : (rwNom + 1);
-										var newId = 1;
+										if (act == "update") {
+											newId = newId;
+										} else {
+											var newId = 1;
+										}
+
 										var total01 = 0;
 										var total02 = 0;
 										var total03 = 0;
@@ -1284,6 +1834,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											var total_penawaran = 0;
 											var total_penawaran_2 = 0;
 											biaya_ppn = row.biaya_ppn
+
 											$.each(penawaran_detail, function(i, res) {
 												if (res.rincian == "Harga Dasar") {
 													harga_dasar = res.biaya;
@@ -1299,139 +1850,240 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													pbbkb = res.biaya;
 												}
 
-												total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+												if (row.pembulatan == 2 || row.pembulatan == 1) {
+													let val = parseFloat(res.biaya);
+													let parts = val.toString().split('.');
+													let decimalPart = parts[1] || '';
+													decimalPart = decimalPart.padEnd(4, '0');
+													let firstFour = decimalPart.slice(0, 4);
 
-												total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
-
-												if (row.pembulatan == 2) {
-													biaya = parseFloat(res.biaya).toFixed(4).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+													if (parseInt(firstFour) === 0) {
+														biaya = formatUang(val.toFixed(0));
 													} else {
-														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
-													}
-
-												} else if (row.pembulatan == 0) {
-													biaya = parseFloat(res.biaya).toFixed(4).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
-													} else {
-														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
+														biaya = formatUang(val.toFixed(4));
 													}
 
 												} else {
-													biaya = parseFloat(res.biaya).toFixed(4).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
+													let val = parseFloat(res.biaya);
+													let parts = val.toString().split('.');
+													let decimalPart = parts[1] || '';
+													decimalPart = decimalPart.padEnd(2, '0');
+													let firstFour = decimalPart.slice(0, 2);
 
-														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+													if (parseInt(firstFour) === 0) {
+														biaya = formatUang(val.toFixed(0));
 													} else {
-														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
-
-														// total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+														biaya = formatUang(val.toFixed(4));
 													}
 												}
 
-												penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
-											})
+												if (act == "update") {
 
-											if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-												var jumlahnya = Math.round(((row.volume_po * total_penawaran) * nilai_ppn / 100)) + (row.volume_po * total_penawaran);
+													if (jenis_invoice == "harga_dasar") {
+														total_penawaran_luar = parseFloat(harga_dasar);
+
+														if (res.rincian == "Harga Dasar") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+														if (res.rincian == "PPN") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(ppn);
+														total_penawaran_2 = parseFloat(harga_dasar);
+
+													} else if (jenis_invoice == "harga_dasar_oa") {
+														total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+														if (res.rincian == "Harga Dasar") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+														if (res.rincian == "Ongkos Angkut") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+														if (res.rincian == "PPN") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+													} else if (jenis_invoice == "harga_dasar_pbbkb") {
+														total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(pbbkb);
+
+														if (res.rincian == "Harga Dasar") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+														if (res.rincian == "PBBKB") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+														if (res.rincian == "PPN") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(pbbkb) + parseFloat(ppn);
+														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(pbbkb) + parseFloat(ppn);
+
+													} else if (jenis_invoice == "split_oa") {
+														total_penawaran_luar = parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+														if (res.rincian == "Ongkos Angkut") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+														if (res.rincian == "PPN") {
+															penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+														}
+
+														total_penawaran = parseFloat(ongkos_angkut) + parseFloat(ppn);
+														total_penawaran_2 = parseFloat(ongkos_angkut) + parseFloat(ppn);
+
+													} else if (jenis_invoice == "split_pbbkb") {
+														total_penawaran_luar = parseFloat(pbbkb);
+														if (res.rincian == "PBBKB") {
+															penawaran = "";
+														}
+
+														total_penawaran = parseFloat(pbbkb);
+														total_penawaran_2 = parseFloat(pbbkb);
+
+													} else if (jenis_invoice == "all_in") {
+														total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+
+														penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+													}
+
+												} else {
+													total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+
+													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
+														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+
+													} else if (biaya_ppn == "all_in") {
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
+														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
+
+													} else {
+														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut);
+														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb)
+													}
+
+													penawaran += "<p>" + res.rincian + " : " + biaya + "</p>";
+												}
+
+											}); // end $.each(penawaran_detail)
+
+											// ===== Hitung jumlah baris ini =====
+											var jumlahnya;
+											if (act == "update") {
+												jumlahnya = row.volume_po * parseFloat(total_penawaran);
 											} else {
-												var jumlahnya = Math.round(((row.volume_po * total_penawaran) * nilai_ppn / 100)) + (row.volume_po * total_penawaran) + (row.volume_po * pbbkb);
-
+												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+													jumlahnya = ((row.volume_po * parseFloat(total_penawaran)) * nilai_ppn / 100) + (row.volume_po * parseFloat(total_penawaran));
+												} else if (biaya_ppn == "all_in") {
+													jumlahnya = row.volume_po * parseFloat(total_penawaran);
+												} else {
+													jumlahnya = ((row.volume_po * parseFloat(total_penawaran)) * nilai_ppn / 100) + (row.volume_po * parseFloat(total_penawaran)) + (row.volume_po * pbbkb);
+												}
 											}
-											// var jumlahnya = row.volume_po * total_penawaran;
+
 											total01 = total01 + jumlahnya;
 
+											// ===== Komponen total parsial =====
+											var jumlah_harga_dasar, jumlah_ongkos_angkut, jumlah_pbbkb, jumlah_ppn, jumlah_harga_dasar_oa, jumlah_harga_dasar_pbbkb;
+
 											if (row.pembulatan == 2 || row.pembulatan == 0) {
-
-												var jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
-
-												var jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) * row.volume_po) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100) * row.volume_po;
-
-												var jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
-
-												var jumlah_harga_dasar_oa = ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+												jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
+												jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) * row.volume_po) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+												jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
+												jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
+												jumlah_harga_dasar_oa = ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
 												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-													var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 												} else {
-													var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 												}
 
-												total02 = total02 + parseFloat(jumlah_harga_dasar);
-												total03 = total03 + parseFloat(jumlah_ongkos_angkut);
-												total04 = total04 + parseFloat(jumlah_pbbkb);
-												total05 = total05 + parseFloat(jumlah_harga_dasar_oa);
-												total06 = total06 + parseFloat(jumlah_harga_dasar_pbbkb);
-
 											} else {
-												var jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
-
-												var jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100)) * row.volume_po;
-
-												var jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
-
-												var jumlah_harga_dasar_oa = (parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + (parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
+												jumlah_harga_dasar = (parseFloat(harga_dasar) * row.volume_po) * parseFloat(nilai_ppn) / 100 + (parseFloat(harga_dasar) * row.volume_po);
+												jumlah_ongkos_angkut = (parseFloat(ongkos_angkut) + (parseFloat(ongkos_angkut) * parseFloat(nilai_ppn) / 100)) * row.volume_po;
+												jumlah_pbbkb = parseFloat(pbbkb) * row.volume_po;
+												jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
+												jumlah_harga_dasar_oa = (parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + (parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
 												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
-													var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
+													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
 												} else {
-													var jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
+													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
 												}
-
-												total02 = total02 + parseFloat(jumlah_harga_dasar);
-												total03 = total03 + parseFloat(jumlah_ongkos_angkut);
-												total04 = total04 + parseFloat(jumlah_pbbkb);
-												total05 = total05 + parseFloat(jumlah_harga_dasar_oa);
-												total06 = total06 + parseFloat(jumlah_harga_dasar_pbbkb);
 											}
 
-											if (row.no_do_acurate == null) {
-												var no_do = row.no_do_syop;
-											} else {
-												var no_do = row.no_do_acurate;
-											}
+											total02 += parseFloat(jumlah_harga_dasar);
+											total03 += parseFloat(jumlah_ongkos_angkut);
+											total04 += parseFloat(jumlah_pbbkb);
+											total05 += parseFloat(jumlah_harga_dasar_oa);
+											total06 += parseFloat(jumlah_harga_dasar_pbbkb);
+
+											var no_do = (row.no_do_acurate == null) ? row.no_do_syop : row.no_do_acurate;
+
+											const value = row.realisasi_volumenya;
+
+											// Cek apakah ada pecahan desimal
+											const formatted = Number(value) % 1 === 0 ?
+												new Intl.NumberFormat("ja-JP", {
+													minimumFractionDigits: 0,
+													maximumFractionDigits: 0
+												}).format(value) // tanpa desimal
+												:
+												new Intl.NumberFormat("ja-JP", {
+													minimumFractionDigits: 4,
+													maximumFractionDigits: 4
+												}).format(value);
+
+											// ====== BANGUN HTML BARIS (dengan class .gen-row) ======
 											var isiHtml =
-												'<tr data-id="' + newId + '">' +
+												'<tr class="gen-row" data-id="' + newId + '">' +
 												'<td class="text-center"><span class="frmnodasar" data-row-count="' + newId + '"></span></td>' +
 												'<td class="text-left">' +
+												'<p style="margin-bottom:3px;">Jenis Angkutan : ' + row.jenisnya.toUpperCase() + '</p>' +
+												'<p style="margin-bottom:0px;">' + (row.jenisnya == "truck" ? "No Plat : " + row.angkutan + " (" + row.sopir + ")" : "Vessel : " + row.angkutan + " (" + row.sopir + ")") + '</p>' +
+												'<hr><strong>Referensi : </strong>' +
 												'<p style="margin-bottom:3px;">No PO Customer : ' + row.nomor_poc + '</p>' +
 												'<p style="margin-bottom:3px;">No DN : ' + row.no_dn + '</p>' +
 												'<p style="margin-bottom:3px;">No SPJ : ' + row.no_spj + '</p>' +
 												'<p style="margin-bottom:3px;">No Penawaran : ' + row.nomor_surat + '</p>' +
-												'<p style="margin-bottom:3px;">Jenis Angkutan : ' + row.jenisnya.toUpperCase() + '</p>' +
-												'<p style="margin-bottom:0px;">' + (row.jenisnya == 'truck' ? 'No Plat : ' + row.angkutan + ' (' + row.sopir + ')' : 'Vessel : ' + row.angkutan + ' (' + row.sopir + ')') + '</p>' +
-												'</td>' +
-												'<td class="text-left">' +
 												'<p style="margin-bottom:3px;">No DO : ' + no_do + '</p>' +
 												'<p style="margin-bottom:3px;">No LO : ' + row.nomor_lo_pr + '</p>' +
 												'<p style="margin-bottom:3px;">Refund : ' + row.refund_tawar + '</p>' +
 												'</td>' +
 												'<td class="text-left">' +
-												'<input type="text" id="tgl_delivered' + newId + '" name="tgl_delivered[]" class="form-control input-sm" value="' + row.tgl_delivered + '" data-rule-dateNL="true" readonly />' +
+												'<input type="text" id="tgl_delivered' + newId + '" name="tgl_delivered[]" class="form-control input-sm" value="' + row.tgl_delivered + '" readonly />' +
 												'</td>' +
 												'<td class="text-left">' +
 												'<input type="text" id="vol_kirim' + newId + '" name="vol_kirim[]" class="form-control input-sm text-right volumenya" value="' + row.volume_po + '"/>' +
-												'<p style="margin-bottom:3px;">Volume PO : ' + new Intl.NumberFormat("ja-JP").format(row.volume_po) + '</p>' +
-												'<p style="margin-bottom:3px;">Realisasi : ' + new Intl.NumberFormat("ja-JP").format(row.realisasi_volume) + '</p>' +
+												'<p style="margin-bottom:3px;">Volume PO : ' + new Intl.NumberFormat("ja-JP").format(row.volumenya_po) + '</p>' +
+												'<p style="margin-bottom:3px;">Realisasi : ' + formatted + '</p>' +
 												'<td class="text-left" width="200">' +
-												'<input type="text" id="harga_kirim' + newId + '" name="harga_kirim[]" class="form-control input-sm text-right harganya" value="' + total_penawaran_2 + '"  readonly />' +
-												'<input type="hidden" id="harga_kirim' + newId + '" name="harga_kirim_fix[]" class="form-control input-sm text-right harganya_luar" value="' + total_penawaran_luar + '"  readonly />' +
-												'<input type="hidden" id="pembulatan' + newId + '" name="pembulatan[]" class="form-control input-sm text-right pembulatannya" value="' + row.pembulatan + '"  readonly />' +
+												'<input type="text" id="harga_kirim' + newId + '" name="harga_kirim[]" class="form-control input-sm text-right harganya" value="' + total_penawaran_2 + '" readonly />' +
+												'<input type="hidden" id="harga_kirim' + newId + '" name="harga_kirim_fix[]" class="form-control input-sm text-right harganya_luar" value="' + total_penawaran_luar + '" readonly />' +
+												'<input type="hidden" id="pembulatan' + newId + '" name="pembulatan[]" class="form-control input-sm text-right pembulatannya" value="' + row.pembulatan + '" readonly />' +
 												'<input type="hidden" id="harga_dasar' + newId + '" name="harga_dasar[]" class="form-control input-sm text-right harga_dasarnya" value="' + harga_dasar + '" readonly />' +
-												'<input type="hidden" id="ongkos_angkut' + newId + '" name="ongkos_angkut[]" class="form-control input-sm text-right oanya" value="' + ongkos_angkut + '"  readonly />' +
-												'<input type="hidden" id="ppn' + newId + '" name="ppn[]" class="form-control input-sm text-right total_ppn_nya" value="' + ppn + '"  readonly />' +
-												'<input type="hidden" id="nilai_ppn' + newId + '" name="nilai_ppn[]" class="form-control input-sm text-right ppn_nya" value="' + nilai_ppn + '"  readonly />' +
-												'<input type="hidden" id="pbbkb' + newId + '" name="pbbkb[]" class="form-control input-sm text-right pbbkbnya" value="' + pbbkb + '"  readonly />' + penawaran +
+												'<input type="hidden" id="ongkos_angkut' + newId + '" name="ongkos_angkut[]" class="form-control input-sm text-right oanya" value="' + ongkos_angkut + '" readonly />' +
+												'<input type="hidden" id="ppn' + newId + '" name="ppn[]" class="form-control input-sm text-right total_ppn_nya" value="' + ppn + '" readonly />' +
+												'<input type="hidden" id="nilai_ppn' + newId + '" name="nilai_ppn[]" class="form-control input-sm text-right ppn_nya" value="' + nilai_ppn + '" readonly />' +
+												'<input type="hidden" id="pbbkb' + newId + '" name="pbbkb[]" class="form-control input-sm text-right pbbkbnya" value="' + pbbkb + '" readonly />' + penawaran +
+												'</td>' +
+												'<td>' +
+												'<input type="text" name="discount[]" id="discount' + newId + '" class="form-control input-sm text-right discountnya" placeholder="Masukkan discount" />' +
 												'</td>' +
 												'<td class="text-left">' +
 												'<input type="hidden" name="id_dsd[]" value="' + row.id_dsd + '" />' +
 												'<input type="hidden" name="jenisnya[]" value="' + row.jenisnya + '" />' +
-												'<input type="hidden" name="kategori[]" value="' + row.biaya_ppn + '" />' +
+												'<input class="biaya_ppnnya" type="hidden" name="kategori[]" value="' + row.biaya_ppn + '" />' +
 												'<input type="hidden" name="refund_tawar[]" value="' + row.refund_tawar + '" />' +
 												'<input type="text" id="jumlah_harga' + newId + '" name="jumlah_harga[]" class="form-control input-sm text-right jumlahnya" value="' + jumlahnya + '" readonly />' +
 												'<input type="hidden" id="jumlah_harga_dasar' + newId + '" name="jumlah_harga_dasar[]" class="form-control input-sm text-right jumlahnya_harga_dasar" value="' + jumlah_harga_dasar + '" readonly />' +
@@ -1439,19 +2091,25 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												'<input type="hidden" id="jumlah_harga_dasar_oa' + newId + '" name="jumlah_harga_dasar_oa[]" class="form-control input-sm text-right jumlahnya_harga_dasar_oa" value="' + jumlah_harga_dasar_oa + '" readonly />' +
 												'<input type="hidden" id="jumlah_ongkos_angkut' + newId + '" name="jumlah_ongkos_angkut[]" class="form-control input-sm text-right jumlahnya_ongkos_angkut" value="' + jumlah_ongkos_angkut + '" readonly />' +
 												'<input type="hidden" id="jumlah_harga_dasar_pbbkb' + newId + '" name="jumlah_harga_dasar_pbbkb[]" class="form-control input-sm text-right jumlahnya_harga_dasar_pbbkb" value="' + jumlah_harga_dasar_pbbkb + '" readonly />' +
+												'<input type="hidden" id="jumlah_ppn' + newId + '" name="jumlah_ppn[]" class="form-control input-sm text-right jumlahnya_ppn" value="' + jumlah_ppn + '" readonly />' +
 												'</td>' +
 												'<td class="text-center">' +
 												'<a class="btn btn-action btn-danger hRow jarak-kanan">&nbsp;<i class="fa fa-times"></i>&nbsp;</a>' +
-												'' +
 												'</td>' +
 												'</tr>';
-											if (newId == 1) {
-												tabel.find('tbody').html(isiHtml);
+
+											// ====== SISIPKAN SELALU SEBAGAI BARIS KE-2 (setelah baris statis terakhir) ======
+											var $lastStaticRow = $tbody.find('tr').not('.gen-row,.total-row').last();
+											if ($lastStaticRow.length) {
+												$lastStaticRow.after(isiHtml);
 											} else {
-												tabel.find('tbody > tr:last').after(isiHtml);
+												$tbody.append(isiHtml);
 											}
-											$("#tgl_delivered" + newId).datepicker(config.datepicker);
+
+											// Number formatting per baris
 											$("#vol_kirim" + newId).number(true, 4, '.', ',');
+											$("#discount" + newId).number(true);
+
 											if (row.pembulatan == 2) {
 												$("#jumlah_harga" + newId).number(true, 0, '.', ',');
 												$("#harga_kirim" + newId).number(true, 4, '.', ',');
@@ -1462,13 +2120,18 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												$("#jumlah_harga" + newId).number(true, 0, '.', ',');
 												$("#harga_kirim" + newId).number(true, 0, '.', ',');
 											}
+
 											newId++;
-										});
+										}); // end $.each(data.items)
+
+										// ====== Penomoran ulang kolom No ======
 										tabel.find("span.frmnodasar").each(function(i, v) {
 											$(v).text(i + 1);
 										});
-										var isiHtml =
-											'<tr>' +
+
+										// ====== BARIS TOTAL (selalu satu) ======
+										var totalHtml =
+											'<tr class="total-row">' +
 											'<td class="text-center" colspan="6"><b>T O T A L</b></td>' +
 											'<td class="text-left">' +
 											'<input type="text" id="total_invoice" name="total_invoice" class="form-control input-sm text-right" value="' + Math.round(total01) + '" readonly />' +
@@ -1480,8 +2143,12 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											'</td>' +
 											'<td class="text-center">&nbsp;</td>' +
 											'</tr>';
-										tabel.find('tbody > tr:last').after(isiHtml);
 
+										// Pastikan tidak dobel
+										$tbody.find('tr.total-row').remove();
+										$tbody.append(totalHtml);
+
+										// Format angka total
 										if (data.items[0].pembulatan == 2) {
 											$("#total_invoice").number(true, 0, '.', ',');
 											$("#total_invoice_harga_dasar").number(true, 4, '.', ',');
@@ -1505,26 +2172,37 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											$("#total_invoice_harga_dasar_pbbkb").number(true, 0, '.', ',');
 										}
 
-										// if (biaya_ppn == 'gabung_pbbkb' || biaya_ppn == 'gabung_pbbkboa' || biaya_ppn == 'all_in') {
-										// 	$("#group_items").show(400, "swing");
-										// 	$("#group_akun").hide(400, "swing");
-										// } else {
-										// 	$("#group_akun").show(400, "swing");
-										// 	$("#group_items").hide(400, "swing");
-										// }
+										// Recalc untuk mode update (tetap dipertahankan)
+										if (act == "update") {
+											recalculateTotal();
+										}
 
 									} else {
-										var isiHtml =
-											'<tr><td class="text-center" colspan="8">Tidak Ada Data</td></tr>' +
-											'<tr>' +
-											'<td class="text-center" colspan="6"><b>T O T A L</b></td>' +
-											'<td class="text-left">' +
-											'<input type="text" id="total_invoice" name="total_invoice" class="form-control input-sm text-right" value="" readonly />' +
-											'</td>' +
-											'<td class="text-center">&nbsp;</td>' +
-											'</tr>';
-										$(".table-dasar").find('tbody').html(isiHtml);
-										$("#total_invoice").number(true, 0, ',', '.');
+										$("#row-split-invoice").addClass("hide");
+										Swal.fire({
+											title: "Uppss..",
+											text: "Data tidak ditemukan",
+											icon: "error"
+										});
+										// if (act == "update") {
+										// 	Swal.fire({
+										// 		title: "Uppss..",
+										// 		text: "Data tidak ditemukan",
+										// 		icon: "error"
+										// 	});
+										// } else {
+										// 	var isiHtml =
+										// 		'<tr><td class="text-center" colspan="8">Tidak Ada Data</td></tr>' +
+										// 		'<tr>' +
+										// 		'<td class="text-center" colspan="6"><b>T O T A L</b></td>' +
+										// 		'<td class="text-left">' +
+										// 		'<input type="text" id="total_invoice" name="total_invoice" class="form-control input-sm text-right" value="" readonly />' +
+										// 		'</td>' +
+										// 		'<td class="text-center">&nbsp;</td>' +
+										// 		'</tr>';
+										// 	$(".table-dasar").find('tbody').html(isiHtml);
+										// 	$("#total_invoice").number(true, 0, ',', '.');
+										// }
 									}
 								}
 							});
