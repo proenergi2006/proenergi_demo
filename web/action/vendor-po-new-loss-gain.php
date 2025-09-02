@@ -183,6 +183,7 @@ if ($act == 'update') {
 							$query = http_build_query([
 								'id' => $rowget['id_accurate'],
 							]);
+							//get detail PO
 							$urlnya_detail = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query;
 
 							$result_detail = curl_get($urlnya_detail);
@@ -269,6 +270,7 @@ if ($act == 'update') {
 								$result_save = curl_post($urlnya, $jsonData_save);
 
 								if ($result_save['s'] == true) {
+									//insert id accurate ke db syop
 									$update = "UPDATE new_pro_inventory_vendor_po set id_accurate = '" . $result_save['r']['id'] . "' WHERE id_master = '" . $idr . "'";
 									$con->setQuery($update);
 

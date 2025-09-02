@@ -202,7 +202,7 @@ if ($act == 'add') {
 				}
 			}
 
-			if (!isian) {
+			if (!$isian) {
 				$sql01 = "update new_pro_inventory_depot set keterangan = '' where id_master = '0'";
 				$con->setQuery($sql01);
 				$oke  = $oke && !$con->hasError();
