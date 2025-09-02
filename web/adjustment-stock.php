@@ -142,26 +142,77 @@ $sesCbng = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
                 $("#table-grid").ajaxGridNew("pageLen", $(this).val());
             });
 
-            $('#table-grid tbody').on('click', '[data-action="deleteGrid"]', function(e) {
+            // $('#table-grid tbody').on('click', '[data-action="deleteGrid"]', function(e) {
+            //     swal.fire({
+            //         title: "Are you sure?",
+            //         text: "You won't be able to revert this!",
+            //         icon: "warning",
+            //         allowOutsideClick: false,
+            //         allowEscapeKey: false,
+            //         showCancelButton: true,
+            //         confirmButtonColor: "#3085d6",
+            //         cancelButtonColor: "#d33",
+            //         confirmButtonText: "Yes...!!"
+            //     }).then((result) => {
+            //         if (result.isConfirmed) {
+            //             $("body").addClass("loading");
+            //             var param = $(this).data("param-idx");
+            //             var handler = function(data) {
+            //                 if (data.error == "") {
+            //                     $("body").removeClass("loading");
+            //                     swal.fire({
+            //                         title: "Information",
+            //                         icon: "success",
+            //                         allowOutsideClick: false,
+            //                         allowEscapeKey: false,
+            //                         html: '<p style="font-size:14px; font-family:arial;">Data Berhasil Dihapus...</p>',
+            //                         position: "center",
+            //                         showConfirmButton: false,
+            //                         timer: 1500
+            //                     }).then((result) => {
+            //                         if (result.isDismissed) {
+            //                             $("#table-grid").ajaxGridNew("draw");
+            //                         }
+            //                     });
+            //                 } else {
+            //                     $("body").removeClass("loading");
+            //                     swal.fire({
+            //                         icon: "warning",
+            //                         width: '350px',
+            //                         allowOutsideClick: false,
+            //                         html: '<p style="font-size:14px; font-family:arial;">' + data.error + '</p>'
+            //                     });
+            //                 }
+            //             };
+            //             $.post(base_url + "/web/action/vendor-inven-terminal-new.php", {
+            //                 act: "hapus",
+            //                 param: param
+            //             }, handler, "json");
+            //         }
+            //     });
+            // });
+              $('#table-grid tbody').on('click', '[data-action="deleteGrid"]', function(e) {
                 swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
+                    title: "Yakin hapus?",
                     icon: "warning",
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes...!!"
+                    confirmButtonText: "Ya hapus"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $("body").addClass("loading");
+                        $("#loading_modal").modal({
+                            keyboard: false,
+                            backdrop: 'static'
+                        });
                         var param = $(this).data("param-idx");
                         var handler = function(data) {
+                            console.log(data)
                             if (data.error == "") {
-                                $("body").removeClass("loading");
                                 swal.fire({
-                                    title: "Information",
+                                    title: "Success",
                                     icon: "success",
                                     allowOutsideClick: false,
                                     allowEscapeKey: false,
@@ -170,21 +221,26 @@ $sesCbng = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then((result) => {
+                                    $("#loading_modal").modal("hide");
                                     if (result.isDismissed) {
                                         $("#table-grid").ajaxGridNew("draw");
                                     }
                                 });
                             } else {
-                                $("body").removeClass("loading");
                                 swal.fire({
                                     icon: "warning",
                                     width: '350px',
                                     allowOutsideClick: false,
                                     html: '<p style="font-size:14px; font-family:arial;">' + data.error + '</p>'
+                                }).then((result) => {
+                                    $("#loading_modal").modal("hide");
+                                    if (result.isDismissed) {
+                                        $("#table-grid").ajaxGridNew("draw");
+                                    }
                                 });
                             }
                         };
-                        $.post(base_url + "/web/action/vendor-inven-terminal-new.php", {
+                        $.post(base_url + "/web/action/adjustment-stock.php", {
                             act: "hapus",
                             param: param
                         }, handler, "json");

@@ -110,10 +110,10 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             $amount = $expense["expenseAmount"];
             $allocate = $expense["allocateToItemCost"];
 
-            if ($name === 'PBBKB' && $notes == 'null') {
+            if ($name === 'PBBKB' && (in_array($notes, ['null', null, 'NULL',NULL]))) {
                 $biaya['pbbkb'] = [
                     'name' => $name,
-                    'notes' => $notes,
+                    'notes' => 'null',
                     'allocate' => $allocate
                 ];
             } elseif (strpos($name, '22') !== false) {
@@ -720,14 +720,14 @@ if ($result_getrow['sp'] == true) {
                                             <select name="kode_biaya1" id="kode_biaya1" class="form-control select2" style="width:100%;" required>
                                                 <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['pbbkb']['name'] == $key['name'] && $biaya['pbbkb']['name'] == "null" ? 'selected' : '' ?>>
+                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['pbbkb']['name'] == $key['name'] && $biaya['pbbkb']['notes'] == "null" ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
                                                 <?php endforeach ?>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="text" id="keterangan_biaya4" name="keterangan_biaya4" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['pbbkb']['keterangan'] ?>" />
+                                            <input type="text" id="keterangan_biaya4" name="keterangan_biaya4" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['pbbkb']['notes'] ?>" />
                                         </div>
                                         <div class="col-md-3" style="display:flex; align-items:center;">
                                             <input type="checkbox" id="alokasi_barang4" name="alokasi_barang4" value="1" <?=  $biaya['pbbkb']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
@@ -792,7 +792,7 @@ if ($result_getrow['sp'] == true) {
                                             <input type="text" id="keterangan_biaya5" name="keterangan_biaya5" class="form-control" placeholder="Keterangan" value="<?php echo $biaya['iuran']['notes'] ?>" />
                                         </div>
                                         <div class="col-md-3" style="display:flex; align-items:center;">
-                                            <input type="checkbox" id="alokasi_barang5" name="alokasi_barang5" value="1" <?= $biaya['iuran']['allocate'] ? 'checked' : '' ?>style="margin-right:6px;">
+                                            <input type="checkbox" id="alokasi_barang5" name="alokasi_barang5" value="1" <?= $biaya['iuran']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
                                             Alokasikan ke Barang
                                         </div>
                                     </div>
@@ -1027,6 +1027,8 @@ if ($result_getrow['sp'] == true) {
                 $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
                 $('#iuran_migas').attr("checked", true);
                 $('#nominal_iuran').removeAttr("readonly", true);
+                $('#kode_biaya2').removeAttr("disabled", true);
+                $('#kode_biaya2').attr("required", true);
             }).on("ifUnchecked", function() {
                 var plat = $('#kategori_plat').val();
                 var kodeTax = $('#kd_tax').val();
@@ -1038,23 +1040,29 @@ if ($result_getrow['sp'] == true) {
 
                 var kat_oa = $('#kategori_oa').val();
 
-                if (kat_oa == 1) {
+                 if (kat_oa == 1) {
                     var subTotal = volumePO * hargaDasar;
+                    var dpp11_12 = (subTotal * 11) / 12;
+
                     var pph = 0;
                     if (kodeTax == 'EC') {
                         pph = (subTotal * 0.3) / 100;
                     }
                     var ppn11 = (11 * subTotal) / 100;
+                    var ppn12 = (12 * dpp11_12) / 100;
                 } else {
                     var subTotal = volumePO * (hargaDasar + ongkos_angkut);
+                    var dpp11_12 = (subTotal * 11) / 12;
                     var pph = 0;
                     if (kodeTax == 'EC') {
                         pph = ((volumePO * hargaDasar) * 0.3) / 100;
                     }
                     if (plat == "Hitam" || plat == "") {
                         var ppn11 = (11 * subTotal) / 100;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     } else {
                         var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
+                        var ppn12 = (12 * dpp11_12) / 100;
                     }
                 }
 
@@ -1078,6 +1086,9 @@ if ($result_getrow['sp'] == true) {
                 $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
                 $('#iuran_migas').attr("checked", false);
                 $('#nominal_iuran').attr("readonly", true);
+                $('#kode_biaya2').attr("disabled", true);
+                $("#kode_biaya2").select2("val", "");
+                $('#kode_biaya2').removeAttr("required", true);
             });
 
             $("#kategori_plat").change(function() {
@@ -1090,10 +1101,12 @@ if ($result_getrow['sp'] == true) {
                 var ongkos_angkut = parseFloat($('#ongkos_angkut').val()) || 0;
                 var iuran_migas = parseFloat($('#nominal_iuran').val()) || 0;
                 var kat_oa = $('#kategori_oa').val();
+                var jenis_oa = $('#jenis_oa').val();
 
                 if (kat_oa == 1) {
                     var subTotal = volumePO * hargaDasar + iuran_migas;
                     var pph = 0;
+                    var dpp11_12 = (subTotal * 11) / 12;
                     if (kodeTax == 'EC') {
                         pph = (subTotal * 0.3) / 100; // Pembulatan tanpa desimal
                     }
@@ -1107,6 +1120,7 @@ if ($result_getrow['sp'] == true) {
                     // Hitung Sub Total
                     // var ppn11 = Math.round((11 * subTotal) / 100);
                     var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                    var ppn12 = (12 * dpp11_12) / 100;
 
                     var totalOrder = (subTotal + ppn11 + pph + hasil);
 
@@ -1117,26 +1131,67 @@ if ($result_getrow['sp'] == true) {
                     $('#dt13').val(hasil.toFixed(0));
                     // $('#nominal_iuran').val(iuran_migas.toFixed(0));
                     $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                    $('#dpp11_12').val(dpp11_12.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                    $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
                     // $('#iuran_migas').attr("checked", false);
                     // $('.icheckbox_square-blue').removeClass("checked");
                 } else {
                     if (val == "Hitam" || val == "") {
-                        var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
-                        var pph = 0;
-                        if (kodeTax == 'EC') {
-                            pph = ((volumePO * hargaDasar) * 0.3) / 100; // Pembulatan tanpa desimal
-                        }
+                        // var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
+                        // var pph = 0;
+                        // if (kodeTax == 'EC') {
+                        //     pph = ((volumePO * hargaDasar) * 0.3) / 100; // Pembulatan tanpa desimal
+                        // }
 
-                        if (pbbkb_tawar != "") {
-                            var total = volumePO * hargaDasar;
-                            var hasil = (total * pbbkb_tawar) / 100;
+                        // if (pbbkb_tawar != "") {
+                        //     var total = volumePO * hargaDasar;
+                        //     var hasil = (total * pbbkb_tawar) / 100;
+                        // } else {
+                        //     var hasil = pbbkb;
+                        // }
+                        // // Hitung Sub Total
+                        // // var ppn11 = Math.round((11 * subTotal) / 100);
+                        // var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
+
+                               if (jenis_oa == 1) {
+                            var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
+                            var subTotal2 = volumePO * (hargaDasar + iuran_migas);
+                            var dpp11_12 = (subTotal2 * 11) / 12;
+                            var pph = 0;
+                            if (kodeTax == 'EC') {
+                                pph = ((volumePO * hargaDasar) * 0.3) / 100; // Pembulatan tanpa desimal
+                            }
+
+                            if (pbbkb_tawar != "") {
+                                var total = volumePO * hargaDasar;
+                                var hasil = (total * pbbkb_tawar) / 100;
+                            } else {
+                                var hasil = pbbkb;
+                            }
+                            // Hitung Sub Total
+                            // var ppn11 = Math.round((11 * subTotal) / 100);
+                            var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                            var ppn12 = (12 * dpp11_12) / 100;
                         } else {
-                            var hasil = pbbkb;
-                        }
-                        // Hitung Sub Total
-                        // var ppn11 = Math.round((11 * subTotal) / 100);
-                        var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
 
+                            var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
+                            var dpp11_12 = (subTotal * 11) / 12;
+                            var pph = 0;
+                            if (kodeTax == 'EC') {
+                                pph = ((volumePO * hargaDasar) * 0.3) / 100; // Pembulatan tanpa desimal
+                            }
+
+                            if (pbbkb_tawar != "") {
+                                var total = volumePO * hargaDasar;
+                                var hasil = (total * pbbkb_tawar) / 100;
+                            } else {
+                                var hasil = pbbkb;
+                            }
+                            // Hitung Sub Total
+                            // var ppn11 = Math.round((11 * subTotal) / 100);
+                            var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
+                            var ppn12 = (12 * dpp11_12) / 100;
+                        }
                         var totalOrder = (subTotal + ppn11 + pph + hasil);
 
                         // // Tampilkan hasil di input Sub Total
@@ -1146,6 +1201,8 @@ if ($result_getrow['sp'] == true) {
                         $('#dt13').val(hasil.toFixed(0));
                         // $('#nominal_iuran').val(iuran_migas.toFixed(0));
                         $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                        $('#dpp11_12').val(dpp11_12.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                        $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
                         // $('#iuran_migas').attr("checked", false);
                         // $('.icheckbox_square-blue').removeClass("checked");
                     } else {
@@ -1153,6 +1210,8 @@ if ($result_getrow['sp'] == true) {
                         $("#dt12").val("");
 
                         var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
+                        var subTotal2 = volumePO * (hargaDasar + iuran_migas);
+                        var dpp11_12 = (subTotal2 * 11) / 12;
                         var pph = 0;
                         if (kodeTax == 'EC') {
                             pph = ((volumePO * hargaDasar) * 0.3) / 100; // Pembulatan tanpa desimal
@@ -1166,7 +1225,7 @@ if ($result_getrow['sp'] == true) {
                         // Hitung Sub Total
                         // var ppn11 = Math.round((11 * subTotal) / 100);
                         var ppn11 = ((hargaDasar * volumePO) * 11) / 100;
-
+                        var ppn12 = (12 * dpp11_12) / 100;
                         var totalOrder = (subTotal + ppn11 + pph + hasil);
 
                         // // Tampilkan hasil di input Sub Total
@@ -1176,6 +1235,8 @@ if ($result_getrow['sp'] == true) {
                         $('#dt13').val(hasil.toFixed(0));
                         // $('#nominal_iuran').val(iuran_migas.toFixed(0));
                         $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                        $('#dpp11_12').val(dpp11_12.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                        $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
                         // $('#iuran_migas').attr("checked", false);
                         // $('.icheckbox_square-blue').removeClass("checked");
                     }
@@ -1290,29 +1351,41 @@ if ($result_getrow['sp'] == true) {
                             html: '<p style="font-size:14px; font-family:arial;">Nominal iuran migas belum di isi</p>'
                         });
                     } else {
-                        $("body").addClass("loading");
-                        $.ajax({
-                            type: 'POST',
-                            url: base_url + "/web/action/vendor-po-new.php",
-                            data: {
-                                act: 'cek',
-                                q1: $("input[name='idr']").val(),
-                                q2: $("#dt2").val()
-                            },
-                            cache: false,
-                            dataType: 'json',
-                            success: function(data) {
-                                if (!data.hasil) {
-                                    $("body").removeClass("loading");
-                                    swal.fire({
-                                        icon: "warning",
-                                        width: '350px',
-                                        allowOutsideClick: false,
-                                        html: '<p style="font-size:14px; font-family:arial;">' + data.pesan + '</p>'
-                                    });
-                                } else {
-                                    form.submit();
-                                }
+                        Swal.fire({
+                            title: "Yakin Simpan?",
+                            showCancelButton: true,
+                            confirmButtonText: "Simpan",
+                            denyButtonText: 'Batal'
+                        }).then((result) => {
+                            // console.log("Dasdasd")
+                            if (result.isConfirmed) {
+                                $("body").addClass("loading");
+                                $.ajax({
+                                    type: 'POST',
+                                    url: base_url + "/web/action/vendor-po-new.php",
+                                    data: {
+                                        act: 'cek',
+                                        q1: $("input[name='idr']").val(),
+                                        q2: $("#dt2").val()
+                                    },
+                                    cache: false,
+                                    dataType: 'json',
+                                    success: function(data) {
+                                        if (!data.hasil) {
+                                            $("body").removeClass("loading");
+                                            swal.fire({
+                                                icon: "warning",
+                                                width: '350px',
+                                                allowOutsideClick: false,
+                                                html: '<p style="font-size:14px; font-family:arial;">' + data.pesan + '</p>'
+                                            });
+                                        } else {
+                                            form.submit();
+                                        }
+                                    }
+                                });
+                            } else if (result.isDenied) {
+                                Swal.fire("Batal simpan", "", "info");
                             }
                         });
                     }
@@ -1487,6 +1560,7 @@ if ($result_getrow['sp'] == true) {
 
             $("#kategori_oa").change(function() {
                 var val = $(this).val();
+                  var jenis_oa = $('#jenis_oa').val();
 
                 if (val == 1) {
                     var kodeTax = $('#kd_tax').val();
@@ -1508,6 +1582,8 @@ if ($result_getrow['sp'] == true) {
 
                     $('#dt9').val(subTotal.toFixed(4)); // Menampilkan dengan 2 angka desimal
                     $('#dt11').val(ppn11.toFixed(0)); // Menampilkan dengan 2 angka desimal
+                    $('#dpp11_12').val(dpp11_12.toFixed(4)); // Menampilkan dengan 2 angka desimal
+                    $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
                     $('#dt14').val(totalOrder.toFixed(4)); // Menampilkan dengan 2 angka desimal
 
                     $("#ongkos_angkut").val(0);
@@ -1585,7 +1661,6 @@ if ($result_getrow['sp'] == true) {
                 var pbbkb = parseFloat($('#dt13').val()) || 0;
                 var ongkos_angkut = parseFloat($('#ongkos_angkut').val()) || 0;
                 var iuran_migas = parseFloat($('#nominal_iuran').val()) || 0;
-
                 if (val == 1) {
                     var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
                     var pph = 0;
@@ -1605,7 +1680,7 @@ if ($result_getrow['sp'] == true) {
                     $("#kode_item2").removeAttr("required", true);
                     $("#kode_item2").val(null).trigger("change");
                     $("#keterangan_item2").val(null).trigger("change");
-                } else if (val == 0) {
+                } else if (val == '0') {
                     var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
                     var pph = 0;
                     if (kodeTax == 'EC') {
@@ -1636,6 +1711,17 @@ if ($result_getrow['sp'] == true) {
                     $("#keterangan_biaya2").val(null).trigger("change");
                     $("#jumlah_biaya").val(null).trigger("change");
                 }else{
+
+                    var subTotal = volumePO * hargaDasar + iuran_migas;
+                    var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
+                    var dpp11_12 = ((volumePO * hargaDasar) * 11) / 12;
+                    var ppn12 = (12 * dpp11_12) / 100;
+                    var pph = 0;
+                    if (kodeTax == 'EC') {
+                        pph = (subTotal * 0.3) / 100; // Pembulatan tanpa desimal
+                    }
+
+                    var totalOrder = (subTotal + ppn11 + pph + pbbkb);
 
                     $("#row_kode_item").addClass("hide");
                     $("#row_biaya_oa").addClass("hide");

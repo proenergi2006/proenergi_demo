@@ -33,6 +33,118 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $class1     = "datepicker";
     $tglinv     = 'value=""';
 }
+
+$sql3 = "SELECT * FROM pro_master_gudang_accurate";
+$res_gudang = $con->getResult($sql3);
+
+$urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
+
+$result = curl_get($urlnya);
+
+if ($result['s'] == true) {
+    $data_item_get = http_build_query([
+        'fields' => 'id,no,name',
+        'sp.pageSize' => $result['sp']['rowCount'],
+    ]);
+
+    // Get the total number of pages
+    $pageCountItem = $result['sp']['pageCount'];
+
+    // Initialize the array to hold the accounts' details
+    $item_details = [];
+
+    // Loop through each page to fetch account details
+    for ($i = 1; $i <= $pageCountItem; $i++) {
+        // Update pagination for the current page
+        $data_item_get_paginated = $data_item_get . '&sp.page=' . $i;
+
+        // Make the request for the current page
+        $url_item = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $data_item_get_paginated;
+        $result_item = curl_get($url_item);
+
+        // If the request was successful, process the data
+        if ($result_item['s'] == true) {
+            foreach ($result_item['d'] as $key) {
+                $item_details[] = [
+                    'id' => $key['id'],
+                    'kode_barang' => $key['no'],
+                    'name' => $key['name']
+                ];
+            }
+        }
+    }
+} else {
+    $item_details = [];
+}
+
+//get vendor accurate
+$urlget_vendor = 'https://zeus.accurate.id/accurate/api/vendor/list.do';
+
+$result_getcount = curl_get($urlget_vendor);
+
+if ($result_getcount['sp'] == true) {
+    $query_vendor = http_build_query([
+        'fields' => 'id,vendorNo,name',
+        'sp.pageSize' => $result_getcount['sp']['rowCount']
+    ]);
+    $pageCount = $result_getcount['sp']['pageCount'];
+
+    $vendor_kode = [];
+
+    for ($i = 1; $i <= $pageCount; $i++) {
+        // Update pagination for the current page
+        $data_akun_get_paginated = $query_vendor . '&sp.page=' . $i;
+
+        // Make the request for the current page
+        $url_akun = 'https://zeus.accurate.id/accurate/api/vendor/list.do?' . $data_akun_get_paginated;
+        $result_akun = curl_get($url_akun);
+
+        // If the request was successful, process the data
+        if ($result_akun['s'] == true) {
+            foreach ($result_akun['d'] as $key) {
+                $vendor_kode[] = [
+                    'id' => $key['id'],
+                    'vendorNo' => $key['vendorNo'],
+                    'name' => $key['name']
+                ];
+            }
+        }
+    }
+}
+
+//get akun accurate
+$url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
+
+$result_getrow = curl_get($url_getrow);
+
+if ($result_getrow['sp'] == true) {
+    $data_akun_get = http_build_query([
+        'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent',
+        'sp.pageSize' => $result_getrow['sp']['rowCount'],
+    ]);
+    $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get;
+
+    $result_akun = curl_get($url_akun);
+
+    $akun_details = [];
+
+    if ($result_akun['s'] == true) {
+
+        foreach ($result_akun['d'] as $key) {
+            if (isset($key['no'])) {
+                $akun_details[] = [
+                    'id' => $key['id'],
+                    'no' => $key['no'],
+                    'accountTypeName' => $key['accountTypeName'],
+                    'nameWithIndent' => $key['nameWithIndent'],
+                    'noWithIndent' => $key['noWithIndent']
+                ];
+            }
+        }
+    } else {
+        $akun_details = [];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,7 +176,9 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                                 <option></option>
 
                                                 <option value="3">Adjustment</option>
-
+                                                <!-- add option -->
+                                                <option value="4">Transfer Stock</option>
+                                                <option value="5">Purchase Return</option>
                                             </select>
                                         </div>
                                     </div>
@@ -84,6 +198,43 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Kode item untuk ke Accurate -->
+                            <div id="group_kode">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3 label-kode">Kode Item Accurate *</label>
+                                            <div class="col-md-5">
+                                                <select id="kode_item" name="kode_item" class="form-control select2" style="width:100%;" required>
+                                                    <option value=""></option>
+                                                    <?php foreach ($item_details as $key) : ?>
+                                                        <option value="<?= $key['kode_barang'] ?>"><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Akun Accurate *</label>
+                                            <div class="col-md-5">
+                                                <select name="akun_penyesuaian" id="akun_penyesuaian" class="form-control select2" style="width:100%;" required>
+                                                    <option value=""></option>
+                                                    <?php foreach ($akun_details as $key) : ?>
+                                                        <option value="<?= $key['no'] ?>">
+                                                            <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
+                                                        </option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <div class="row">
                                 <div class="col-md-8">
@@ -265,8 +416,119 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- tambahan field -->
+                                <div class="row" id="row-harga_liter">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Harga *</label>
+                                            <div class="col-md-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon" style="font-size:12px;">Rp.</span>
+                                                    <input type="text" id="harga_liter" name="harga_liter" class="form-control text-right koma" autocomplete="off" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
+                            <!-- tambahan grup -->
+                            <div id="group_return" style="display:none;">
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Vendor *</label>
+                                            <div class="col-md-5">
+                                                <select id="kode_vendor" name="kode_vendor" class="form-control select2" style="width:100%;" required>
+                                                    <option value=""></option>
+                                                    <?php foreach ($vendor_kode as $key) : ?>
+                                                        <option value="<?= $key['vendorNo'] ?>"><?= $key['name']  . " ( " . $key['vendorNo'] . " ) " ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Nomor RI Accurate *</label>
+                                            <div class="col-md-5">
+                                                <select id="receive_number" name="receive_number" class="form-control select2" style="width:100%;" required>
+                                                    <option value=""></option>
+
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <!-- <p class="nomor_po_return"></p>
+                                                <p class="terminal_return"></p>
+                                                <p class="gudang_return"></p> -->
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Volume *</label>
+                                            <div class="col-md-5">
+                                                <div class="input-group">
+                                                    <input type="text" id="adj_inven_return" name="adj_inven_return" class="form-control hitung" required />
+                                                    <span class="input-group-addon">Liter</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Harga *</label>
+                                            <div class="col-md-5">
+                                                <input type="text" id="harga_liter_return" name="harga_liter_return" class="form-control text-right koma" autocomplete="off" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- tambahan field -->
+                           <div id="group_detail_ri" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Nomor PO *</label>
+                                            <div class="col-md-5">
+                                                <input type="text" id="nomor_po_return" name="nomor_po_return" class="form-control" readonly required />
+                                                <input type="hidden" id="id_po_supplier_return" name="id_po_supplier_return" value="" />
+                                                <input type="hidden" id="id_po_receive_return" name="id_po_receive_return" value="" />
+                                                <input type="hidden" id="id_terminal_return" name="id_terminal_return" value="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Terminal/Cabang *</label>
+                                            <div class="col-md-5">
+                                                <input type="text" id="terminal_return" name="terminal_return" class="form-control" readonly required />
+                                            </div>
+                                            <label class="control-label col-md-1">Cabang *</label>
+                                            <div class="col-md-2">
+                                                <input type="text" id="cabang_return" name="cabang_return" class="form-control" readonly required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div id="group_trans_tanki_satu" style="display:none;">
                                 <div class="row">
                                     <div class="col-md-8">
@@ -312,6 +574,23 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
 
                                 <hr style="border-top:4px double #ddd;">
 
+                                <!-- Kode untuk ke Accurate -->
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Kode Item Accurate *</label>
+                                            <div class="col-md-5">
+                                                <select id="kode_item_terima" name="kode_item_terima" class="form-control select2" style="width:100%;" required>
+                                                    <option value=""></option>
+                                                    <?php foreach ($item_details as $key) : ?>
+                                                        <option value="<?= $key['kode_barang'] ?>"><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="form-group form-group-sm">
@@ -319,6 +598,34 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                             <div class="col-md-8">
                                                 <select id="transfer_tanki_satu_ke" name="transfer_tanki_satu_ke" class="form-control select2" style="width:100%" required>
                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                 <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Tanggal Penerimaan*</label>
+                                            <div class="col-md-4">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input type="text" id="tgl_penerimaan" name="tgl_penerimaan" class="form-control <?php echo $class1; ?>" required data-rule-dateNL="1" <?php echo $tglinv; ?> autocomplete="off" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Harga *</label>
+                                            <div class="col-md-4">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon" style="font-size:12px;">Rp.</span>
+                                                    <input type="text" id="harga_transfer" name="harga_transfer" class="form-control koma" autocomplete="off" required />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -365,7 +672,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">List PO Receiv</h4>
+                    <h4 class="modal-title">List PO Receive</h4>
                 </div>
                 <div class="modal-body"></div>
             </div>
@@ -426,6 +733,27 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     <script>
         $(document).ready(function() {
             $(".hitung").number(true, 0, ".", ",");
+            $(".koma").number(true, 2, ".", ",");
+
+            //add validasi 
+            $('#btnSbmt').on('click', function(e) {
+                e.preventDefault();
+                var form = $(this).parents('form');
+                Swal.fire({
+                    title: "Anda yakin?",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $("#loading_modal").modal({
+                            keyboard: false,
+                            backdrop: 'static'
+                        });
+                        form.submit();
+                    }
+                });
+            })
+
 
             var formValidasiCfg = {
                 submitHandler: function(form) {
@@ -469,12 +797,20 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         $("#adj_inven").val("");
                     });
 
+                    $("#group_return").hide("400", "swing");
                     $("#group_trans_tanki_satu").hide("400", "swing", function() {
                         $("#transfer_tanki_satu_dari").val("").trigger("change");
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
+                        $("#harga_transfer").val("").trigger("change");
+
                     });
                 } else if (nilai == "2") {
                     $("#group_depot").show(400, "swing", function() {
+                        $("#id_terminal").val("").trigger("change");
+                    });
+
+                    //tambahan
+                    $("#group_gudang").show(400, "swing", function() {
                         $("#id_terminal").val("").trigger("change");
                     });
                     $("#group_data_awal").hide("400", "swing");
@@ -489,11 +825,15 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         $("#adj_inven").val("");
                     });
 
+                    // tambahan
+                    $("#group_return").hide("400", "swing");
                     $("#group_trans_tanki_satu").hide("400", "swing", function() {
                         $("#transfer_tanki_satu_dari").val("").trigger("change");
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
+                        $("#harga_transfer").val("").trigger("change");
                     });
                 } else if (nilai == "3") {
+                    //3 adjustment 
                     $("#group_depot").show(400, "swing", function() {
                         $("#id_terminal").val("").trigger("change");
                     });
@@ -509,11 +849,17 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         $("#adj_inven").val("");
                     });
 
+                    // tambahan
+                    $("#group_kode").show("400", "swing");
+                    $(".label-kode").html("Kode Item Accurate*");
+                    $("#group_return").hide("400", "swing");
                     $("#group_trans_tanki_satu").hide("400", "swing", function() {
                         $("#transfer_tanki_satu_dari").val("").trigger("change");
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
+                        $("#harga_transfer").val("").trigger("change");
                     });
                 } else if (nilai == 4) {
+                    //4 transfer stock
                     $("#group_depot").hide(400, "swing", function() {
                         $("#id_terminal").val("").trigger("change");
                     });
@@ -528,10 +874,44 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         $("#adj_inven_sign").val("+").trigger("change");
                         $("#adj_inven").val("");
                     });
+                    
+                    // tambahan
+                    $("#group_kode").show("400", "swing");
 
+                    $(".label-kode").html("Kode Item Accurate (dari terminal)*");
+
+                   $("#group_return").hide("400", "swing");
                     $("#group_trans_tanki_satu").show("400", "swing", function() {
                         $("#transfer_tanki_satu_dari").val("").trigger("change");
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
+                    });
+                    
+                } else if (nilai == '5') {
+                    //5 purchase return
+                    $("#group_depot").hide(400, "swing", function() {
+                        $("#id_terminal").val("").trigger("change");
+                    });
+
+                    $("#group_data_awal").hide("400", "swing");
+
+                    $("#group_kode").hide("400", "swing");
+
+                    $("#group_depot02").hide(400, "swing", function() {
+                        $("#nomor_po, #id_po_supplier_sales, #id_po_receive_sales, #tgl_po, #tgl_terima").val("");
+                        $("#volume_terima, #volume_sisa, #sales_inven").val("");
+                    });
+
+                    $("#group_adjustment").hide("400", "swing", function() {
+                        $("#adj_inven_sign").val("+").trigger("change");
+                        $("#adj_inven").val("");
+                    });
+                    $(".label-kode").html("Kode Item Accurate*");
+
+                    $("#group_return").show("400", "swing");
+                    $("#group_trans_tanki_satu").hide("400", "swing", function() {
+                        $("#transfer_tanki_satu_dari").val("").trigger("change");
+                        $("#transfer_tanki_satu_ke").val("").trigger("change");
+                        $("#harga_transfer").val("").trigger("change");
                     });
                 } else {
                     $("#group_depot").hide(400, "swing", function() {
@@ -549,10 +929,15 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                         $("#adj_inven").val("");
                     });
 
+                    // tambahan
+                    $("#group_kode").show("400", "swing");
+                    $("#group_return").hide("400", "swing");
                     $("#group_trans_tanki_satu").hide("400", "swing", function() {
                         $("#transfer_tanki_satu_dari").val("").trigger("change");
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
+                        $("#harga_transfer").val("").trigger("change");
                     });
+                    
                 }
             });
 
@@ -561,6 +946,18 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 $("#awal_inven_total").val("");
                 $("#nomor_po, #id_po_supplier_sales, #id_po_receive_sales, #tgl_po, #tgl_terima").val("");
                 $("#volume_terima, #volume_sisa, #sales_inven").val("");
+            });
+
+            // tambahan
+            $("#adj_inven_sign").on("change", function() {
+                var val = $(this).val();
+                if (val == "+") {
+                    $('#row-harga_liter').removeClass('hide');
+                    $('#harga_liter').attr('required', true);
+                } else {
+                    $('#row-harga_liter').addClass('hide');
+                    $('#harga_liter').removeAttr('required', true);
+                }
             });
 
             $("#transfer_tanki_satu_dari").on("change", function() {
@@ -760,6 +1157,84 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                     });
                 }
             });
+
+            // tambahan
+            $("#receive_number").select2({
+                placeholder: "Pilih vendor terlebih dahulu",
+                allowClear: true
+            });
+
+              $("#kode_vendor").on("change", function() {
+                if ($(this).val()) {
+                    $("#receive_number").select2({
+                        placeholder: "Pilih salah satu",
+                        allowClear: true
+                    });
+                } else {
+                    $('#receive_number').empty()
+                    // $("#receive_number").val("").trigger('change');
+                    $("#receive_number").select2({
+                        placeholder: "Pilih vendor terlebih dahulu",
+                        allowClear: true
+                    });
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: base_url + "/web/vendor-inven-terminal-new-list-receive-accurate.php",
+                    data: {
+                        "kode_vendor": $(this).val()
+                    },
+                    dataType: "json",
+                    cache: false,
+                    success: function(response) {
+                        if (response.status == true) {
+                            var data = response.data
+                            var optnya = '<option value=""></option>';
+                            $.each(data, function(index, value) {
+                                optnya += '<option value="' + value.id + ',' + value.number + '">' + value.number + ' (' + value.shipDateView + ')' + '</option>';
+                            });
+
+                            $("#receive_number").html(optnya);
+                        }
+                    }
+                });
+
+            })
+
+              $("#receive_number").on("change", function() {
+                if (!$(this).val()) {
+                    $("#group_detail_ri").hide("400", "swing");
+                } else {
+                    $.ajax({
+                        type: "POST",
+                        url: base_url + "/web/vendor-inven-terminal-new-list-po.php",
+                        data: {
+                            "receive_number": $(this).val()
+                        },
+                        dataType: "json",
+                        cache: false,
+                        success: function(response) {
+                            data = response.data
+                            console.log(data)
+
+                            if (response.status == true) {
+                                $("#group_detail_ri").show("400", "swing", function() {
+                                    $("#nomor_po_return").val(data.nomor_po);
+                                    $("#terminal_return").val(data.nama_terminal);
+                                    $("#cabang_return").val(data.inisial_cabang);
+                                    $("#id_po_receive_return").val(data.id_po_receive);
+                                    $("#id_po_supplier_return").val(data.id_po_supplier);
+                                    $("#id_terminal_return").val(data.id_terminal);
+                                });
+                            }
+                        }
+                    });
+
+                }
+
+            })
+
             $("#list_po_receive_sales_modal").on('show.bs.modal', function(e) {
                 $("body").addClass("loading");
             }).on('shown.bs.modal', function(e) {

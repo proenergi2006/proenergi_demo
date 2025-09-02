@@ -17,21 +17,60 @@ $q2    = isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
 
 $paging = new pagination_bootstrap;
 $sqlnya = "
-		select a.id_master, a.id_datanya, 'Adjustment' as jenis_penambahan, 
-		a.id_produk, concat(c.jenis_produk, ' - ', c.merk_dagang) as ket_produk, 
-		a.id_terminal, concat(b.nama_terminal, ' ', b.tanki_terminal) as ket_terminal, 
-		a.tanggal_inven, adj_inven as nilai_jenis, a.keterangan, a.lastupdate_time 
-		from new_pro_inventory_depot a 
-		join pro_master_terminal b on a.id_terminal = b.id_master 
-		join pro_master_produk c on a.id_produk = c.id_master 
-		where id_jenis = 3
+	WITH tbl_tf_tanki_dari AS (
+			SELECT a.id_master, a.id_datanya, 'Transfer Stock' AS jenis_penambahan, 
+			a.id_produk, CONCAT(c.jenis_produk, ' - ', c.merk_dagang) AS ket_produk, 
+			a.id_terminal, CONCAT(b.nama_terminal, ' ', b.tanki_terminal) AS ket_terminal, 
+			a.tanggal_inven, SUM(adj_inven) AS nilai_jenis, a.keterangan, a.lastupdate_time 
+			FROM new_pro_inventory_depot a 
+			JOIN pro_master_terminal b ON a.id_terminal = b.id_master 
+			JOIN pro_master_produk c ON a.id_produk = c.id_master 
+			WHERE id_jenis = 4 AND adj_inven < 0
+			GROUP BY a.id_datanya, a.id_produk, a.tanggal_inven 
+		), tbl_tf_tanki_ke AS (
+			SELECT a.id_master, a.id_datanya, 'Transfer Stock' AS jenis_penambahan, 
+			a.id_produk, CONCAT(c.jenis_produk, ' - ', c.merk_dagang) AS ket_produk, 
+			a.id_terminal, CONCAT(b.nama_terminal, ' ', b.tanki_terminal) AS ket_terminal, 
+			a.tanggal_inven, SUM(adj_inven) AS nilai_jenis, a.keterangan, a.lastupdate_time 
+			FROM new_pro_inventory_depot a 
+			JOIN pro_master_terminal b ON a.id_terminal = b.id_master 
+			JOIN pro_master_produk c ON a.id_produk = c.id_master 
+			WHERE id_jenis = 4 AND adj_inven > 0
+			GROUP BY a.id_datanya, a.id_produk, a.tanggal_inven 
+		)
 
-       
-        
+		SELECT a.id_master, a.id_datanya,IF(id_jenis=3, 'Adjustment','Purchase Return') AS jenis_penambahan, 
+		a.id_produk, CONCAT(c.jenis_produk, ' - ', c.merk_dagang) AS ket_produk, 
+		a.id_terminal, CONCAT(b.nama_terminal, ' ', b.tanki_terminal) AS ket_terminal, 
+		a.tanggal_inven, adj_inven AS nilai_jenis, a.keterangan, a.lastupdate_time 
+		FROM new_pro_inventory_depot a 
+		JOIN pro_master_terminal b ON a.id_terminal = b.id_master 
+		JOIN pro_master_produk c ON a.id_produk = c.id_master 
+		where id_jenis IN (3,5)
+		
+		UNION ALL
+		
+		SELECT a.id_master, a.id_datanya, a.jenis_penambahan, NULL AS id_produk, a.ket_produk, 
+		NULL AS id_terminal, CONCAT('Dari ', a.ket_terminal, '<br />Ke ', b.ket_terminal) AS ket_terminal, 
+		a.tanggal_inven, (a.nilai_jenis * -1) AS nilai_jenis, a.keterangan, a.lastupdate_time 
+		FROM tbl_tf_tanki_dari a
+		JOIN tbl_tf_tanki_ke b ON a.id_datanya = b.id_datanya 
+	
 	";
+// $sqlnya = "
+// 		select a.id_master, a.id_datanya, 'Adjustment' as jenis_penambahan, 
+// 		a.id_produk, concat(c.jenis_produk, ' - ', c.merk_dagang) as ket_produk, 
+// 		a.id_terminal, concat(b.nama_terminal, ' ', b.tanki_terminal) as ket_terminal, 
+// 		a.tanggal_inven, adj_inven as nilai_jenis, a.keterangan, a.lastupdate_time 
+// 		from new_pro_inventory_depot a 
+// 		join pro_master_terminal b on a.id_terminal = b.id_master 
+// 		join pro_master_produk c on a.id_produk = c.id_master 
+// 		where id_jenis = 3
+// 	";
 
 if ($q1 != "")
-	$sqlnya .= " and b.nama_terminal LIKE '%" . $q1 . "%'";
+	$sqlnya .= " and a.nama_terminal LIKE '%" . $q1 . "%'";
+	// $sqlnya .= " and b.nama_terminal LIKE '%" . $q1 . "%'";
 
 
 $tot_record = $con->num_rows($sqlnya);
@@ -46,7 +85,8 @@ $position      = $paging->get_offset();
 $infonya     = $paging->create_info_bootstrap();
 //$linknya 	= $paging->create_links_bootstrap();
 
-$sqlnya .= " order by a.tanggal_inven desc limit " . $position . ", " . $length;
+$sqlnya .= " order by tanggal_inven desc limit " . $position . ", " . $length;
+// $sqlnya .= " order by a.tanggal_inven desc limit " . $position . ", " . $length;
 
 $content = "";
 if ($tot_record <= 0) {
