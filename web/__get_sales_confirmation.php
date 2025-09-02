@@ -63,6 +63,7 @@ $termPayment = $arr_payment[$jns_payment];
 				<th class="text-center" width="250">Customer Name</th>
 				<th class="text-center" width="150">TOP</th>
 				<th class="text-center" width="150">Credit Limit</th>
+				<th class="text-center" width="150">Credit Limit Temp</th>
 				<th class="text-center" width="200">Business</th>
 				<th class="text-center" width="200">Marketing</th>
 			</tr>
@@ -83,6 +84,10 @@ $termPayment = $arr_payment[$jns_payment];
 				<td class="text-right">
 					<?php echo number_format($row['credit_limit']); ?>
 					<input type="hidden" id="cl" name="cl" value="<?php echo $row['credit_limit']; ?>" />
+				</td>
+				<td class="text-right">
+					<?php echo number_format($row['credit_limit_temp']); ?>
+					<input type="hidden" id="cl" name="cl" value="<?php echo $row['credit_limit_temp']; ?>" />
 				</td>
 				<td class="text-center"><?php echo ($row['tipe_bisnis']) ? $arrT[$row['tipe_bisnis']] : ''; ?></td>
 				<td class="text-center"><?php echo $row['marketing']; ?></td>

@@ -52,7 +52,7 @@
 						b.sm_result, b.sm_summary, b.sm_pic, b.sm_tanggal, 
 						b.purchasing_result, b.ceo_result, b.coo_result, b.purchasing_summary, b.purchasing_pic, b.purchasing_tanggal,
 						b.is_ceo, b.disposisi_pr,
-						c.tanggal_kirim, c.status_plan, c.catatan_reschedule, c.status_jadwal, 
+						c.tanggal_kirim, c.status_plan, c.catatan_reschedule, c.status_jadwal, c.no_so, c.id_accurate,
 						e.alamat_survey, e.id_wil_oa, 
 						f.nama_prov, g.nama_kab, 
 						n.nilai_pbbkb, 
@@ -70,7 +70,8 @@
 						b.submit_bm, b.pr_con, h.jenis_payment, h.top_payment, h.credit_limit, c.top_plan,
 						s.is_loaded, s.is_delivered, s.is_cancel, s.tanggal_loaded, s.jam_loaded, tanggal_cancel,
 						t.volume as volume_potong, t.nomor_po_supplier as nomor_potong,  t.pr_harga_beli as harga_potong,
-						pt.nama_terminal AS terminal_potong,pt.tanki_terminal AS tanki_potong, pt.lokasi_terminal AS lokasi_potong
+						pt.nama_terminal AS terminal_potong,pt.tanki_terminal AS tanki_potong, pt.lokasi_terminal AS lokasi_potong,
+						IF(k.all_in OR k.gabung_oa=1,'gabung_oa',IF(k.gabung_pbbkb=1,'gabung_pbbkb',IF(k.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran
 						from pro_pr_detail a 
 						join pro_pr b on a.id_pr = b.id_pr 
 						join pro_po_customer_plan c on a.id_plan = c.id_plan 
@@ -151,6 +152,7 @@
 							$netgnl = ($nethrg - $data['harga_normal']) * $volume;
 							//$netprt = ($nethrg - $data['pr_harga_beli']) * $volume;
 							$form_split_pr = $data['splitted_from_pr'];
+							$jenis_penawaran = $data['jenis_penawaran'];
 
 							$pathPt = $public_base_directory . '/files/uploaded_user/lampiran/' . $data['lampiran_poc'];
 							$lampPt = $data['lampiran_poc_ori'];
@@ -186,9 +188,11 @@
 							foreach ($rincian as $idx23 => $arr1) {
 								$cetak = 1;
 								$nilai = $arr1['nilai'];
+								$biaya_det = ($arr1['biaya']) ? $arr1['biaya'] : '';
 								$biaya = ($arr1['biaya']) ? $arr1['biaya'] : '';
 								$biaya = ($rsm['pembulatan']) ? number_format($arr1['biaya']) : number_format($arr1['biaya'], 2);
 								$jenis = $arr1['rincian'];
+								$jenis2 = str_replace(' ', '_', $arr1['rincian']);
 								if ($idx23 == 0) {
 									$harga_dasar_new = str_replace(",", "", $biaya);
 								}
@@ -197,6 +201,7 @@
 								<tr>
 									<td align="left" witdh="110">' . $jenis . ($nilai ? " " . $nilai . "%" : "") . '</td>
 									<td align="right">' . $biaya . '</td>
+									<input class="biaya_det" type="hidden" name="' . $jenis2 . '[' . $idp . ']" id="' . $jenis2 . '" value="' . $biaya_det . '" />
 								</tr>
 								';
 							}
@@ -243,7 +248,7 @@
 										</button>';
 									}
 									$tombolAddnya .= '
-									<button type="button" class="btn btn-action btn-primary addRow" data-idp="' . $nom . '" value="' . $idp . '">
+									<button type="button" class="btn btn-action btn-primary addRow" data-idp="' . $nom . '" value="' . $idp . '" data-idplan="' . $id_plan . '" data-idpro="' . $id_pro . '">
 									<i class="fa fa-plus"></i>
 									</button>';
 
@@ -410,9 +415,14 @@
 								<td class="text-left"><?php echo $tabel_harga; ?></td>
 								<td class="text-right"><?php echo number_format($harga_dasar_new); ?></td>
 								<td class="text-right"><?php echo number_format($data['refund_tawar']); ?></td>
-								<td class="text-right"><?php echo number_format($data['other_cost']); ?>
-									<input type="hidden" name="id_plan[]" value="<?php echo $id_plan; ?>" />
+								<td class="text-right plans"><?php echo number_format($data['other_cost']); ?>
+									<input type="hidden" name="<?php echo 'id_plan[' . $idp . ']' ?>" value="<?php echo $id_plan; ?>" />
+									<input type="hidden" name="<?php echo 'id_poc[' . $idp . ']' ?>" value="<?php echo $data['id_poc']; ?>" />
+									<input type="hidden" name="<?php echo 'idplan[]' ?>" value="<?php echo $id_plan; ?>" />
 									<input type="hidden" name="id_prd[]" value="<?php echo $idp; ?>" />
+									<input type="hidden" name="id_accurate" value="<?php echo $data['id_accurate']; ?>" />
+									<input type="hidden" name="<?php echo 'kode_customer[' . $idp . ']' ?>" value="<?= $data['kode_pelanggan'] ?>" />
+									<input class="jenis_penawaran" type="hidden" name="<?php echo 'jenis_penawaran[' . $idp . ']' ?>" id="jenis_penawaran" value="<?php echo $jenis_penawaran; ?>" />
 								</td>
 								<td class="text-right">
 									<?php
@@ -652,7 +662,8 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 		}
 		?>
 		<?php if ($res[0]['disposisi_pr'] == 6) { ?>
-			<button type="submit" class="btn btn-success jarak-kanan" name="revisiDR" id="revisiDR" value="1" style="min-width:90px;">Revisi DR</button>
+			<input type="hidden" name="revisiDR" id="revisiDR" value="1">
+			<button type="submit" class="btn btn-success jarak-kanan" name="btnRevisiDR" id="btnRevisiDR" value="1" style="min-width:90px;">Revisi DR</button>
 		<?php } ?>
 	</div>
 <?php } ?>
@@ -734,6 +745,23 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 	} */
 </style>
 <script>
+	$('#btnRevisiDR').on('click', function(e) {
+		e.preventDefault();
+		var form = $(this).parents('form');
+		Swal.fire({
+			title: "Anda yakin?",
+			showCancelButton: true,
+			confirmButtonText: "Ya",
+		}).then((result) => {
+			if (result.isConfirmed) {
+				$("#loading_modal").modal({
+					backdrop: 'static'
+				});
+				form.submit();
+			}
+		});
+	})
+
 	$('#revisiDRPR').click(function() {
 		// Konfirmasi sebelum melanjutkan
 
@@ -742,7 +770,7 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 		var id_prdValues = [];
 
 		// Mendapatkan semua elemen input tersembunyi dalam table
-		$('input[name="id_plan[]"]').each(function() {
+		$('input[name="idplan[]"]').each(function() {
 			id_planValues.push($(this).val()); // Mengambil value dari id_plan
 		});
 
@@ -852,13 +880,9 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 	}
 
 	function myFunction(nom) {
-		var idwValue = $('#idw').val();
 		$.ajax({
 			type: "POST",
 			url: `<?= BASE_URL . "/web/__get_po_by_terminal.php" ?>`,
-			data: {
-				idw: idwValue
-			},
 			dataType: "json",
 			success: function(result) {
 				$('#modalPO').modal({
@@ -1079,6 +1103,8 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 			var row = $(this).closest('tr');
 			var idl = $(this).val();
 			var urut = $(this).attr('data-idp', count);
+			var id_plan = $(this).attr('data-idplan');
+			var id_pro = $(this).attr('data-idpro');
 
 			// $("#table-grid3").find(".dp1").each(function(i, v) {
 			// 	$(v).select2("destroy");
@@ -1107,7 +1133,7 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 				}
 			});
 
-			let elemen = '<input class="text-right volume hitung" type="text" name="newVolume[]" value="" style="width:100%;" />' +
+			let elemen = '<input class="text-right volume hitung" type="text" name="newVolume[]" value="" style="width:100%;" />' + '<input class="text-right" type="hidden" name="newid_plan[]" style="width:100%;" value="' + id_plan + '" />' + '<input class="text-right" type="hidden" name="newid_pro[]" style="width:100%;" value="' + id_pro + '" />' +
 				'<input class="idx"type="hidden" name="newIdx[]" value="' + idl + '" />' +
 				'<input class="cek" type="hidden" name="newCek[]" value="1" />';
 

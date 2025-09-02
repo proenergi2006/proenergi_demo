@@ -251,7 +251,7 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 												<input type="hidden" id="volume" value="">
 												<p style="font-weight:bold; margin-bottom:5px;">Realisasi Volume</p>
 												<div class="input-group">
-													<input type="text" name="real_kirim" id="real_kirim" class="form-control hitung reali" />
+													<input type="text" name="real_kirim" id="real_kirim" class="form-control hitung reali" placeholder="0.0000" />
 													<span class="input-group-addon">Liter</span>
 												</div>
 											</td>
@@ -262,6 +262,11 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 											<td style="padding:10px 5px;" class="terasite">
 												<p style="font-weight:bold; margin-bottom:5px;">Tera Site</p>
 												<input type="text" name="tera_site" id="tera_site" class="form-control terasite" />
+											</td>
+										</tr>
+										<tr>
+											<td width="100" colspan="5">
+												<small><i>(Volume bisa 4 angka dibelakang koma, gunakan titik jika volume decimal)</i></small>
 											</td>
 										</tr>
 
@@ -550,6 +555,8 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" crossorigin=""></script>
 
 	<script>
+		$(".hitung").number(true, 4, ".", ",");
+
 		function onlyNumberKey(evt) {
 			let ASCIICode = (evt.which) ? evt.which : evt.keyCode
 			if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57))

@@ -275,6 +275,13 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == '11') {
                                                         <td class="text-center">:</td>
                                                         <td><?php echo $rsm['tol_susut'] . " %"; ?></td>
                                                     </tr>
+                                                    <?php if ($rsm['alat_ukur'] != NULL) : ?>
+                                                        <tr>
+                                                            <td>Alat Ukur</td>
+                                                            <td class="text-center">:</td>
+                                                            <td><?php echo $rsm['alat_ukur'] ?></td>
+                                                        </tr>
+                                                    <?php endif ?>
                                                     <tr>
                                                         <td>Lokasi Pengiriman</td>
                                                         <td class="text-center">:</td>

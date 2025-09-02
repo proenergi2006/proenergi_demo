@@ -72,7 +72,7 @@ $res02 = $con->getResult($sql02);
 
 $sql03 = "
 		select 
-		a.*, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan
+		a.*, SUM(a.discount) as total_disc, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan
 		from pro_invoice_admin_detail a 
 		join pro_po_ds_detail b on a.id_dsd = b.id_dsd and a.jenisnya = 'truck' 
 		join pro_po_customer_plan c on b.id_plan = c.id_plan 
@@ -87,9 +87,10 @@ $sql03 = "
 		join pro_master_transportir_mobil k1 on b1.mobil_po = k1.id_master 
 		join pro_master_transportir_sopir l1 on b1.sopir_po = l1.id_master
 		where 1=1 and a.id_invoice = '" . $idr . "'
+		HAVING total_disc IS NOT NULL
 		UNION ALL 
 		select 
-		a.*, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan
+		a.*, SUM(a.discount) as total_disc, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan
 		from pro_invoice_admin_detail a 
 		join pro_po_ds_kapal b on a.id_dsd = b.id_dsk and a.jenisnya = 'kapal' 
 		join pro_pr_detail c on b.id_prd = c.id_prd 
@@ -101,6 +102,7 @@ $sql03 = "
 		join pro_master_kabupaten i on i.id_kab=g.id_kab
 		join pro_penawaran j on e.id_penawaran=j.id_penawaran
 		where 1=1 and a.id_invoice = '" . $idr . "' 
+		HAVING total_disc IS NOT NULL
 		order by id_invoice_detail 
 ";
 
@@ -109,10 +111,28 @@ $res03 = $con->getRecord($sql03);
 $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date("d/m/Y H:i:s") . " WIB";
 // $barcod = $res[0]['kode_barcode'] . '05' . str_pad($idr, 6, '0', STR_PAD_LEFT);
 // echo json_encode($approval);
-
 ob_start();
 if ($tipe != "default" && $tipe != "pbbkb") {
-	require_once(realpath("./template/invoice-customer-split.php"));
+	if ($tipe == "proforma_invoice") {
+		$data_poc = "
+		select a.nomor_poc, a.top_poc, a.volume_poc, a.harga_poc, b.nama_customer, b.alamat_customer, b.postalcode_customer as kode_pos, c.pembulatan, c.detail_rincian, c.harga_dasar, d.nama_prov as prov_customer, e.nama_kab as kab_customer, f.merk_dagang as produk, IF(c.gabung_oa =1,'gabung_oa',IF(c.all_in = 1,'all_in', IF(c.gabung_pbbkb,'gabung_pbbkb',IF(c.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
+		from pro_po_customer a 
+		join pro_customer b on a.id_customer=b.id_customer
+		join pro_penawaran c on a.id_penawaran=c.id_penawaran
+		join pro_master_provinsi d on b.prov_customer=d.id_prov
+		join pro_master_kabupaten e on b.kab_customer=e.id_kab
+		join pro_master_produk f on a.produk_poc=f.id_master
+		where a.id_poc = '" . $idr . "'
+		group by a.id_poc";
+		$row_poc = $con->getRecord($data_poc);
+
+		// echo json_encode($data_poc);
+		// exit();
+
+		require_once(realpath("./template/proforma-invoice.php"));
+	} else {
+		require_once(realpath("./template/invoice-customer-split.php"));
+	}
 } else {
 	require_once(realpath("./template/invoice-customer2.php"));
 }

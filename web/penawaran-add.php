@@ -348,6 +348,25 @@ if ($idk != "") {
                             </div>
 
                             <div class="row">
+                                <div class="col-md-6"></div>
+                                <div class="col-md-6">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-4">Alat Ukur</label>
+                                        <div class="col-md-6">
+                                            <select name="alat_ukur" id="alat_ukur" class="form-control select2">
+                                                <option></option>
+                                                <option value="Jembatan Timbang" <?php echo ($rsm['alat_ukur'] == "Jembatan Timbang") ? 'selected' : ''; ?>>Jembatan Timbang</option>
+                                                <option value="TUM" <?php echo ($rsm['alat_ukur'] == "TUM") ? 'selected' : ''; ?>>TUM</option>
+                                                <option value="Flowmeter Pelanggan" <?php echo ($rsm['alat_ukur'] == "Flowmeter Pelanggan") ? 'selected' : ''; ?>>Flowmeter Pelanggan</option>
+                                                <option value="Flowmeter Pro Energi" <?php echo ($rsm['alat_ukur'] == "Flowmeter Pro Energi") ? 'selected' : ''; ?>>Flowmeter Pro Energi</option>
+                                                <option value="Tanki Pelanggan" <?php echo ($rsm['alat_ukur'] == "Tanki Pelanggan") ? 'selected' : ''; ?>>Tanki Pelanggan</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-12">Lokasi Pengiriman (Harga Terima..) *</label>
