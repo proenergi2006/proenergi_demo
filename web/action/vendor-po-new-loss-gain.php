@@ -210,7 +210,6 @@ if ($act == 'update') {
 									$unitPriceLossGain = $item["item"]["itemType"] === 'INVENTORY' ? $dt16 : $item['unitPrice'];
 									$quantity = $item["item"]["itemType"] === 'INVENTORY' ? $rowReceive['volume_bol'] : $item['quantity'];
 
-
 									if (isset($item["item"]["itemType"]) && $item["item"]["itemType"] === 'INVENTORY') {
 										$data_save['detailItem'][] = [
 											'itemNo'       => $item['item']['no'],
