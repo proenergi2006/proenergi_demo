@@ -131,6 +131,18 @@ $cabang = $con->getResult($query2);
                                     </tr>
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-end mb-2">
+                                <div>
+                                    Tampilkan
+                                    <select id="pageSize" class="form-control d-inline-block" style="width:120px">
+                                        <option value="2" selected>10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-dasar" id="table_incentive">
                                     <thead>
@@ -147,6 +159,12 @@ $cabang = $con->getResult($query2);
                                             <td class="text-center" colspan="8">Tidak Ada Data</td>
                                         </tr>
                                     </tbody>
+                                    <tfoot>
+                                        <tr class="table-secondary">
+                                            <th colspan="4" class="text-center">Total Incentive</th>
+                                            <th class="text-center" id="grandTotalCell">0</th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                             <div class="pagination-controls">
@@ -156,8 +174,9 @@ $cabang = $con->getResult($query2);
                                 <span style="margin-left: 20px;" id="total-data">Total Data : 0</span>
                             </div>
 
-
                             <hr style="border-top:4px double #ddd; margin:5px 0 20px;" />
+
+                            <div id="all_id_incentive" style="display: none;"></div>
 
                             <div style="margin-bottom:15px;">
                                 <input type="hidden" name="act" value="<?php echo $action; ?>" />
@@ -229,8 +248,57 @@ $cabang = $con->getResult($query2);
         });
 
         let currentPage = 1;
-        let itemsPerPage = 5; // Adjust this number as needed
+        let itemsPerPage = 2; // default awal, akan di-override oleh #pageSize jika ada
         let paginatedItems = [];
+
+        /* =============================
+           Helper tambahan (BARU)
+        ============================= */
+        // ambil nilai total dari beragam kemungkinan kolom
+        function getTotalRaw(row) {
+            return row.total_incentive ?? row.total ?? row.total_incentif ?? row.nilai_incentive ?? row.incentive ?? 0;
+        }
+
+        // parser angka fleksibel: "12.345,67", "12,345.67", "Rp 12.345", "12345.67"
+        function parseNumberFlexible(v) {
+            if (v == null) return 0;
+            if (typeof v === 'number') return v;
+            let s = String(v).trim();
+            if (s === '') return 0;
+            s = s.replace(/[^\d.,-]/g, '');
+            const lastDot = s.lastIndexOf('.');
+            const lastCom = s.lastIndexOf(',');
+            let decimalSep = null;
+            if (lastDot !== -1 || lastCom !== -1) {
+                decimalSep = (lastDot > lastCom) ? '.' : ',';
+            }
+            if (decimalSep) {
+                const thousandSep = (decimalSep === '.') ? ',' : '.';
+                s = s.split(thousandSep).join('');
+                if (decimalSep === ',') s = s.replace(',', '.');
+            } else {
+                s = s.replace(/[.,]/g, '');
+            }
+            const n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function formatIDR(n) {
+            return new Intl.NumberFormat('id-ID').format(Number(n || 0));
+        }
+
+        // dapatkan page size efektif berdasar dropdown (jika ada)
+        function getEffectivePageSize() {
+            const totalItems = paginatedItems.length;
+            const pageSizeVal = ($("#pageSize").val() || itemsPerPage).toString();
+            if (pageSizeVal === 'all') return totalItems || 1; // biar tidak 0
+            const ps = parseInt(pageSizeVal, 10);
+            return isNaN(ps) ? (itemsPerPage || 10) : ps;
+        }
+
+        /* =============================
+           AJAX generate (asli kamu)
+        ============================= */
         $("#btn-generate").on("click", function(e) {
             let periode = $("#periode").val();
             let cabang = $("#cabang").val();
@@ -255,26 +323,34 @@ $cabang = $con->getResult($query2);
                         $("#loading_modal").modal("hide");
                         let tabel = $("#table-incentive");
                         let rows = [];
-                        if (data.items.length > 0) {
+                        if (data.items && data.items.length > 0) {
                             $("#btnSbmt").removeAttr("disabled");
-                            $.each(data.items, function(idx, row) {
 
-                                var isiHtml =
-                                    '<tr>' +
-                                    '<td class="text-center"><input class="hidden" name="id_incentive[]" value="' + row.id_incentive + '"></td>' +
-                                    '</tr>';
-                                rows.push(isiHtml);
-                            });
-                            tabel.find('tbody').html(rows.join(''));
-                            // Store items for pagination
+                            // simpan semua item (PENTING)
                             paginatedItems = data.items;
-                            currentPage = 1; // Reset to first page
+
+                            build_all_id_incentive();
+
+                            // set itemsPerPage sesuai dropdown (jika ada)
+                            itemsPerPage = getEffectivePageSize();
+
+                            // render & update pager
+                            currentPage = 1; // Reset ke halaman pertama
                             renderTable(currentPage);
                             updatePaginationControls();
+
                             $("#total-data").html("Total semua data : " + data.items.length);
                         } else {
+                            paginatedItems = [];
                             $(".table-dasar").find('tbody').html('<tr><td class="text-center" colspan="5">Tidak Ada Data</td></tr>');
                             $("#prevPage, #nextPage").prop("disabled", true);
+                            // reset grand total
+                            $("#grandTotalCell").text('0');
+                            $("#total-data").html("Total semua data : 0");
+                            $("#currentPage").text("Page 1");
+
+                            ensureHiddenContainer();
+                            $("#all_id_incentive").empty();
                         }
                     },
                     error: function() {
@@ -287,17 +363,30 @@ $cabang = $con->getResult($query2);
             }
         });
 
+        /* =============================
+           RENDER TABLE (dipertahankan, hanya tambah sedikit)
+        ============================= */
         function renderTable(page) {
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
+            // tentukan page size efektif (10/20/50/100/All)
+            const totalItems = paginatedItems.length;
+            const pageSizeVal = ($("#pageSize").val() || itemsPerPage).toString();
+            const effectivePageSize = getEffectivePageSize();
+
+            // hitung batas halaman + normalisasi currentPage
+            const totalPages = Math.max(1, Math.ceil((totalItems || 1) / (effectivePageSize || 1)));
+            currentPage = Math.min(Math.max(1, page), totalPages);
+
+            // hitung slice
+            const start = (pageSizeVal === 'all') ? 0 : (currentPage - 1) * effectivePageSize;
+            const end = (pageSizeVal === 'all') ? totalItems : start + effectivePageSize;
             const itemsToDisplay = paginatedItems.slice(start, end);
 
             const tabel = $(".table-dasar tbody");
-            tabel.empty(); // Clear existing rows
+            tabel.empty();
 
             if (itemsToDisplay.length > 0) {
                 itemsToDisplay.forEach((row, idx) => {
-                    const date = new Date(row.tanggal_bayar);
+                    const date = row.tanggal_bayar ? new Date(row.tanggal_bayar) : null;
                     const options = {
                         year: 'numeric',
                         month: 'long',
@@ -309,26 +398,28 @@ $cabang = $con->getResult($query2);
                         '17': "Key Account Executive",
                         '20': "SPV Marketing"
                     };
-                    var role = roleMap[row.id_role] || "Unknown Role";
+                    const role = roleMap[row.id_role] || "Unknown Role";
+
+                    const totalNum = parseNumberFlexible(getTotalRaw(row)); // <- pakai parser fleksibel
 
                     var isiHtml =
                         '<tr>' +
                         '<td class="text-center"><span>' + (start + idx + 1) + '</span></td>' +
                         '<td class="text-center">' +
-                        '<p style="margin-bottom:3px;"><b>' + row.no_invoice + '</b></p>' +
-                        '<p style="margin-bottom:3px;">Date Payment : ' + date.toLocaleDateString('id-ID', options) + '</p>' +
+                        '<p style="margin-bottom:3px;"><b>' + (row.no_invoice || '-') + '</b></p>' +
+                        (date ? '<p style="margin-bottom:3px;">Date Payment : ' + date.toLocaleDateString('id-ID', options) + '</p>' : '') +
                         '</td>' +
                         '<td class="text-center">' +
-                        '<p style="margin-bottom:3px;"><b>' + row.kode_pelanggan + '</b></p>' +
-                        '<p style="margin-bottom:3px;">' + row.nama_customer + '</p>' +
-                        '<p style="margin-bottom:3px;">Area : ' + row.nama_area + '</p>' +
+                        '<p style="margin-bottom:3px;"><b>' + (row.kode_pelanggan || '-') + '</b></p>' +
+                        '<p style="margin-bottom:3px;">' + (row.nama_customer || '-') + '</p>' +
+                        '<p style="margin-bottom:3px;">Area : ' + (row.nama_area || '-') + '</p>' +
                         '</td>' +
                         '<td class="text-center">' +
-                        '<p style="margin-bottom:3px;"><b>' + row.fullname + '</b></p>' +
+                        '<p style="margin-bottom:3px;"><b>' + (row.fullname || '-') + '</b></p>' +
                         '<p style="margin-bottom:3px;">' + role + '</p>' +
                         '</td>' +
                         '<td class="text-center">' +
-                        '<p style="margin-bottom:3px;"><b>Rp. ' + new Intl.NumberFormat(navigator.language).format(row.total_incentive) + '</b></p>' +
+                        '<p style="margin-bottom:3px;"><b>Rp. ' + new Intl.NumberFormat('id-ID').format(totalNum) + '</b></p>' +
                         '</td>' +
                         '</tr>';
                     tabel.append(isiHtml);
@@ -336,15 +427,37 @@ $cabang = $con->getResult($query2);
             } else {
                 tabel.html('<tr><td class="text-center" colspan="5">Tidak Ada Data</td></tr>');
             }
+
+            // === TOTAL SESUAI HALAMAN (itemsToDisplay), BUKAN SEMUA ROW ===
+            const pageTotal = itemsToDisplay.reduce((sum, it) => {
+                return sum + parseNumberFlexible(getTotalRaw(it));
+            }, 0);
+            $("#grandTotalCell").text("Rp. " + new Intl.NumberFormat('id-ID').format(pageTotal));
+
+            // Update teks halaman (gaya kamu tetap)
+            $("#currentPage").text("Page " + currentPage + (pageSizeVal === 'all' ? "" : " of " + totalPages));
         }
 
+        /* =============================
+           Pagination controls (minor tweak)
+        ============================= */
         function updatePaginationControls() {
-            const totalPages = Math.ceil(paginatedItems.length / itemsPerPage);
-            $("#currentPage").text("Page " + currentPage);
-            $("#prevPage").prop("disabled", currentPage === 1);
-            $("#nextPage").prop("disabled", currentPage === totalPages);
+            const totalItems = paginatedItems.length;
+            const pageSizeVal = ($("#pageSize").val() || itemsPerPage).toString();
+            const effectivePageSize = getEffectivePageSize();
+            const totalPages = Math.max(1, Math.ceil((totalItems || 1) / (effectivePageSize || 1)));
+
+            $("#currentPage").text("Page " + currentPage + (pageSizeVal === 'all' ? "" : " of " + totalPages));
+
+            // disable ketika 'all' atau halaman mentok
+            const disablePager = (pageSizeVal === 'all') || (totalPages <= 1);
+            $("#prevPage").prop("disabled", disablePager || currentPage === 1);
+            $("#nextPage").prop("disabled", disablePager || currentPage === totalPages);
         }
 
+        /* =============================
+           Buttons (tetap gaya kamu)
+        ============================= */
         $("#prevPage").on("click", function() {
             if (currentPage > 1) {
                 currentPage--;
@@ -354,13 +467,48 @@ $cabang = $con->getResult($query2);
         });
 
         $("#nextPage").on("click", function() {
-            const totalPages = Math.ceil(paginatedItems.length / itemsPerPage);
+            const totalItems = paginatedItems.length;
+            const totalPages = Math.max(1, Math.ceil((totalItems || 1) / (getEffectivePageSize() || 1)));
             if (currentPage < totalPages) {
                 currentPage++;
                 renderTable(currentPage);
                 updatePaginationControls();
             }
         });
+
+        /* =============================
+           Page size handler (BARU)
+           - otomatis render ulang saat dropdown diganti
+        ============================= */
+        $(document).on('change', '#pageSize', function() {
+            itemsPerPage = getEffectivePageSize(); // sinkronkan nilai global
+            currentPage = 1;
+            renderTable(currentPage);
+            updatePaginationControls();
+        });
+
+        function ensureHiddenContainer() {
+            if ($("#all_id_incentive").length === 0) {
+                // jika belum ada (misal HTML tak diubah), buat otomatis
+                const $form = $("#gform").length ? $("#gform") : $("form").first();
+                $form.append('<div id="all_id_incentive" style="display: none;"></div>');
+            }
+        }
+
+        function build_all_id_incentive() {
+            ensureHiddenContainer();
+            const $box = $("#all_id_incentive");
+            $box.empty();
+            // isi semua id_incentive dari seluruh data
+            paginatedItems.forEach(it => {
+                if (it && it.id_incentive != null && it.id_incentive !== '') {
+                    $box.append(
+                        `<input type="hidden" name="id_incentive[]" value="${String(it.id_incentive).replace(/"/g,'&quot;')}">`
+                    );
+                }
+            });
+        }
+
         // $("#btn-generate").on("click", function(e) {
         // 	let no_pengajuan = $("#no_pengajuan").val();
         // 	let periode = $("#periode").val();

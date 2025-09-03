@@ -23,6 +23,11 @@ if (!in_array($id_role, $required_role)) {
 
 $query = "SELECT * FROM pro_master_cabang WHERE is_active = '1' AND id_master NOT IN('1','10') ORDER BY nama_cabang ASC";
 $cabang = $con->getResult($query);
+
+$akun = "SELECT CONCAT(a.fullname , ' - ', b.inisial_cabang) as fullname, REPLACE(c.role_name, 'Role', '') AS role_name, a.id_user FROM acl_user a JOIN pro_master_cabang b ON a.id_wilayah=b.id_master JOIN acl_role c ON a.id_role=c.id_role WHERE a.id_role IN ('11','17','7','6') AND a.is_active = '1' AND a.id_user NOT IN (
+    SELECT id_user FROM pro_non_penerima_incentive
+    )";
+$res_akun = $con->getResult($akun);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,8 +66,26 @@ $cabang = $con->getResult($query);
                                 <option value="3">APPROVED BY CEO</option>
                             </select>
                         </div>
+                        <div class="col-sm-3 col-sm-top">
+                            <select class="form-control select2" name="q4" id="q4">
+                                <option></option>
+                                <?php foreach ($res_akun as $key) : ?>
+                                    <option value="<?= $key['id_user'] ?>"><?= $key['fullname'] . " (" . $key['role_name'] . " )" ?></option>
+                                <?php endforeach ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="month" class="form-control input-sm" name="q5" id="q5" />
+                        </div>
+                    </div>
+                    <?php if ($id_role == '23') : ?>
+                        <p style="font-size:12px; margin-top:-10px;"><i>Keywords berdasarkan Nama Customer, Nomor Invoice dan Nama Marketing / KAE</i></p>
+                    <?php else: ?>
+                        <p style="font-size:12px; margin-top:-10px;"><i>Keywords berdasarkan Nama Customer, Nomor Invoice</i></p>
+                    <?php endif ?>
+                    <div class="form-group row">
                         <?php if ($id_role == '23') : ?>
-                            <div class="col-sm-3 col-sm-top">
+                            <div class="col-sm-3 col-sm-top mt-5">
                                 <select name="cabang" id="cabang" class="form-control input-sm">
                                     <option value="">Semua Cabang</option>
                                     <?php foreach ($cabang as $key) : ?>
@@ -75,11 +98,6 @@ $cabang = $con->getResult($query);
                             <button type="submit" class="btn btn-info btn-sm" name="btnSearch" id="btnSearch"><i class="fa fa-search jarak-kanan"></i>Search</button>
                         </div>
                     </div>
-                    <?php if ($id_role == '23') : ?>
-                        <p style="font-size:12px; margin-top:-10px;"><i>Keywords berdasarkan Nama Customer, Nomor Invoice dan Nama Marketing / KAE</i></p>
-                    <?php else: ?>
-                        <p style="font-size:12px; margin-top:-10px;"><i>Keywords berdasarkan Nama Customer, Nomor Invoice</i></p>
-                    <?php endif ?>
                 </form>
                 <div class="row">
                     <div class="col-sm-12">
@@ -190,12 +208,19 @@ $cabang = $con->getResult($query);
     </style>
     <script>
         $(document).ready(function() {
+            $("#q4").select2({
+                placeholder: "Pilih Marketing",
+                allowClear: true
+            });
+
             $("#data-incentive").ajaxGrid({
                 url: "./datatable/incentive.php",
                 data: {
                     q1: $("#q1").val(),
                     q2: $("#q2").val(),
                     q3: $("#q3").val(),
+                    q4: $("#q4").val(),
+                    q5: $("#q5").val(),
                     cabang: $("#cabang").val()
                 },
             });
@@ -205,6 +230,8 @@ $cabang = $con->getResult($query);
                         q1: $("#q1").val(),
                         q2: $("#q2").val(),
                         q3: $("#q3").val(),
+                        q4: $("#q4").val(),
+                        q5: $("#q5").val(),
                         cabang: $("#cabang").val()
                     }
                 });

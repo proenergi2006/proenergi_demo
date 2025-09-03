@@ -13,6 +13,8 @@ $length    = isset($_POST['length']) ? htmlspecialchars($_POST["length"], ENT_QU
 $q1    = isset($_POST["q1"]) ? htmlspecialchars($_POST["q1"], ENT_QUOTES) : '';
 $q2    = isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
 $q3    = isset($_POST["q3"]) ? htmlspecialchars($_POST["q3"], ENT_QUOTES) : '';
+$q4    = isset($_POST["q4"]) ? htmlspecialchars($_POST["q4"], ENT_QUOTES) : '';
+$q5    = isset($_POST["q5"]) ? htmlspecialchars($_POST["q5"], ENT_QUOTES) : '';
 $cabang    = isset($_POST["cabang"]) ? htmlspecialchars($_POST["cabang"], ENT_QUOTES) : '';
 $id_role = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
 $id_user = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']);
@@ -30,6 +32,14 @@ if ($id_role == '23' ||  $id_role ==  '21') {
     $user = "";
 } else {
     $user = " AND j.id_user = '" . $id_user . "'";
+}
+
+if ($q4) {
+    $user = " AND j.id_user = '" . $q4 . "'";
+}
+
+if ($q5) {
+    $month = " AND n.tgl_invoice BETWEEN STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d') AND LAST_DAY(STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d'))";
 }
 
 if ($q3 != "") {
@@ -129,6 +139,7 @@ WHERE  1 = 1
 	" . $user . "
 	" . $status . "
 	" . $keywords . "
+	" . $month . "
 UNION ALL
 SELECT DISTINCT 
     a.id AS id_incentivenya, 
@@ -211,7 +222,8 @@ WHERE  1 = 1
 	" . $wilayah . "
 	" . $user . "
 	" . $status . "
-	" . $keywords . "";
+	" . $keywords . "
+	" . $month . "";
 
 
 $tot_record = $con->num_rows($sql);
@@ -223,7 +235,7 @@ $sql .= " ORDER BY 1 DESC limit " . $position . ", " . $length;
 $content = "";
 $count = 0;
 if ($tot_record <= 0) {
-    $content .= '<tr><td colspan="12" style="text-align:center">Data tidak ditemukan </td></tr>';
+    $content .= '<tr><td colspan="13" style="text-align:center">Data tidak ditemukan </td></tr>';
 } else {
     $count         = $position;
     $tot_page     = ceil($tot_record / $length);
@@ -898,7 +910,7 @@ if ($tot_record <= 0) {
     }
     $content .= '
 	<tr>
-		<td class="text-center" colspan="10"><b>TOTAL</b></td>
+		<td class="text-center" colspan="11"><b>TOTAL</b></td>
 		<td class="text-right">' . number_format($grandtotal_incentive) . '</td>
 		</td>
 	</tr>';
@@ -907,8 +919,8 @@ if ($tot_record <= 0) {
 $json_data = array(
     "items"        => $content,
     "pages"        => $tot_page,
-    "page"        => $page,
+    "page"         => $page,
     "totalData"    => $tot_record,
-    "infoData"    => "Showing " . ($position + 1) . " to " . $count . " of " . $tot_record . " entries",
+    "infoData"     => "Showing " . ($position + 1) . " to " . $count . " of " . $tot_record . " entries",
 );
 echo json_encode($json_data);

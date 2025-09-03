@@ -128,8 +128,17 @@ if (isset($_POST['q0'])) {
             break;
     }
 } else {
-    $sql1 = "SELECT *, id as id_pengajuannya FROM pro_pengajuan_incentive WHERE id = '" . $id_pengajuan . "'";
+    $sql1 = "SELECT a.*, a.id as id_pengajuannya FROM pro_pengajuan_incentive a WHERE a.id = '" . $id_pengajuan . "'";
     $row1 = $con->getRecord($sql1);
+
+    $sql_bm = "SELECT nama as nama_bm, jabatan as jabatan_bm FROM pro_penerima_incentive WHERE id = '" . $row1['id_bm'] . "'";
+    $row_bm = $con->getRecord($sql_bm);
+
+    $sql_sm = "SELECT nama as nama_sm, jabatan as jabatan_sm FROM pro_penerima_incentive WHERE id = '" . $row1['id_sm'] . "'";
+    $row_sm = $con->getRecord($sql_sm);
+
+    $sql_spv = "SELECT nama as nama_spv, jabatan as jabatan_spv FROM pro_penerima_incentive WHERE id = '" . $row1['id_spv'] . "'";
+    $row_spv = $con->getRecord($sql_spv);
 
     $sql_incentive_all = "SELECT c.*, d.fullname, d.id_role, e.no_invoice, e.tgl_invoice, e.tgl_invoice_dikirim, f.kode_pelanggan, f.nama_customer, (SELECT MAX(tgl_bayar) FROM pro_invoice_admin_detail_bayar WHERE id_invoice=e.id_invoice) as tgl_lunas, g.nama_cabang FROM pro_bundle_incentive a JOIN pro_pengajuan_incentive b ON a.id_pengajuan=b.id JOIN pro_incentive c ON a.id_incentive=c.id JOIN acl_user d ON c.id_marketing=d.id_user JOIN pro_invoice_admin e ON c.id_invoice=e.id_invoice JOIN pro_customer f ON e.id_customer=f.id_customer JOIN pro_master_cabang g ON f.id_wilayah=g.id_master WHERE a.id_pengajuan='" . $id_pengajuan . "' ORDER BY d.fullname, e.no_invoice ASC";
     $res_all = $con->getResult($sql_incentive_all);
@@ -285,10 +294,14 @@ $cabang = $con->getRecord($sql_cabang);
                                                 </td>
                                                 <td>
                                                     <?php
-                                                    if ($row1['is_ceo'] == 1) {
-                                                        $status = "Approved by " . $row1['ceo_by'] . " | " . tgl_indo($row1['ceo_date']);
+                                                    if ($row1['disposisi'] == 0) {
+                                                        $status = "Draft";
                                                     } else {
-                                                        $status = "Verifikasi CEO";
+                                                        if ($row1['is_ceo'] == 1) {
+                                                            $status = "Approved by " . $row1['ceo_by'] . " | " . tgl_indo($row1['ceo_date']);
+                                                        } else {
+                                                            $status = "Verifikasi CEO";
+                                                        }
                                                     }
                                                     ?>
                                                     <strong>
@@ -300,6 +313,11 @@ $cabang = $con->getRecord($sql_cabang);
                                                 <td width="15%" style="padding: 10px;">Total Incentive</td>
                                                 <td>:</td>
                                                 <td><b>Rp. <span id="total_detail_incentive">0</span></b></td>
+                                            </tr>
+                                            <tr>
+                                                <td width="15%" style="padding: 10px;">Total Volume</td>
+                                                <td>:</td>
+                                                <td><b><span id="total_detail_volume">0</span></b></td>
                                             </tr>
                                             <?php if ($row1['is_ceo'] == 0 && $id_role == '21') : ?>
                                                 <tr>
@@ -365,6 +383,7 @@ $cabang = $con->getRecord($sql_cabang);
                                         <div style="max-height: 400px; overflow-y: auto;">
                                             <div class="table-responsive">
                                                 <?php $grand_total_incentive = 0; ?>
+                                                <?php $grand_total_volume = 0; ?>
                                                 <?php foreach ($res2 as $key) : ?>
                                                     <?php
                                                     $sql_incentive = "SELECT a.*, b.no_invoice, b.tgl_invoice, b.tgl_invoice_dikirim, c.nama_customer, c.kode_pelanggan, (SELECT MAX(tgl_bayar) FROM pro_invoice_admin_detail_bayar WHERE id_invoice=a.id_invoice) as tgl_lunas, d.nama_cabang FROM pro_incentive a JOIN pro_invoice_admin b ON a.id_invoice=b.id_invoice JOIN pro_customer c ON b.id_customer=c.id_customer JOIN pro_master_cabang d ON c.id_wilayah=d.id_master WHERE a.id_marketing = '" . $key['id_user'] . "' AND a.disposisi > 1 and d.id_master = '" . $row1['wilayah'] . "' ORDER BY a.id DESC";
@@ -405,10 +424,12 @@ $cabang = $con->getRecord($sql_cabang);
                                                             <?php if ($res_incentive) : ?>
                                                                 <?php
                                                                 $sub_total_incentive = 0;
+                                                                $sub_total_volume = 0;
                                                                 ?>
                                                                 <?php foreach ($res_incentive as $ri) : ?>
                                                                     <?php
                                                                     $sub_total_incentive += $ri['total_incentive'];
+                                                                    $sub_total_volume += $ri['volume'];
 
                                                                     $startDate = new DateTime($ri['tgl_invoice_dikirim']);
                                                                     $endDate = new DateTime($ri['tgl_lunas']);
@@ -459,7 +480,7 @@ $cabang = $con->getRecord($sql_cabang);
                                                                                 <span class="" id="point_incentive_text<?= $ri['id'] ?>"> <?= $ri['point_incentive'] ?> </span>
                                                                             </td>
                                                                             <td align="right" width="100px">
-                                                                                <span class="" id="total_incentive_text<?= $ri['id'] ?>"><?= number_format($ri['total_incentive']) ?></span>
+                                                                                <span class="" id="total_incentive_text<?= $ri['id'] ?>">Rp <?= number_format($ri['total_incentive']) ?></span>
                                                                             </td>
                                                                         <?php else : ?>
                                                                             <td align="center" width="60px">
@@ -475,7 +496,7 @@ $cabang = $con->getRecord($sql_cabang);
                                                                                 <?= $ri['point_incentive'] ?>
                                                                             </td>
                                                                             <td align="right" width="100px">
-                                                                                <?= number_format($ri['total_incentive']) ?>
+                                                                                Rp <?= number_format($ri['total_incentive']) ?>
                                                                             </td>
                                                                         <?php endif ?>
                                                                     </tr>
@@ -555,7 +576,7 @@ $cabang = $con->getRecord($sql_cabang);
                                                                     </td>
                                                                     <td align="right">
                                                                         <b>
-                                                                            <?= number_format($sub_total_incentive) ?>
+                                                                            Rp <?= number_format($sub_total_incentive) ?>
                                                                         </b>
                                                                     </td>
                                                                 </tr>
@@ -571,10 +592,82 @@ $cabang = $con->getRecord($sql_cabang);
                                                     <br>
                                                     <br>
                                                     <?php $grand_total_incentive += $sub_total_incentive; ?>
+                                                    <?php $grand_total_volume += $sub_total_volume; ?>
                                                 <?php endforeach ?>
+                                                <table width="100%" border="0" style="font-size:12px">
+                                                    <tr>
+                                                        <td width="15%">
+                                                            <b>Total Incentive</b>
+                                                        </td>
+                                                        <td width="2%">
+                                                            <b>:</b>
+                                                        </td>
+                                                        <td>
+                                                            <b>Rp. <?= number_format($grand_total_incentive) ?></b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <b>Total Volume</b>
+                                                        </td>
+                                                        <td>
+                                                            <b>:</b>
+                                                        </td>
+                                                        <td>
+                                                            <b><?= number_format($grand_total_volume) ?> Liter</b>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <br>
+                                                <table width="60%" border="1" style="border-collapse: collapse;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="5%" class="text-center" style="padding: 8px; text-align: center;">
+                                                                No
+                                                            </th>
+                                                            <th class="text-center" style="padding: 8px; text-align: center;">
+                                                                Nama
+                                                            </th>
+                                                            <th width="10%" class="text-center" style="padding: 8px; text-align: center;">
+                                                                Jabatan
+                                                            </th>
+                                                            <th width="10%" class="text-center" style="padding: 8px; text-align: center;">
+                                                                Persentase
+                                                            </th>
+                                                            <th class="text-center" style="padding: 8px; text-align: center;">
+                                                                Incentive
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-center" style="padding: 6px;">1</td>
+                                                            <td style="padding: 6px;"><?= $row_bm['nama_bm'] == null ? 'N/A' : $row_bm['nama_bm'] ?></td>
+                                                            <td class="text-center" style="padding: 6px;"><?= $row_bm['jabatan_bm'] == null ? 'N/A' : $row_bm['jabatan_bm'] ?></td>
+                                                            <td class="text-center" style="padding: 6px;"><?= $row1['persen_bm'] ?>%</td>
+                                                            <td class="text-right" style="padding: 6px;">Rp. <?= number_format(round(($grand_total_incentive * $row1['persen_bm']) / 100)) ?></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="text-center" style="padding: 6px;">2</td>
+                                                            <td style="padding: 6px;"><?= $row_sm['nama_sm'] == null ? 'N/A' : $row_sm['nama_sm'] ?></td>
+                                                            <td class="text-center" style="padding: 6px;"><?= $row_sm['jabatan_sm'] == null ? 'N/A' : $row_sm['jabatan_sm'] ?></td>
+                                                            <td class="text-center" style="padding: 6px;"><?= $row1['persen_sm'] ?>%</td>
+                                                            <td class="text-right" style="padding: 6px;">Rp. <?= number_format(round(($grand_total_incentive * $row1['persen_sm']) / 100)) ?></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="text-center" style="padding: 6px;">3</td>
+                                                            <td style="padding: 6px;"><?= $row_spv['nama_spv'] == null ? 'N/A' : $row_spv['nama_spv'] ?></td>
+                                                            <td class="text-center" style="padding: 6px;"><?= $row_spv['jabatan_spv'] == null ? 'N/A' : $row_spv['jabatan_spv'] ?></td>
+                                                            <td class="text-center" style="padding: 6px;"><?= $row1['persen_spv'] ?>%</td>
+                                                            <td class="text-right" style="padding: 6px;">Rp. <?= number_format(round(($grand_total_incentive * $row1['persen_spv']) / 100)) ?></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <br>
                                             </div>
                                         </div>
                                         <input type="hidden" value="<?= $grand_total_incentive ?>" id="grand_total_incentive">
+                                        <input type="hidden" value="<?= $grand_total_volume ?>" id="grand_total_volume">
                                     </div>
                                 </div>
                             </div>
@@ -653,10 +746,14 @@ $cabang = $con->getRecord($sql_cabang);
                                                 </td>
                                                 <td>
                                                     <?php
-                                                    if ($row1['is_ceo'] == 1) {
-                                                        $status = "Approved by " . $row1['ceo_by'] . " | " . tgl_indo($row1['ceo_date']);
+                                                    if ($row1['disposisi'] == 0) {
+                                                        $status = "Draft";
                                                     } else {
-                                                        $status = "Verifikasi CEO";
+                                                        if ($row1['is_ceo'] == 1) {
+                                                            $status = "Approved by " . $row1['ceo_by'] . " | " . tgl_indo($row1['ceo_date']);
+                                                        } else {
+                                                            $status = "Verifikasi CEO";
+                                                        }
                                                     }
                                                     ?>
                                                     <strong>
@@ -668,6 +765,11 @@ $cabang = $con->getRecord($sql_cabang);
                                                 <td width="15%" style="padding: 10px;">Total Incentive</td>
                                                 <td>:</td>
                                                 <td><b>Rp. <span id="total_all_incentive">0</span></b></td>
+                                            </tr>
+                                            <tr>
+                                                <td width="15%" style="padding: 10px;">Total Volume</td>
+                                                <td>:</td>
+                                                <td><b><span id="total_all_volume">0</span></b></td>
                                             </tr>
                                         </table>
                                         <hr>
@@ -692,9 +794,11 @@ $cabang = $con->getRecord($sql_cabang);
                                                     </thead>
                                                     <tbody>
                                                         <?php $grand_total_all_incentive = 0; ?>
+                                                        <?php $grand_total_all_volume = 0; ?>
                                                         <?php foreach ($res_all as $ra) : ?>
                                                             <?php
                                                             $grand_total_all_incentive += $ra['total_incentive'];
+                                                            $grand_total_all_volume += $ra['volume'];
 
                                                             $startDate = new DateTime($ra['tgl_invoice_dikirim']);
                                                             $endDate = new DateTime($ra['tgl_lunas']);
@@ -775,7 +879,7 @@ $cabang = $con->getRecord($sql_cabang);
                                                                     <?= $ra['point_incentive'] ?>
                                                                 </td>
                                                                 <td align="right" width="100px">
-                                                                    <?= number_format($ra['total_incentive']) ?>
+                                                                    Rp <?= number_format($ra['total_incentive']) ?>
                                                                 </td>
                                                             </tr>
                                                         <?php endforeach ?>
@@ -790,6 +894,7 @@ $cabang = $con->getRecord($sql_cabang);
                                                             </td>
                                                         </tr>
                                                         <input type="hidden" value="<?= $grand_total_all_incentive ?>" id="grand_total_all_incentive">
+                                                        <input type="hidden" value="<?= $grand_total_volume ?>" id="grand_total_all_volume">
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -840,9 +945,13 @@ $cabang = $con->getRecord($sql_cabang);
     <script>
         $(document).ready(function() {
             var grand_total_incentive = $("#grand_total_incentive").val();
+            var grand_total_volume = $("#grand_total_volume").val();
             var grand_total_all_incentive = $("#grand_total_all_incentive").val();
+            var grand_total_all_volume = $("#grand_total_all_volume").val();
             $("#total_detail_incentive").html(new Intl.NumberFormat("ja-JP").format(grand_total_incentive));
+            $("#total_detail_volume").html(new Intl.NumberFormat("ja-JP").format(grand_total_volume));
             $("#total_all_incentive").html(new Intl.NumberFormat("ja-JP").format(grand_total_all_incentive));
+            $("#total_all_volume").html(new Intl.NumberFormat("ja-JP").format(grand_total_all_volume));
 
             $("#q2").select2({
                 placeholder: "Pilih Karyawan",

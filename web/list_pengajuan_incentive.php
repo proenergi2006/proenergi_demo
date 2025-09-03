@@ -247,6 +247,61 @@ $cabang = $con->getResult($query);
                     }
                 });
             });
+            $('#data-incentive tbody').on('click', '.btnKirim', function(e) {
+                var param = $(this).data("param");
+                var jenis = "kirim_pengajuan";
+                Swal.fire({
+                    title: "Kirim Pengajuan?",
+                    showCancelButton: true,
+                    confirmButtonText: "YA",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $("#loading_modal").modal({
+                            keyboard: false,
+                            backdrop: 'static'
+                        });
+                        $.ajax({
+                            method: 'post',
+                            url: '<?php echo ACTION_CLIENT ?>/incentive_bundling.php',
+                            data: {
+                                "jenis": jenis,
+                                "id_pengajuan": param
+                            },
+                            dataType: 'json',
+                            success: function(result) {
+                                if (result.status == false) {
+                                    setTimeout(function() {
+                                        $("#loading_modal").modal("hide");
+                                        Swal.fire({
+                                            title: "Ooppss",
+                                            text: result.pesan,
+                                            icon: "warning"
+                                        }).then((result) => {
+                                            // Reload the Page
+                                            location.reload();
+                                        });
+                                    }, 2000);
+                                } else {
+                                    setTimeout(function() {
+                                        $("#loading_modal").modal("hide");
+                                        Swal.fire({
+                                            title: "Berhasil",
+                                            text: result.pesan,
+                                            icon: "success"
+                                        }).then((result) => {
+                                            location.reload();
+                                        });
+                                    }, 2000);
+                                }
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert("Error");
+                                // console.log(errorThrown)
+                            }
+                        })
+                    }
+                });
+            });
         });
     </script>
 </body>

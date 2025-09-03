@@ -15,8 +15,8 @@ $q2    = isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
 $q3    = isset($_POST["q3"]) ? htmlspecialchars($_POST["q3"], ENT_QUOTES) : '';
 $q4    = isset($_POST["q4"]) ? htmlspecialchars($_POST["q4"], ENT_QUOTES) : '';
 $id_role = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
-$linkExport = BASE_URL_CLIENT . '/report/incentive-cabang-exp.php?' . paramEncrypt('periode=' . $q3);
-$linkExport2 = BASE_URL_CLIENT . '/report/rekap-biaya-incentive-exp.php?' . paramEncrypt('periode=' . $q3);
+$linkExport = BASE_URL_CLIENT . '/report/incentive-cabang-exp.php?' . paramEncrypt('periode=' . $q3 . '&filter_cabang=' . $q4);
+$linkExport2 = BASE_URL_CLIENT . '/report/rekap-biaya-incentive-exp.php?' . paramEncrypt('periode=' . $q3 . '&filter_cabang=' . $q4);
 $arrTermPayment = array("CREDIT" => "CREDIT", "CBD" => "CBD (Cash Before Delivery)", "COD" => "COD (Cash On Delivery)");
 
 $p = new paging;
@@ -35,7 +35,16 @@ if ($q3) {
     $year = $explode[0];
     $month = $explode[1];
 
-    $sql .= " and periode_bulan = '" . $month . "' AND periode_tahun = '" . $year . "'";
+    if ($id_role == "21") {
+        // Untuk role 21, hanya tambahkan filter periode jika is_ceo = 1
+        $sql .= " AND (
+            is_ceo = 0 
+            OR (is_ceo = 1 AND periode_bulan = '" . $month . "' AND periode_tahun = '" . $year . "')
+        )";
+    } else {
+        // Untuk role lain, tambahkan filter periode langsung
+        $sql .= " AND periode_bulan = '" . $month . "' AND periode_tahun = '" . $year . "'";
+    }
 }
 
 if ($q4) {
@@ -43,6 +52,7 @@ if ($q4) {
 }
 
 if ($id_role == "21") {
+    $sql .= " AND disposisi > 0";
     $order_by = " is_ceo ASC";
 } else {
     $order_by = " id DESC";
@@ -125,20 +135,32 @@ if ($tot_record <= 0) {
                 break;
         }
 
-        if ($data['is_ceo'] == 0) {
-            $status = "Verifikasi CEO";
-            if ($id_role == '21') {
-                $background = ' style="background-color:#f5f5f5"';
-                $btnHapus = "";
-            } else {
-                $linkHapus    = paramEncrypt($data['id_pengajuannya']);
-                $btnHapus = '<button class="btn btn-danger btn-sm btnHapus" title="Delete" data-param="' . $linkHapus . '"><i class="fas fa-trash"></i></button>';
-                $background = "";
-            }
-        } else {
-            $status = "Approved by CEO </br>" . tgl_indo($data['ceo_date']);
-            $btnHapus = "";
+        if ($data['disposisi'] == 0) {
+            $status = "Draft";
+            $link    = paramEncrypt($data['id_pengajuannya']);
+            $btnHapus = '<button class="btn btn-danger btn-sm btnHapus" title="Delete" data-param="' . $link . '"><i class="fas fa-trash"></i></button>';
+
+            $btnKirim = '<button class="btn btn-warning btn-sm btnKirim" title="Kirim Pengajuan" data-param="' . $link . '"><i class="fas fa-paper-plane"></i></button>';
             $background = "";
+        } else {
+            if ($data['is_ceo'] == 0) {
+                $status = "Verifikasi CEO";
+                if ($id_role == '21') {
+                    $background = ' style="background-color:#f5f5f5"';
+                    $btnHapus = "";
+                    $btnKirim = "";
+                } else {
+                    $linkHapus    = paramEncrypt($data['id_pengajuannya']);
+                    $btnHapus = "";
+                    $background = "";
+                    $btnKirim = "";
+                }
+            } else {
+                $status = "Approved by CEO </br>" . tgl_indo($data['ceo_date']);
+                $btnHapus = "";
+                $background = "";
+                $btnKirim = "";
+            }
         }
 
         $content .= '
@@ -162,6 +184,7 @@ if ($tot_record <= 0) {
 				<td class="text-center">
 					' . $btnHapus . '
 					<a href="' . $linkDetail . '" class="btn btn-info btn-sm" style="margin-left:10px;"><i class="fas fa-info"></i></a>
+					' . $btnKirim . '
 				</td>
 			</tr>';
     }
