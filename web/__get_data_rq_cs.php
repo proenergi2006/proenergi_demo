@@ -50,7 +50,7 @@
                     s.merk_dagang, g.tanggal_kirim, e.vol_ori_pr, e.volume, e.nomor_po_supplier, e.vol_potongan, m.harga_dasar,m.refund_tawar,m.other_cost,e.pr_harga_beli, e.splitted_from_pr, i.jenis_payment, i.top_payment,
                     g.top_plan, i.credit_limit, o1.harga_normal, h.harga_poc, m.detail_rincian, g.status_plan, g.catatan_reschedule,g.status_jadwal,
                     e.no_do_syop, e.nomor_lo_pr, f.purchasing_summary,s.id_master, u.nama_terminal, u.tanki_terminal, u.lokasi_terminal, 
-                  z.nama_suplier, c.no_spj, x.nama_sopir, w.nomor_plat, s.id_master, e.pr_vendor, e.id_po_supplier, e.id_po_receive, c.id_pod
+                  z.nama_suplier, c.no_spj, x.nama_sopir, w.nomor_plat, s.id_master, e.pr_vendor, e.id_po_supplier, e.id_po_receive, c.id_pod,g.tanggal_loading
 
                     from pro_po_ds_detail a 
                     join pro_po_ds b on a.id_ds = b.id_ds 
@@ -378,7 +378,7 @@
 
             <?php if (!$fnr && $data['is_request'] == 2) {
                 echo '<label>Tanggal Kirim</label>';
-                echo '<input type="text" name="tgl_kirim" id="" class="form-control input-po datepicker" value="" autocomplete="off" width="50%"/>';
+                echo '<input type="text" name="tgl_kirim" id="" class="form-control input-po datepicker" value="' . date('d/m/Y',strtotime($data['tanggal_loading']))  . '" autocomplete="off" width="50%"/>';
             } else {
             } ?>
         </div>

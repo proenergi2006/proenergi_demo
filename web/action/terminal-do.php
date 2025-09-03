@@ -26,6 +26,7 @@ $dt6 	= isset($_POST["dt6"]) ? htmlspecialchars($_POST["dt6"], ENT_QUOTES) : nul
 $pic_mkt 	= isset($_POST["pic_mkt"]) ? htmlspecialchars($_POST["pic_mkt"], ENT_QUOTES) : null;
 $terminal 	= isset($_POST["terminal"]) ? htmlspecialchars($_POST["terminal"], ENT_QUOTES) : null;
 $customer 	= isset($_POST["customer"]) ? htmlspecialchars($_POST["customer"], ENT_QUOTES) : null;
+$tgl_loading 	= isset($_POST["tgl_loading"]) ? htmlspecialchars($_POST["tgl_loading"], ENT_QUOTES) : null;
 $temp 	= explode("#|#", $param);
 $file	= $temp[0];
 $tipe	= $temp[1];
@@ -323,11 +324,15 @@ if ($file == "do_truck") {
 			}
 		} else if ($tipe == "request") {
 			//get data request 
-			$cek = "select is_request FROM pro_po_ds_detail WHERE id_dsd = '" . $idnya . "'";
+			$cek = "select id_plan, is_request FROM pro_po_ds_detail WHERE id_dsd = '" . $idnya . "'";
 			$result = $con->getRecord($cek);
 			// cek kondisi apakah sudah melakukan request sebelumnya 
 
 			$sql1 = "update pro_po_ds_detail set is_request = '" . $dt5 . "', request = '" . $dt6 . "',  tanggal_request = NOW(), disposisi_request = 1 where id_dsd = '" . $idnya . "'";
+			$con->setQuery($sql1);
+			$oke  = $oke && !$con->hasError();
+
+			$sql1 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "' where id_plan = '" . $result['id_plan'] . "'";
 			$con->setQuery($sql1);
 			$oke  = $oke && !$con->hasError();
 		}
