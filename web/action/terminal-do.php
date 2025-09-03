@@ -332,9 +332,11 @@ if ($file == "do_truck") {
 			$con->setQuery($sql1);
 			$oke  = $oke && !$con->hasError();
 
-			$sql1 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "' where id_plan = '" . $result['id_plan'] . "'";
-			$con->setQuery($sql1);
-			$oke  = $oke && !$con->hasError();
+			if($dt5==2){
+				$sql1 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "' where id_plan = '" . $result['id_plan'] . "'";
+				$con->setQuery($sql1);
+				$oke  = $oke && !$con->hasError();
+			}
 		}
 
 		if ($oke) {
