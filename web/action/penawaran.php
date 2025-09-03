@@ -91,7 +91,7 @@ if (!is_array_empty($_POST['jnsHarga'])) {
 		$jenis 	= htmlspecialchars($_POST['jnsHarga'][$idx], ENT_QUOTES);
 		$nilai 	= ($idx < 2) ? 0 : htmlspecialchars($_POST['clcHarga'][$idx], ENT_QUOTES);
 		if ($pembulatan == 1) {
-			$biaya	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['rncHarga'][$idx]), ENT_QUOTES);
+			$biaya	= htmlspecialchars(str_replace(array(","), array(""), $_POST['rncHarga'][$idx]), ENT_QUOTES);
 		} else {
 			$biaya	= htmlspecialchars(str_replace(array(","), array(""), $_POST['rncHarga'][$idx]), ENT_QUOTES);
 		}
