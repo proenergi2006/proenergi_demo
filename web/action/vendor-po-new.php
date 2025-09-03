@@ -70,7 +70,7 @@ $datenow = date("d/m/Y H:i:s");
 
 $jenis_oa = $_POST["jenis_oa"];
 $jumlah_biaya_lain = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["jumlah_biaya"]), ENT_QUOTES);
-$jumlah_biaya_oa = (int)$dt10*(int)$ongkos_angkut;
+$jumlah_biaya_oa = (int)$dt10 * (int)$ongkos_angkut;
 $alokasi_barang1 = htmlspecialchars($_POST["alokasi_barang1"], ENT_QUOTES);
 $alokasi_barang2 = htmlspecialchars($_POST["alokasi_barang2"], ENT_QUOTES);
 $alokasi_barang3 = htmlspecialchars($_POST["alokasi_barang3"], ENT_QUOTES);
@@ -306,7 +306,7 @@ if ($act == 'cek') {
 			$msg = "BERHASIL_MASUK";
 			$ems1 = "select email_user from acl_user where id_role = 4";
 			$sql = "
-					insert into new_pro_inventory_vendor_po(id_master, id_vendor, id_produk, id_terminal, nomor_po, tanggal_inven, volume_po, harga_tebus, kategori_oa, is_biaya ongkos_angkut, kategori_plat, iuran_migas, nominal_migas, kd_tax, subtotal, ppn_11,  dpp_11_12, ppn_12, pph_22, nilai_pbbkb, pbbkb, total_order,  terms, terms_day, keterangan,
+					insert into new_pro_inventory_vendor_po(id_master, id_vendor, id_produk, id_terminal, nomor_po, tanggal_inven, volume_po, harga_tebus, kategori_oa, is_biaya, ongkos_angkut, kategori_plat, iuran_migas, nominal_migas, kd_tax, subtotal, ppn_11,  dpp_11_12, ppn_12, pph_22, nilai_pbbkb, pbbkb, total_order,  terms, terms_day, keterangan,
 					created_time, created_ip, created_by, disposisi_po) values ('" . $id1nya . "', '" . $dt5 . "', '" . $dt3 . "', '" . $dt6 . "', '" . $dt2 . "', '" . tgl_db($dt1) . "', '" . $dt10 . "', '" . $dt8 . "', '" . $kategori_oa . "', '" . $jenis_oa . "','" . $ongkos_angkut . "', '" . $kategori_plat . "', '" . $iuran . "', '" . $nominal_iuran . "', '" . $kd_tax . "', '" . $subTotal . "', '" . $ppn_11 . "', '" . $dpp11_12 . "', '" . $ppn_12 . "', '" . $pph_22 . "', '" . $pbbkb_tawar . "', '" . $pbbkb . "', '" . $totalOrder . "', '" . $terms . "', '" . $terms_day . "', '" . $ket . "', NOW(), '" . $_SERVER['REMOTE_ADDR'] . "', '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "', 1)";
 			$con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
@@ -550,7 +550,7 @@ if ($act == 'cek') {
 								'detailNotes'	=> $item['detailNotes'],
 							];
 
-						 	if ($item['jenis']) {
+							if ($item['jenis']) {
 								$dataItem['warehouseName'] = $alamat['inisial_cabang'];
 							}
 
@@ -765,7 +765,7 @@ if ($act == 'cek') {
 				);
 				$jsonData2 = json_encode($data2);
 				$result_close = curl_post($urlnya, $jsonData2);
-				
+
 				if ($result_close['s'] == true) {
 
 					$con->commit();
