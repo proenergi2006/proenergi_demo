@@ -477,7 +477,7 @@ if ($result_getrow['sp'] == true) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row <?php echo ($kategori_oa == 2)  ? "" : "hide" ?>" id="row_kode_item">
+                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya ==1)  ? "" : "hide" ?>" id="row_kode_item">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Kode OA Accurate *</label>
