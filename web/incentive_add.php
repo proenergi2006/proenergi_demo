@@ -135,7 +135,7 @@ $cabang = $con->getResult($query2);
                                 <div>
                                     Tampilkan
                                     <select id="pageSize" class="form-control d-inline-block" style="width:120px">
-                                        <option value="2" selected>10</option>
+                                        <option value="10" selected>10</option>
                                         <option value="20">20</option>
                                         <option value="50">50</option>
                                         <option value="100">100</option>
