@@ -32,6 +32,7 @@ $is_request = isset($_POST["is_request"]) ? htmlspecialchars($_POST["is_request"
 $tgl_kirim = isset($_POST["tgl_kirim"]) ? htmlspecialchars($_POST["tgl_kirim"], ENT_QUOTES) : null;
 $dis_lo = isset($_POST["dis_lo"]) ? htmlspecialchars($_POST["dis_lo"], ENT_QUOTES) : null;
 $summary = '';
+$id_do_accurate    = htmlspecialchars($_POST["id_do_accurate"], ENT_QUOTES);
 if (isset($_POST["summary"]))
     $summary = str_replace(array("\r\n", "\r", "\n"), "<br />", htmlspecialchars($_POST["summary"], ENT_QUOTES));
 $backdis = isset($_POST["summary_revert"]) ? str_replace(array("\r\n", "\r", "\n"), "<br />", htmlspecialchars($_POST["summary_revert"], ENT_QUOTES)) : '';
@@ -307,18 +308,17 @@ if ($oke) {
         $urlnya_so = 'https://zeus.accurate.id/accurate/api/delivery-order/detail.do?' . $query;
 
 		$result_so = curl_get($urlnya_so);;
-        $detailItem = [];
+        $detailItems = [];
         $getItem =$result_so['d']['detailItem'];
       
         foreach($getItem as $detail) {
             $detailItems['detailItem'][] = [
-                   "itemNo" => $detail['item']['no'],
+                    "itemNo" => $detail['item']['no'],
                     "quantity" => $detail['quantity'],
                     "warehouseName" => $detail['warehouse']['name']
             ];
         }
 
-    
         $data_sr = array(
             "customerNo"            => $rowget['kode_pelanggan'],
             "returnType"            =>"DELIVERY",
