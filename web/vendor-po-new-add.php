@@ -76,7 +76,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $biaya_migas = '';
     $biaya_vat = '';
     $biaya_oa = '';
-    $amount_vat='';
+    $amount_vat = '';
 
     if ($rsm['id_accurate'] != null) {
         //get detail PO
@@ -91,8 +91,10 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
         foreach ($result_detail['d']['detailItem'] as $item) {
             if ($item["item"]["itemType"] === 'INVENTORY') {
                 $kode_item = $item["item"]["no"];
+                $notes_item = $item["detailNotes"];
             } else {
                 $kode_oa = $item["item"]["no"];
+                $notes_item_oa = $item["detailNotes"];
             }
         }
 
@@ -110,7 +112,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             $amount = $expense["expenseAmount"];
             $allocate = $expense["allocateToItemCost"];
 
-            if ($name === 'PBBKB' && (in_array($notes, ['null', null, 'NULL',NULL]))) {
+            if ($name === 'PBBKB' && (in_array($notes, ['null', null, 'NULL', NULL]))) {
                 $biaya['pbbkb'] = [
                     'name' => $name,
                     'notes' => 'null',
@@ -340,7 +342,7 @@ if ($result_getrow['sp'] == true) {
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="text" id="keterangan_item1" name="keterangan_item1" class="form-control" placeholder="Keterangan" />
+                                            <input type="text" id="keterangan_item1" name="keterangan_item1" class="form-control" placeholder="Keterangan" value="<?= $notes_item ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -477,7 +479,7 @@ if ($result_getrow['sp'] == true) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya ==1)  ? "" : "hide" ?>" id="row_kode_item">
+                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya == 0)  ? "" : "hide" ?>" id="row_kode_item">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Kode OA Accurate *</label>
@@ -490,7 +492,7 @@ if ($result_getrow['sp'] == true) {
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <input type="text" id="keterangan_item2" name="keterangan_item2" class="form-control" placeholder="Keterangan" value="" />
+                                            <input type="text" id="keterangan_item2" name="keterangan_item2" class="form-control" placeholder="Keterangan" value="<?= $notes_item_oa ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -526,8 +528,8 @@ if ($result_getrow['sp'] == true) {
                                 </div>
                             </div>
 
-                              <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya ==1) ? "" : "hide" ?>" id="row_biaya_oa">
+                            <!-- Parameter untuk Accurate -->
+                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya == 1) ? "" : "hide" ?>" id="row_biaya_oa">
                                 <div class="col-md-12">
                                     <!-- Label utama di atas -->
                                     <label class="control-label">Akun OA Accurate *</label>
@@ -539,7 +541,7 @@ if ($result_getrow['sp'] == true) {
                                             <select name="biaya_oa" id="biaya_oa" class="form-control select2" style="width:100%;">
                                                 <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['oa']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                    <option value="<?= $key['no'] ?>" <?= $biaya['oa']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
                                                 <?php endforeach ?>
@@ -548,12 +550,12 @@ if ($result_getrow['sp'] == true) {
 
                                         <!-- Input keterangan -->
                                         <div class="col-md-3">
-                                            <input type="text" id="keterangan_biaya1" name="keterangan_biaya1" class="form-control" placeholder="Keterangan" value="<?php echo $biaya['oa']['notes'] ?>"/>
+                                            <input type="text" id="keterangan_biaya1" name="keterangan_biaya1" class="form-control" placeholder="Keterangan" value="<?php echo $biaya['oa']['notes'] ?>" />
                                         </div>
 
                                         <!-- Checkbox -->
                                         <div class="col-md-3" style="display:flex; align-items:center;">
-                                            <input type="checkbox" id="alokasi_barang1" name="alokasi_barang1" value="1" <?=  $biaya['oa']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
+                                            <input type="checkbox" id="alokasi_barang1" name="alokasi_barang1" value="1" <?= $biaya['oa']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
                                             Alokasikan ke Barang
                                         </div>
 
@@ -570,7 +572,7 @@ if ($result_getrow['sp'] == true) {
                                             <select name="biaya_lain" id="biaya_lain" class="form-control select2" style="width:100%;">
                                                 <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['vat']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                    <option value="<?= $key['no'] ?>" <?= $biaya['vat']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
                                                 <?php endforeach ?>
@@ -581,7 +583,7 @@ if ($result_getrow['sp'] == true) {
                                         <div class="col-md-3">
                                             <div class="input-group">
                                                 <span class="input-group-addon">Rp.</span>
-                                                <input type="text" id="jumlah_biaya" name="jumlah_biaya" class="form-control text-right hitung1"  value="<?php echo $biaya['vat']['amount'] ?>" />
+                                                <input type="text" id="jumlah_biaya" name="jumlah_biaya" class="form-control text-right hitung1" value="<?php echo $biaya['vat']['amount'] ?>" />
                                             </div>
                                         </div>
 
@@ -592,7 +594,7 @@ if ($result_getrow['sp'] == true) {
 
                                         <!-- Checkbox -->
                                         <div class="col-md-3" style="display:flex; align-items:center;">
-                                            <input type="checkbox" id="alokasi_barang2" name="alokasi_barang2" value="1" <?=  $biaya['vat']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
+                                            <input type="checkbox" id="alokasi_barang2" name="alokasi_barang2" value="1" <?= $biaya['vat']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
                                             Alokasikan ke Barang
                                         </div>
 
@@ -630,7 +632,7 @@ if ($result_getrow['sp'] == true) {
                             </div>
 
                             <!-- untuk PPN 12% DPP 11/12 -->
-                             <div class="row">
+                            <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">DPP 11/12 *</label>
@@ -663,10 +665,10 @@ if ($result_getrow['sp'] == true) {
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-2">Akun PPH22 Accurate *</label>
                                         <div class="col-md-3">
-                                            <select name="kode_item3" id="kode_item3" class="form-control select2" style="width:100%;" <?php echo ($rsm && $rsm['kd_tax'] == 'E' ? 'disabled' : ''); ?> >
+                                            <select name="kode_item3" id="kode_item3" class="form-control select2" style="width:100%;" <?php echo ($rsm && $rsm['kd_tax'] == 'E' ? 'disabled' : ''); ?>>
                                                 <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['22']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                    <option value="<?= $key['no'] ?>" <?= $biaya['22']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
                                                 <?php endforeach ?>
@@ -676,7 +678,7 @@ if ($result_getrow['sp'] == true) {
                                             <input type="text" id="keterangan_biaya3" name="keterangan_biaya3" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['22']['notes'] ?>" />
                                         </div>
                                         <div class="col-md-3" style="display:flex; align-items:center;">
-                                            <input type="checkbox" id="alokasi_barang3" name="alokasi_barang3" value="1" <?=  $biaya['22']['allocate'] ? 'checked' : '' ?>  style="margin-right:6px;">
+                                            <input type="checkbox" id="alokasi_barang3" name="alokasi_barang3" value="1" <?= $biaya['22']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
                                             Alokasikan ke Barang
                                         </div>
                                     </div>
@@ -720,7 +722,7 @@ if ($result_getrow['sp'] == true) {
                                             <select name="kode_biaya1" id="kode_biaya1" class="form-control select2" style="width:100%;" required>
                                                 <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['pbbkb']['name'] == $key['name'] && $biaya['pbbkb']['notes'] == "null" ? 'selected' : '' ?>>
+                                                    <option value="<?= $key['no'] ?>" <?= $biaya['pbbkb']['name'] == $key['name'] && $biaya['pbbkb']['notes'] == "null" ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
                                                 <?php endforeach ?>
@@ -730,7 +732,7 @@ if ($result_getrow['sp'] == true) {
                                             <input type="text" id="keterangan_biaya4" name="keterangan_biaya4" class="form-control" placeholder="Keterangan" value="<?php echo  $biaya['pbbkb']['notes'] ?>" />
                                         </div>
                                         <div class="col-md-3" style="display:flex; align-items:center;">
-                                            <input type="checkbox" id="alokasi_barang4" name="alokasi_barang4" value="1" <?=  $biaya['pbbkb']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
+                                            <input type="checkbox" id="alokasi_barang4" name="alokasi_barang4" value="1" <?= $biaya['pbbkb']['allocate'] ? 'checked' : '' ?> style="margin-right:6px;">
                                             Alokasikan ke Barang
                                         </div>
                                     </div>
@@ -776,7 +778,7 @@ if ($result_getrow['sp'] == true) {
                                             <select name="kode_biaya2" id="kode_biaya2" class="form-control select2" style="width:100%;">
                                                 <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?=  $biaya['iuran']['name'] == $key['name'] ? 'selected' : '' ?>>
+                                                    <option value="<?= $key['no'] ?>" <?= $biaya['iuran']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
                                                 <?php endforeach ?>
@@ -1040,7 +1042,7 @@ if ($result_getrow['sp'] == true) {
 
                 var kat_oa = $('#kategori_oa').val();
 
-                 if (kat_oa == 1) {
+                if (kat_oa == 1) {
                     var subTotal = volumePO * hargaDasar;
                     var dpp11_12 = (subTotal * 11) / 12;
 
@@ -1153,7 +1155,7 @@ if ($result_getrow['sp'] == true) {
                         // // var ppn11 = Math.round((11 * subTotal) / 100);
                         // var ppn11 = (11 * (volumePO * (hargaDasar + ongkos_angkut))) / 100;
 
-                               if (jenis_oa == 1) {
+                        if (jenis_oa == 1) {
                             var subTotal = volumePO * (hargaDasar + ongkos_angkut) + iuran_migas;
                             var subTotal2 = volumePO * (hargaDasar + iuran_migas);
                             var dpp11_12 = (subTotal2 * 11) / 12;
@@ -1490,10 +1492,15 @@ if ($result_getrow['sp'] == true) {
             }
 
             var kategoriOA = $('#kategori_oa').val();
+            var jenisOA = $('#jenis_oa').val();
             if (kategoriOA == 1) {
-                 $("#row_kode_item").addClass("hide");
+                $("#row_kode_item").addClass("hide");
             } else {
-                  $("#row_kode_item").removeClass("hide");
+                if (jenisOA == 1) {
+                    $("#row_kode_item").addClass("hide");
+                } else {
+                    $("#row_kode_item").removeClass("hide");
+                }
             }
             // End kondisi
             $("#pbbkb_tawar").change(function() {
@@ -1560,7 +1567,7 @@ if ($result_getrow['sp'] == true) {
 
             $("#kategori_oa").change(function() {
                 var val = $(this).val();
-                  var jenis_oa = $('#jenis_oa').val();
+                var jenis_oa = $('#jenis_oa').val();
 
                 if (val == 1) {
                     var kodeTax = $('#kd_tax').val();
@@ -1710,7 +1717,7 @@ if ($result_getrow['sp'] == true) {
                     $("#keterangan_biaya1").val(null).trigger("change");
                     $("#keterangan_biaya2").val(null).trigger("change");
                     $("#jumlah_biaya").val(null).trigger("change");
-                }else{
+                } else {
 
                     var subTotal = volumePO * hargaDasar + iuran_migas;
                     var ppn11 = (11 * (volumePO * hargaDasar)) / 100;
