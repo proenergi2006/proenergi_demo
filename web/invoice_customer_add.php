@@ -236,6 +236,28 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 								</div>
 							<?php endif ?>
 
+							<div class="row <?= $action == 'add' ? 'hide' : ($model['no_po_splitoa'] == null ? 'hide' : '') ?>" id="row-po-splitoa">
+								<div class="col-md-6">
+									<div class="form-group form-group-sm">
+										<label class="control-label col-md-4">Nomor PO Freight Cost (Optional)</label>
+										<div class="col-md-8">
+											<input type="text" id="no_po_splitoa" name="no_po_splitoa" class="form-control" value="<?= $action == 'add' ? '' : $model['no_po_splitoa'] ?>" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row <?= $action == 'add' ? 'hide' : ($model['no_po_splitpbbkb'] == null ? 'hide' : '') ?>" id="row-po-splitpbbkb">
+								<div class="col-md-6">
+									<div class="form-group form-group-sm">
+										<label class="control-label col-md-4">Nomor PO PBBKB (Optional)</label>
+										<div class="col-md-8">
+											<input type="text" id="no_po_splitpbbkb" name="no_po_splitpbbkb" class="form-control" value="<?= $action == 'add' ? '' : $model['no_po_splitpbbkb'] ?>" />
+										</div>
+									</div>
+								</div>
+							</div>
+
 							<?php if ($action == 'update') : ?>
 								<hr>
 								<input type="hidden" value="<?= $model['jenis'] ?>" name="split_invoice" id="split_invoice">
@@ -946,6 +968,9 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
 					$("#total_invoice_harga_dasar_oa, #total_invoice_harga_dasar_pbbkb").number(true, 0, ".", ",");
 					$('#total_invoice').attr('type', 'text');
+					$('#row-po-splitoa').removeClass('hide');
+					$('#row-po-splitpbbkb').addClass('hide');
+					$("#no_po_splitpbbkb").val("").trigger("change");
 				} else if (value == "split_pbbkb") {
 					$(".row-kode").addClass("hide");
 					$("#kode_oa").removeAttr("required", true);
@@ -960,6 +985,9 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
 					$('#total_invoice').attr('type', 'text');
 					$("#total_invoice_harga_dasar_oa, #total_invoice_harga_dasar_pbbkb").number(true, 0, ".", ",");
+					$('#row-po-splitpbbkb').removeClass('hide');
+					$('#row-po-splitoa').addClass('hide');
+					$("#no_po_splitoa").val("").trigger("change");
 				} else if (value == "split_all") {
 					$(".row-kode").removeClass("hide");
 					$("#kode_oa").removeAttr("required", true);
@@ -970,6 +998,8 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$('#total_invoice_harga_dasar_pbbkb').attr('type', 'hidden');
 					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
 					$('#total_invoice').attr('type', 'text');
+					$('#row-po-splitoa').removeClass('hide');
+					$('#row-po-splitpbbkb').removeClass('hide');
 				} else {
 					$(".row-kode").addClass("hide");
 					$("#kode_oa").removeAttr("required", true);
@@ -980,6 +1010,10 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 					$('#total_invoice_harga_dasar_pbbkb').attr('type', 'hidden');
 					$('#total_invoice_harga_dasar_oa').attr('type', 'hidden');
 					$('#total_invoice').attr('type', 'text');
+					$('#row-po-splitoa').addClass('hide');
+					$('#row-po-splitpbbkb').addClass('hide');
+					$("#no_po_splitoa").val("").trigger("change");
+					$("#no_po_splitpbbkb").val("").trigger("change");
 				}
 			})
 
