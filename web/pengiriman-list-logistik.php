@@ -470,6 +470,10 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 
 									</select>
 								</div>
+								<div class="col-sm-4 hide" id="field_tgl_loading">
+									<label>Tanggal Loading</label>
+									<input type="text" name="tgl_loading" id="tgl_loading" class="form-control input-po datepicker" value="" autocomplete="off" width="50%"/>
+								</div>
 							</div>
 							<div class=" row">
 								<div class="col-sm-12">
@@ -843,6 +847,16 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 
 			//pembaruan is_request *iwanhermawan develop 27/09/2024
 
+            $("#dt5_load").change(function() {
+				var val = $(this).val();
+				if(val == '2'){
+					$("#field_tgl_loading").removeClass("hide");
+					$('#tgl_loading').attr("required", true);
+				}else{
+					$("#field_tgl_loading").addClass("hide");
+					$('#tgl_loading').removeAttr("required", true);
+				}
+			})
 
 			$("#request_load_modal").on("hidden.bs.modal", function() {
 				// Reset form saat modal ditutup
@@ -858,7 +872,9 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 				var pic_mkt = $("#pic_mkt").val();
 				var loco = $("#loco").val(); // Mendapatkan nilai loaded
 				var masaAkhir = $("#masa_akhir").val(); // Mendapatkan nilai masa akhir
+				var tgl_loading = $("#tgl_loading").val();
 
+				
 				var today = new Date();
 				var endDate = new Date(masaAkhir);
 
@@ -868,7 +884,7 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 					console.log("Param (paramRQ): " + paramRQ);
 					console.log("Jenis Request (dt5): " + jenisRequest);
 					console.log("Catatan (dt6): " + catatan);
-
+				
 					// Cek jika nilai loaded adalah 1 dan jenisRequest adalah 'Change Depot'
 					if (loaded === "1" && jenisRequest === "1") {
 						Swal.fire({
@@ -929,7 +945,9 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 								"param": paramRQ,
 								"dt5": jenisRequest,
 								"dt6": catatan,
-								"pic_mkt": pic_mkt
+								"pic_mkt": pic_mkt,
+								"tgl_loading": tgl_loading,
+
 							},
 							cache: false,
 							dataType: "json",

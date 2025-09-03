@@ -260,7 +260,7 @@ if ($act == "add") {
 					pbbkb_tawar = '" . $pbbkb . "', method_order = '" . $order . "', refund_tawar = '" . $refund . "', ket_harga = '" . $ket_harga . "', catatan = '" . $catatan . "', harga_asli = '" . $harga_asli . "', 
 					oa_kirim = '" . $oa_kirim . "', other_cost = '" . $other_cost . "', tol_susut = '" . $tol_susut . "', alat_ukur = '" . $alat_ukur . "', lok_kirim = '" . $lok_kirim . "',
 					lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', lastupdate_by = '" . $user_pic . "', 
-					term_condition = '" . $term_condition . "', metode = '" . $metode . "', kalkulasi_oa = '" . json_encode($kalkulasi_oa) . "', pembulatan = '" . $pembulatan . "', gabung_oa = '" . $gabung_oa . "', all_in = '" . $all_in . "', gabung_pbbkb = '" . $gabung_pbbkb . "',  gabung_pbbkboa = '" . $gabung_pbbkboa . "', harga_tier = '" . $harga_tier . "',  tier = '" . $tier . "', is_edited=1
+					term_condition = '" . $term_condition . "', metode = '" . $metode . "', kalkulasi_oa = '" . json_encode($kalkulasi_oa) . "', pembulatan = '" . $pembulatan . "', gabung_oa = '" . $gabung_oa . "', all_in = '" . $all_in . "', gabung_pbbkb = '" . $gabung_pbbkb . "',  gabung_pbbkboa = '" . $gabung_pbbkboa . "', harga_tier = '" . $harga_tier . "',  tier = '" . $tier . "'
 					where id_penawaran = '" . $idk . "'";
 		$q = $con->setQuery($sql1);
 		$oke  = $oke && !$con->hasError();
