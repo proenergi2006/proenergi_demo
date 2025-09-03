@@ -1182,13 +1182,25 @@ if ($idk != "") {
             $("#other_cost").number(true, 0, ".", ",");
 
             <?php if ($pembulatan == 1) { ?>
-                $(".hitung").number(true, 0, ".", ",");
-                $("#totnya").number(true, 0, ".", ",");
+                $("#rncHarga1").number(true, 4, ".", ",");
+                $("#rncHarga2").number(true, 4, ".", ",");
+                $("#rncHarga3").number(true, 4, ".", ",");
+                $("#rncHarga4").number(true, 4, ".", ",");
+                $("#harga_dasar").number(true, 4, ".", ",");
+                $("#totnya").number(true, 4, ".", ",");
             <?php } else if ($pembulatan == 0) { ?>
-                $(".hitung").number(true, 2, ".", ",");
-                $("#totnya").number(true, 2, ".", ",");
+                $("#rncHarga1").number(true, 4, ".", ",");
+                $("#rncHarga2").number(true, 4, ".", ",");
+                $("#rncHarga3").number(true, 4, ".", ",");
+                $("#rncHarga4").number(true, 4, ".", ",");
+                $("#harga_dasar").number(true, 4, ".", ",");
+                $("#totnya").number(true, 4, ".", ",");
             <?php } else { ?>
-                $(".hitung").number(true, 4, ".", ",");
+                $("#rncHarga1").number(true, 4, ".", ",");
+                $("#rncHarga2").number(true, 4, ".", ",");
+                $("#rncHarga3").number(true, 4, ".", ",");
+                $("#rncHarga4").number(true, 4, ".", ",");
+                $("#harga_dasar").number(true, 4, ".", ",");
                 $("#totnya").number(true, 4, ".", ",");
 
             <?php } ?>
@@ -1241,17 +1253,27 @@ if ($idk != "") {
             $("#pembulatan").change(function() {
                 var value = $(this).val();
                 if (value == 1) {
-                    $(".tblHarga").find(".hitung").number(true, 0, ".", ",");
-                    $("#harga_dasar").number(true, 0, ".", ",");
-                    $("#totnya").number(true, 0, ".", ",");
+                    $("#rncHarga1").number(true, 4, ".", ",");
+                    $("#rncHarga2").number(true, 4, ".", ",");
+                    $("#rncHarga3").number(true, 4, ".", ",");
+                    $("#rncHarga4").number(true, 4, ".", ",");
+                    $("#harga_dasar").number(true, 4, ".", ",");
+                    $("#totnya").number(true, 4, ".", ",");
                     $("#harga_dasar").trigger("keyup");
                 } else if (value == 0) {
-                    $(".tblHarga").find(".hitung").number(true, 2, ".", ",");
-                    $("#harga_dasar").number(true, 2, ".", ",");
-                    $("#totnya").number(true, 2, ".", ",");
+                    $("#rncHarga1").number(true, 4, ".", ",");
+                    $("#rncHarga2").number(true, 4, ".", ",");
+                    $("#rncHarga3").number(true, 4, ".", ",");
+                    $("#rncHarga4").number(true, 4, ".", ",");
+                    $("#harga_dasar").number(true, 4, ".", ",");
+                    $("#totnya").number(true, 4, ".", ",");
                     $("#harga_dasar").trigger("keyup");
                 } else {
-                    $(".tblHarga").find(".hitung").number(true, 4, ".", ",");
+                    $("#rncHarga1").number(true, 4, ".", ",");
+                    $("#rncHarga2").number(true, 4, ".", ",");
+                    $("#rncHarga3").number(true, 4, ".", ",");
+                    $("#rncHarga4").number(true, 4, ".", ",");
+                    $("#harga_dasar").number(true, 4, ".", ",");
                     $("#harga_dasar").number(true, 4, ".", ",");
                     $("#totnya").number(true, 4, ".", ",");
                     $("#harga_dasar").trigger("keyup");
