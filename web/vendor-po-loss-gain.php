@@ -384,7 +384,7 @@ if (!$idnya02) {
                                         <div class="col-md-5">
                                             <div class="input-group">
                                                 <span class="input-group-addon" style="font-size:12px;">Rp.</span>
-                                                <input type="text" id="dt13" name="dt13" class="form-control hitung" value=""/>
+                                                <input type="text" id="dt13" name="dt13" class="form-control hitung" value="" />
                                                 <input type="hidden" id="nilai_pbbkb" value="<?= $nilai_pbbkb ?>">
                                                 <!-- <input type="text" id="dt13" name="dt13" class="form-control hitung" value="<?php echo isset($dt22) ? $dt22 : '0'; ?>" /> -->
 
@@ -560,7 +560,7 @@ if (!$idnya02) {
                         <input type="hidden" name="id_terminal_po" value="<?php echo $rsm['id_terminal']; ?>" />
                         <input type="hidden" name="harga_tebus_po" value="<?php echo $rsm['harga_tebus']; ?>" />
                         <?php if (!$rsm['is_selesai']) { ?>
-                            <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt" style="min-width:90px;">
+                            <button type="button" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt" style="min-width:90px;">
                                 <i class="fa fa-save jarak-kanan"></i> Simpan
                             </button>
                         <?php } ?>
@@ -602,6 +602,7 @@ if (!$idnya02) {
                     confirmButtonText: 'Ya, Simpan',
                     cancelButtonText: 'Batal',
                 }).then((result) => {
+                    // alert("kesini")
                     if (result.isConfirmed) {
                         $("#loading_modal").modal({
                             keyboard: false,
@@ -629,7 +630,7 @@ if (!$idnya02) {
                 var hargaDasar = parseFloat($('#dt8').val()) || 0;
                 var hargaDasarRI = parseFloat($('#harga_ri').val()) || 0;
                 var pbbkb = parseFloat($('#dt13').val()) || 0;
-                
+
 
                 //additional
                 var nilai_pbbkb = parseFloat($('#nilai_pbbkb').val()) || 0;
@@ -671,59 +672,59 @@ if (!$idnya02) {
             });
 
 
-            var formValidasiCfg = {
-                submitHandler: function(form) {
-                    if ($("#cekkolnup").is(":checked") && $("#nup_fee").val() == "") {
-                        swal.fire({
-                            icon: "warning",
-                            width: '350px',
-                            allowOutsideClick: false,
-                            html: '<p style="font-size:14px; font-family:arial;">Kolom [Ongkos Angkut] pada tabel rincian harga belum diisi</p>'
-                        });
-                    } else if ($("#kd_tax").val() == 'EC' && $("#pphnya").val() == '') {
-                        swal.fire({
-                            icon: "warning",
-                            width: '350px',
-                            allowOutsideClick: false,
-                            html: '<p style="font-size:14px; font-family:arial;">Kolom [PPH 22] belum diisi</p>'
-                        });
-                    } else if ($("#terms").val() == 'NET' && $("#terms_day").val() == '') {
-                        swal.fire({
-                            icon: "warning",
-                            width: '350px',
-                            allowOutsideClick: false,
-                            html: '<p style="font-size:14px; font-family:arial;">Kolom [Hari untuk terms NET] belum diisi</p>'
-                        });
-                    } else {
-                        $("body").addClass("loading");
-                        $.ajax({
-                            type: 'POST',
-                            url: base_url + "/web/action/vendor-po-new.php",
-                            data: {
-                                act: 'cek',
-                                q1: $("input[name='idr']").val(),
-                                q2: $("#dt2").val()
-                            },
-                            cache: false,
-                            dataType: 'json',
-                            success: function(data) {
-                                if (!data.hasil) {
-                                    $("body").removeClass("loading");
-                                    swal.fire({
-                                        icon: "warning",
-                                        width: '350px',
-                                        allowOutsideClick: false,
-                                        html: '<p style="font-size:14px; font-family:arial;">' + data.pesan + '</p>'
-                                    });
-                                } else {
-                                    form.submit();
-                                }
-                            }
-                        });
-                    }
-                }
-            };
-            $("form#gform").validate($.extend(true, {}, config.validation, formValidasiCfg));
+            // var formValidasiCfg = {
+            //     submitHandler: function(form) {
+            //         if ($("#cekkolnup").is(":checked") && $("#nup_fee").val() == "") {
+            //             swal.fire({
+            //                 icon: "warning",
+            //                 width: '350px',
+            //                 allowOutsideClick: false,
+            //                 html: '<p style="font-size:14px; font-family:arial;">Kolom [Ongkos Angkut] pada tabel rincian harga belum diisi</p>'
+            //             });
+            //         } else if ($("#kd_tax").val() == 'EC' && $("#pphnya").val() == '') {
+            //             swal.fire({
+            //                 icon: "warning",
+            //                 width: '350px',
+            //                 allowOutsideClick: false,
+            //                 html: '<p style="font-size:14px; font-family:arial;">Kolom [PPH 22] belum diisi</p>'
+            //             });
+            //         } else if ($("#terms").val() == 'NET' && $("#terms_day").val() == '') {
+            //             swal.fire({
+            //                 icon: "warning",
+            //                 width: '350px',
+            //                 allowOutsideClick: false,
+            //                 html: '<p style="font-size:14px; font-family:arial;">Kolom [Hari untuk terms NET] belum diisi</p>'
+            //             });
+            //         } else {
+            //             $("body").addClass("loading");
+            //             $.ajax({
+            //                 type: 'POST',
+            //                 url: base_url + "/web/action/vendor-po-new.php",
+            //                 data: {
+            //                     act: 'cek',
+            //                     q1: $("input[name='idr']").val(),
+            //                     q2: $("#dt2").val()
+            //                 },
+            //                 cache: false,
+            //                 dataType: 'json',
+            //                 success: function(data) {
+            //                     if (!data.hasil) {
+            //                         $("body").removeClass("loading");
+            //                         swal.fire({
+            //                             icon: "warning",
+            //                             width: '350px',
+            //                             allowOutsideClick: false,
+            //                             html: '<p style="font-size:14px; font-family:arial;">' + data.pesan + '</p>'
+            //                         });
+            //                     } else {
+            //                         form.submit();
+            //                     }
+            //                 }
+            //             });
+            //         }
+            //     }
+            // };
+            // $("form#gform").validate($.extend(true, {}, config.validation, formValidasiCfg));
 
             // $("#kd_tax").on("change", function() {
             //     let nilai = $(this).val();
