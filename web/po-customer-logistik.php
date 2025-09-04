@@ -538,23 +538,23 @@ $sesrol = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
                         var kosongKe = null;
 
                         if (tombol[1] == '1') {
-                            // Ambil hanya baris yang dicentang
-                            var $rowsChecked = $("#gform tr").has('input[type="checkbox"]:checked');
+                            // Hanya baris data yang dicek (checkbox baris)
+                            const $rowsChecked = $("#gform tr").has('input[type="checkbox"]:checked');
 
-                            // Cek tanggal loading pada baris-baris itu saja
-                            var adaKosong = false;
+                            let adaKosong = false;
                             $rowsChecked.each(function() {
-                                var tgl = $(this).find(".tgl_loading, .newtgl_loading").val();
-                                if (!tgl) {
+                                const $date = $(this).find('input.tgl_loading, input.newtgl_loading');
+                                if ($date.length === 0) return; // ini kemungkinan baris header → lewati
+
+                                if (!$date.first().val()) {
                                     adaKosong = true;
-                                    // opsional: beri indikator error
-                                    $(this).find(".tgl_loading, .newtgl_loading").addClass("is-invalid").focus();
-                                    return false; // break each
+                                    $date.first().addClass("is-invalid").focus();
+                                    return false;
                                 }
                             });
-
                             if (adaKosong) {
-                                $("#preview_modal #preview_alert").text("Tanggal Loading wajib diisi pada baris yang dicentang.");
+                                $("#preview_modal #preview_alert")
+                                    .text("Tanggal Loading wajib diisi pada baris yang dicentang.");
                                 $("#preview_modal").modal("show");
                                 return false;
                             }
