@@ -378,7 +378,8 @@
 
             <?php if (!$fnr && $data['is_request'] == 2) {
                 echo '<label>Tanggal Kirim</label>';
-                echo '<input type="text" name="tgl_kirim" id="" class="form-control input-po datepicker" value="' . date('d/m/Y',strtotime($data['tanggal_loading']))  . '" autocomplete="off" width="50%"/>';
+                echo '<input type="text" name="tgl_kirim" id="" class="form-control input-po datepicker" value="' . date('d/m/Y', strtotime($data['tanggal_kirim']))  . '" autocomplete="off" width="50%"/>';
+                echo '<input type="hidden" name="tgl_loading" id="" class="form-control input-po datepicker" value="' . date('d/m/Y', strtotime($data['tanggal_loading']))  . '" autocomplete="off" width="50%" readonly/>';
             } else {
             } ?>
         </div>
@@ -392,7 +393,7 @@
 
 
         </div>
-         <input type="hidden" id="id_do_accurate" name="id_do_accurate" value="<?php echo $data['id_do_accurate'] ?>" />
+        <input type="hidden" id="id_do_accurate" name="id_do_accurate" value="<?php echo $data['id_do_accurate'] ?>" />
     </div>
 
     <div class="form-group row">

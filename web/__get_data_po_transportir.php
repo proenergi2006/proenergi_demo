@@ -28,7 +28,7 @@
                 </thead>
                 <tbody>
                     <?php
-                    $sql = "select a.*, c.pr_pelanggan, c.produk, c.transport, e.status_jadwal, e.tanggal_kirim, f.harga_poc, f.nomor_poc, 
+                    $sql = "select a.*, c.pr_pelanggan, c.produk, c.transport, e.status_jadwal, e.tanggal_kirim, e.tanggal_loading as tgl_loading_plan, f.harga_poc, f.nomor_poc, 
                     g.alamat_survey, g.id_wil_oa, g.jenis_usaha, g.id_lcr, h.nama_prov, i.nama_kab, j.nama_customer, j.id_customer, j.kode_pelanggan, 
                     k.fullname, n.nama_area, o.nama_terminal, o.tanki_terminal, o.lokasi_terminal, p.nama_vendor, q.nomor_plat, r.nama_sopir, 
 					s.wilayah_angkut, t.ongkos_angkut, u.is_cancel, u.is_delivered, u.is_loaded, m.detail_rincian, m.oa_kirim, c.no_do_syop, c.nomor_lo_pr
@@ -75,9 +75,10 @@
                             $tempal = strtolower(str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data['nama_kab']));
                             $alamat    = $data['alamat_survey'] . " " . ucwords($tempal) . " " . $data['nama_prov'];
                             $kirim    = date("d/m/Y", strtotime($data['tgl_kirim_po']));
+                            $tgl_loading_plan = date("d/m/Y", strtotime($data['tgl_loading_plan']));
                             $ongkos = ($data['ongkos_po']) ? $data['ongkos_po'] : $data['ongkos_angkut'];
                             $tgleta    = (!$data['tgl_eta_po'] or $data['tgl_eta_po'] == '0000-00-00') ? $kirim : date("d/m/Y", strtotime($data['tgl_eta_po']));
-                            $tgletl    = (!$data['tgl_eta_po'] or $data['tgl_etl_po'] == '0000-00-00') ? $kirim : date("d/m/Y", strtotime($data['tgl_etl_po']));
+                            $tgletl    = (!$data['tgl_eta_po'] or $data['tgl_etl_po'] == '0000-00-00') ? $tgl_loading_plan : date("d/m/Y", strtotime($data['tgl_etl_po']));
                             $jameta = $data['jam_eta_po'];
                             $jametl = $data['jam_etl_po'];
                             $mobil     = $data['mobil_po'];

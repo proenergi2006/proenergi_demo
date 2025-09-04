@@ -20,7 +20,7 @@ $q1	= isset($_POST["q1"]) ? htmlspecialchars($_POST["q1"], ENT_QUOTES) : '';
 $q2	= isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
 
 $p = new paging;
-$sql = "SELECT a.*, b.nama_customer FROM pro_unblock_customer as a JOIN pro_customer as b ON a.id_customer=b.id_customer";
+$sql = "SELECT a.*, b.nama_customer FROM pro_unblock_customer as a JOIN pro_customer as b ON a.id_customer=b.id_customer ORDER BY a.id DESC";
 
 $tot_record = $con->num_rows($sql);
 $tot_page 	= ceil($tot_record / $length);

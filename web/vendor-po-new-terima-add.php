@@ -52,7 +52,7 @@ if (!$idnya02) {
 	// } else {
 	// 	echo "get list receiveNumber accurate not found";
 	// }
-	$no_terima ='';
+	$no_terima = '';
 } else {
 	$sql = "
 			select a.nomor_po, a.tanggal_inven, a.harga_tebus, a.volume_po, a.id_terminal, b.jenis_produk, b.merk_dagang, 
@@ -176,7 +176,7 @@ $row = $con->getRecord($sql);
 							<div class="form-group form-group-sm">
 								<label class="control-label col-md-3">Tanggal Terima *</label>
 								<div class="col-md-4">
-									<input type="text" name="tgl_terima" id="tgl_terima" class="form-control datepicker" required data-rule-dateNL="1" value="<?php echo $tgl_terima; ?>" />
+									<input type="text" name="tgl_terima" id="tgl_terima" class="form-control datepicker" required data-rule-dateNL="1" value="<?php echo $tgl_terima; ?> " autocomplete="off" />
 								</div>
 							</div>
 						</div>
