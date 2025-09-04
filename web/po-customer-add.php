@@ -611,6 +611,7 @@ if ($idr != "" && $idk != "") {
 												}
 
 												echo '<input type="text" id="harga_liter" name="harga_liter" class="form-control text-right" required value="' . $formated_nilai . '" ' . $readonly . ' readonly/>';
+												echo '<input type="hidden" id="harga_liter2" name="harga_liter2" class="form-control text-right" required value="' . $rsm['harga_poc'] . '" ' . $readonly . ' readonly/>';
 											} else {
 												$readonly = ($idr != '' && $idk != '' ? 'readonly' : '');
 												echo '<input type="text" id="harga_liter" name="harga_liter" class="form-control text-right" required ' . $readonly . ' readonly/>';

@@ -33,6 +33,37 @@ switch ($file) {
 		$sql = "update acl_user set is_active = '" . $arr[$id1] . "', lastupdate_time = NOW(), lastupdate_ip = '" . $_SERVER['REMOTE_ADDR'] . "', 
 					lastupdate_by = '" . $_SESSION['NAMA'] . "' where id_user = '" . $id2 . "'";
 		break;
+	case "form_unblock":
+		// Ambil semua file terkait dari DB
+		$sqlFile = "SELECT nama_file FROM pro_lampiran_unblock WHERE id_unblock = '$id1'";
+		$resultFile = $con->getResult($sqlFile);
+
+		$hapusSemuaFile = true;
+
+		if ($resultFile) {
+			foreach ($resultFile as $fileRow) {
+				$filePath = $public_base_directory . "/files/uploaded_user/file_unblock/" . $fileRow['nama_file'];
+
+				if (file_exists($filePath)) {
+					if (!unlink($filePath)) {
+						// Gagal hapus file
+						$hapusSemuaFile = false;
+						error_log("Gagal hapus file: $filePath");
+						break; // stop looping, tidak perlu coba hapus file lainnya
+					}
+				}
+			}
+		}
+
+		if ($hapusSemuaFile) {
+			// Hapus lampiran di DB
+			$sqlLampiran = "DELETE FROM pro_lampiran_unblock WHERE id_unblock = '$id1'";
+			$con->setQuery($sqlLampiran);
+			$oke  = $oke && !$con->hasError();
+
+			$sql = "DELETE from pro_unblock_customer where id = '" . $id1 . "' AND disposisi = 0";
+			break;
+		}
 	case "master_group_cabang":
 		$sql = "delete from pro_master_group_cabang where id_gu = '" . $id1 . "'";
 		break;

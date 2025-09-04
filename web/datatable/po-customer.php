@@ -160,7 +160,11 @@ if ($tot_record <= 0) {
 			$disposisi = 'Ditolak ' . $arrPosisi[$data['disposisi']];
 			$background = 'style="background-color:#f5f5f5"';
 		} else if ($data['disposisi_poc'] == 0)
-			$disposisi = 'Terdaftar';
+			if ($data['is_draft'] == 1) {
+				$disposisi = 'Draft';
+			} else {
+				$disposisi = 'Terdaftar';
+			}
 		else if ($data['disposisi_poc'] == 1)
 			$disposisi = 'Verifikasi ' . $arrPosisi[$data['disposisi']];
 		else $disposisi = '';

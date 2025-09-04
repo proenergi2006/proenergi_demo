@@ -67,7 +67,10 @@ if ($keterangan == "") {
 	$flash->add("error", "Keterangan tidak boleh kosong", BASE_REFERER);
 }
 
-if ($row && $row['disposisi'] == 0 || $row && $row['disposisi'] == 1) {
+$sqlAktif = "SELECT disposisi, nomor_dokumen FROM pro_unblock_customer WHERE id_customer = '" . $id_cust . "' AND disposisi IN (0,1)";
+$rowAktif = $con->getRecord($sqlAktif);
+
+if ($rowAktif) {
 	$con->rollBack();
 	$con->clearError();
 	$con->close();

@@ -30,6 +30,7 @@ $extend = isset($_POST["extend"]) ? htmlspecialchars($_POST["extend"], ENT_QUOTE
 $revert = isset($_POST["revert"]) ? htmlspecialchars($_POST["revert"], ENT_QUOTES) : null;
 $is_request = isset($_POST["is_request"]) ? htmlspecialchars($_POST["is_request"], ENT_QUOTES) : null;
 $tgl_kirim = isset($_POST["tgl_kirim"]) ? htmlspecialchars($_POST["tgl_kirim"], ENT_QUOTES) : null;
+$tgl_loading = isset($_POST["tgl_loading"]) ? htmlspecialchars($_POST["tgl_loading"], ENT_QUOTES) : null;
 $dis_lo = isset($_POST["dis_lo"]) ? htmlspecialchars($_POST["dis_lo"], ENT_QUOTES) : null;
 $summary = '';
 $id_do_accurate    = htmlspecialchars($_POST["id_do_accurate"], ENT_QUOTES);
@@ -290,7 +291,7 @@ $ems1 = "select distinct email_user FROM acl_user WHERE id_role = 9 and id_wilay
 
 
 if ($oke) {
-    if (($is_request == 3 && $revert == 1) && ( $is_loaded == 0 || $is_loaded == 1) ) {
+    if (($is_request == 3 && $revert == 1) && ($is_loaded == 0 || $is_loaded == 1)) {
         $queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $wilayah . "'";
         $rowget_cabang = $con->getRecord($queryget_cabang);
 
@@ -299,34 +300,34 @@ if ($oke) {
                     JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov 
                     JOIN pro_pr_detail e ON a.`id_prd`=e.id_prd
                     WHERE a.id_dsd = '" . $idr . "'";
-		$rowget = $con->getRecord($queryget);
-				
+        $rowget = $con->getRecord($queryget);
+
         $query = http_build_query([
-                'id' => $id_do_accurate
+            'id' => $id_do_accurate
         ]);
 
         $urlnya_so = 'https://zeus.accurate.id/accurate/api/delivery-order/detail.do?' . $query;
 
-		$result_so = curl_get($urlnya_so);;
+        $result_so = curl_get($urlnya_so);;
         $detailItems = [];
-        $getItem =$result_so['d']['detailItem'];
-      
-        foreach($getItem as $detail) {
+        $getItem = $result_so['d']['detailItem'];
+
+        foreach ($getItem as $detail) {
             $detailItems['detailItem'][] = [
-                    "itemNo" => $detail['item']['no'],
-                    "quantity" => $detail['quantity'],
-                    "warehouseName" => $detail['warehouse']['name']
+                "itemNo" => $detail['item']['no'],
+                "quantity" => $detail['quantity'],
+                "warehouseName" => $detail['warehouse']['name']
             ];
         }
 
         $data_sr = array(
             "customerNo"            => $rowget['kode_pelanggan'],
-            "returnType"            =>"DELIVERY",
-            "deliveryOrderNumber"   =>$rowget['no_do_syop'],
-            "description" 		    =>"CANCEL TRIP",
-            "transDate" 		    => date("d/m/Y"),
-            "branchName"  		    => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-            "detailItem"       	    => $detailItems['detailItem']
+            "returnType"            => "DELIVERY",
+            "deliveryOrderNumber"   => $rowget['no_do_syop'],
+            "description"             => "CANCEL TRIP",
+            "transDate"             => date("d/m/Y"),
+            "branchName"              => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+            "detailItem"               => $detailItems['detailItem']
         );
 
         // var_dump($data_sr);
@@ -347,7 +348,7 @@ if ($oke) {
             $con->close();
             $flash->add("error", $result_sr['d'][0] . '- response dari accurate', BASE_REFERER);
         }
-    } elseif (($is_request == 2 && $revert == 1) ){
+    } elseif (($is_request == 2 && $revert == 1)) {
         $cekidacc = "SELECT a.id_do_accurate, a.no_do_syop, d.kode_pelanggan,e.nama_cabang
                 FROM pro_po_ds_detail ds 
                 JOIN pro_po_ds pds ON ds.id_ds = pds.id_ds
@@ -356,36 +357,35 @@ if ($oke) {
                 JOIN pro_po_customer c ON b.id_poc = c.id_poc
                 JOIN pro_customer d ON c.id_customer = d.id_customer
                 JOIN pro_master_cabang e ON pds.id_wilayah = e.id_master
-		        WHERE a.id_plan='". $id_plan . "'";
+		        WHERE a.id_plan='" . $id_plan . "'";
         $getidacc = $con->getRecord($cekidacc);
-        
+
         $urlnya2 = 'https://zeus.accurate.id/accurate/api/delivery-order/save.do';
         // Data yang akan dikirim dalam format JSON
         $data2 = array(
             "id"                => $getidacc['id_do_accurate'],
             "customerNo"        => $getidacc['kode_pelanggan'],
-            "number"           	=> $getidacc['no_do_syop'],
-            "transDate" 		=> $tgl_kirim,
-            "branchName"  		=> $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
+            "number"               => $getidacc['no_do_syop'],
+            "transDate"         => $tgl_loading,
+            "branchName"          => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
         );
         $jsonData2 = json_encode($data2);
-        
-		$result = curl_post($urlnya2, $jsonData2);
-        
-        	if ($result['s'] == true) {
-                $con->commit();
-                $con->close();
-                $flash->add("success", "Data DR telah berhasil disimpan", $url);
-                header("location: " . $url);
-                exit();
-            } else {
-                $con->rollBack();
-                $con->clearError();
-                $con->close();
-                $flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
-            }
 
-    }else {
+        $result = curl_post($urlnya2, $jsonData2);
+
+        if ($result['s'] == true) {
+            $con->commit();
+            $con->close();
+            $flash->add("success", "Data DR telah berhasil disimpan", $url);
+            header("location: " . $url);
+            exit();
+        } else {
+            $con->rollBack();
+            $con->clearError();
+            $con->close();
+            $flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
+        }
+    } else {
         $con->commit();
         $con->close();
         $flash->add("success", "Data DR telah berhasil disimpan", $url);

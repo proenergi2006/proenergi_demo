@@ -381,7 +381,9 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 												<?php } ?>
 												<?php if ($rsm['disposisi_poc'] == 0 || $rsm['poc_approved'] == 2) : ?>
 													<a class="btn btn-primary jarak-kanan" style="width:80px;" href="<?php echo $link2; ?>">Edit</a>
-													<a class="btn btn-info jarak-kanan izin-pd" style="width:100px;" href="<?php echo $link3; ?>">Persetujuan</a>
+													<?php if ($rsm['is_draft'] == 0) : ?>
+														<a class="btn btn-info jarak-kanan izin-pd" style="width:100px;" href="<?php echo $link3; ?>">Persetujuan</a>
+													<?php endif ?>
 													<a class="btn btn-primary jarak-kanan" href="<?php echo $link2; ?>">Attachment</a>
 												<?php else : ?>
 													<?php if ($resVolume['jum_vol_realisasi'] < $rsm['volume_poc']) : ?>
