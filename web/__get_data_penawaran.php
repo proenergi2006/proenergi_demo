@@ -17,6 +17,7 @@ $rsm = $conSub->getRecord($sql);
 $formula = json_decode($rsm['detail_formula'], true);
 $rincian = json_decode($rsm['detail_rincian'], true);
 if ($rsm['perhitungan'] == 1) {
+	$nilainya_real = number_format($rsm['harga_dasar'], 4);
 	if ($rsm['pembulatan'] == 0) {
 		$nilainya = number_format($rsm['harga_dasar'], 2);
 		$harganya = number_format($rsm['harga_dasar'], 2);
@@ -81,6 +82,7 @@ if ($rsm["id_penawaran"]) {
 
 
 	$answer['harga'] = $nilainya;
+	$answer['harga_koma'] = $nilainya_real;
 	$answer['produk'] = $rsm['produk_tawar'];
 	$answer['refund'] = $rsm['refund_tawar'];
 	$answer['addPenerimRefund'] = BASE_URL_CLIENT . '/add-master-penerima-refund.php?' . paramEncrypt('idcust=' . $rsm['id_customer']);

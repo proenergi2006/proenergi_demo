@@ -136,7 +136,7 @@
 </li>
 
 <?php
-$sqlBadge21    = "select count(*) as jum from pro_po_ds_detail where is_request IN (2,3) and disposisi_request = 1 and is_approved = 0";
+$sqlBadge21    = "SELECT count(*) as jum from pro_po_ds_detail as a LEFT JOIN pro_po_customer as b ON a.id_poc=b.id_poc LEFT JOIN pro_customer as c ON b.id_customer=c.id_customer where c.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "' AND a.is_request IN (2,3) and a.disposisi_request = 1 and a.is_approved = 0";
 $jumBadge21 = $con->getOne($sqlBadge21);
 ?>
 <?php if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == "18" || paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == "11" ||  paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == "17") { ?>

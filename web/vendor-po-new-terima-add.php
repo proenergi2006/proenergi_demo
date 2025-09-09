@@ -57,7 +57,7 @@ if (!$idnya02) {
 	$sql = "
 			select a.nomor_po, a.tanggal_inven, a.harga_tebus, a.volume_po, a.id_terminal, b.jenis_produk, b.merk_dagang, 
 			d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, 
-			a1.tgl_terima, a1.harga_tebus as harga_tebus_receive, a1.volume_bol, a1.volume_terima, a1.nama_pic, 
+			a1.tgl_terima, a1.harga_tebus as harga_tebus_receive, a1.volume_bol, a1.volume_terima, a1.nama_pic, a1.no_terima,
 			a1.file_upload, a1.file_upload_ori 
 			from new_pro_inventory_vendor_po a 
 			join new_pro_inventory_vendor_po_receive a1 on a.id_master = a1.id_po_supplier 
@@ -75,6 +75,7 @@ if (!$idnya02) {
 	$tgl_terima 	= date("d/m/Y", strtotime($rsm['tgl_terima']));
 	$harga_tebus 	= ($rsm['harga_tebus_receive'] ? $rsm['harga_tebus_receive'] : '');
 	$volume_bol 	= ($rsm['volume_bol'] ? $rsm['volume_bol'] : '');
+	$no_terima	 	= ($rsm['no_terima'] ? $rsm['no_terima'] : '');
 
 	$volume_terima 	= ($rsm['volume_terima'] ? $rsm['volume_terima'] : '');
 	$nama_pic 		= $rsm['nama_pic'];
