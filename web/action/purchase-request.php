@@ -500,6 +500,12 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$get_idpo = "select id_accurate FROM new_pro_inventory_vendor_po WHERE nomor_po='" . $nop . "'";
 				$id_po_acc = $con->getRecord($get_idpo);
 
+				//get kode accurate marketing
+				$get_user = "SELECT b.kode_accurate FROM pro_po_customer_plan a 
+							JOIN acl_user b ON a.created_by = b.fullname 
+							WHERE a.id_plan='" . $idplans . "'";
+				$kode_user = $con->getRecord($get_user);
+
 				$query_po = http_build_query([
 					'id' => $id_po_acc['id_accurate']
 				]);
@@ -513,14 +519,16 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 					$kode_customer_array[$kode_customer][$idplans]["items"][] = [
 						'itemNo' => 'PBBKB',
 						'unitPrice' => $pbbkb,
-						'quantity' => $dt10
+						'quantity' => $dt10,
+						'salesmanListNumber'=> $kode_user['kode_accurate']
 					];
 					$harga_dasar = $hd + $oa;
 				} else if ($jenis_penawaran == 'gabung_pbbkb') {
 					$kode_customer_array[$kode_customer][$idplans]["items"][] = [
 						'itemNo' => 'NS-001',
 						'unitPrice' => $oa,
-						'quantity' => $dt10
+						'quantity' => $dt10,
+						'salesmanListNumber'=> $kode_user['kode_accurate']
 					];
 					$harga_dasar = ($hd) + ($pbbkb);
 				} else if ($jenis_penawaran == 'break_all') {
@@ -528,12 +536,14 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 						[
 							'itemNo' => 'PBBKB',
 							'unitPrice' => $pbbkb,
-							'quantity' => $dt10
+							'quantity' => $dt10,
+							'salesmanListNumber'=>$kode_user['kode_accurate']
 						],
 						[
 							'itemNo' => 'NS-001',
 							'unitPrice' => $oa,
-							'quantity' => $dt10
+							'quantity' => $dt10,
+							'salesmanListNumber'=>$kode_user['kode_accurate']
 						]
 					];
 					$harga_dasar = $hd;
@@ -548,6 +558,7 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 							'quantity'     => $dt10,
 							'unitPrice'    => $harga_dasar,
 							'warehouseName' => $row_inisial['inisial_cabang'],
+							'salesmanListNumber'=>$kode_user['kode_accurate']
 						];
 						// array_unshift($kode_customer_array[$kode_customer][$idplans]["items"], [
 						// 	'itemNo'       => $items['item']['no'],
@@ -1035,7 +1046,8 @@ if ($oke) {
 								$dataItem = [
 									'itemNo'       => $item2['itemNo'],
 									'quantity'     => $item2['quantity'],
-									'salesOrderNumber' => $rowget_po['no_so']
+									'salesOrderNumber' => $rowget_po['no_so'],
+									
 								];
 
 								// Jika ada 'warehouseName', tambahkan ke data

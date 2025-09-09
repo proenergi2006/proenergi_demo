@@ -575,6 +575,7 @@ if ($act == "add") {
 							'quantity'     => $vol_kirim,
 							'unitPrice'    => $item['unitPrice'],
 							'deliveryOrderNumber' => $data_prd['no_do_syop'],
+							'salesmanListNumber'=>$item['salesmanList'][0]['number']
 						];
 					} elseif ($item['item']['no'] == 'PBBKB') {
 						$detailItems['detailItem'][] = [
@@ -582,6 +583,7 @@ if ($act == "add") {
 							'quantity'     => $vol_kirim,
 							'unitPrice'    => $item['unitPrice'],
 							'deliveryOrderNumber' => $data_prd['no_do_syop'],
+							'salesmanListNumber'=>$item['salesmanList'][0]['number']
 						];
 					} else {
 						$detailItems['detailItem'][] = [
@@ -589,7 +591,8 @@ if ($act == "add") {
 							'quantity'     => $vol_kirim,
 							'unitPrice'    => $item['unitPrice'],
 							'deliveryOrderNumber' => $data_prd['no_do_syop'],
-							'itemCashDiscount' => $discount
+							'itemCashDiscount' => $discount,
+							'salesmanListNumber'=>$item['salesmanList'][0]['number']
 						];
 					}
 
@@ -622,7 +625,7 @@ if ($act == "add") {
 					);
 
 					$jsonData = json_encode($data);
-					// echo $jsonData;
+					// var_dump($detailItems['detailItem']);
 					// exit();
 
 					$result_save = curl_post($urlnya, $jsonData);
@@ -653,14 +656,16 @@ if ($act == "add") {
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop']
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} elseif ($item['item']['no'] == 'NS-001') {
 							$detailItems_oa['detailItem'][] = [
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop']
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} else {
 							$detailItems['detailItem'][] = [
@@ -668,7 +673,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount
+								'itemCashDiscount' => $discount,
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						}
 					}
@@ -770,14 +776,16 @@ if ($act == "add") {
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop']
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} elseif ($item['item']['no'] == 'PBBKB') {
 							$detailItems_pbbkb['detailItem'][] = [
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop']
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} else {
 							$detailItems['detailItem'][] = [
@@ -785,7 +793,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount
+								'itemCashDiscount' => $discount,
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						}
 					}
@@ -881,14 +890,16 @@ if ($act == "add") {
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop']
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} elseif ($item['item']['no'] == 'PBBKB') {
 							$detailItems_pbbkb['detailItem'][] = [
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop']
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} else {
 							$detailItems['detailItem'][] = [
@@ -896,7 +907,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount
+								'itemCashDiscount' => $discount,
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						}
 					}
@@ -1209,7 +1221,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount
+								'itemCashDiscount' => $discount,
+								'salesmanListNumber'=>$item['salesmanList'][0]['number']
 							];
 						} elseif ($ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
 							if ($item['item']['no'] != 'NS-001' && $item['item']['no'] != 'PBBKB') {
@@ -1220,7 +1233,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'itemCashDiscount' => $discount
+									'itemCashDiscount' => $discount,
+									'salesmanListNumber'=>$item['salesmanList'][0]['number']
 								];
 							}
 						} elseif ($ris['jenis'] == "split_oa") {
@@ -1232,7 +1246,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'itemCashDiscount' => $discount
+									'itemCashDiscount' => $discount,
+									'salesmanListNumber'=>$item['salesmanList'][0]['number']
 								];
 							}
 						} elseif ($ris['jenis'] == "split_pbbkb") {
@@ -1244,7 +1259,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'itemCashDiscount' => $discount
+									'itemCashDiscount' => $discount,
+									'salesmanListNumber'=>$item['salesmanList'][0]['number']
 								];
 							}
 						}
@@ -1650,10 +1666,10 @@ if ($act == "add") {
 
 		$url  = BASE_URL_CLIENT . "/invoice_customer.php";
 		if ($oke) {
-			$con->commit();
-			$con->close();
-			header("location: " . $url);
-			exit();
+			// $con->commit();
+			// $con->close();
+			// header("location: " . $url);
+			// exit();
 		} else {
 			$con->rollBack();
 			$con->clearError();
