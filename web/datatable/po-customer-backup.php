@@ -113,6 +113,7 @@ if ($tot_record <= 0) {
 		$count++;
 		$length--;
 		$linkPlan	= BASE_URL_CLIENT . '/po-customer-plan.php?' . paramEncrypt('idr=' . $data['id_customer'] . '&idk=' . $data['id_poc']);
+		$linkUnblock = BASE_URL_CLIENT . '/form-unblock-add.php?' . paramEncrypt('idk=' . $data['id_poc']);
 		$linkDetail	= BASE_URL_CLIENT . '/po-customer-detail.php?' . paramEncrypt('idr=' . $data['id_customer'] . '&idk=' . $data['id_poc']);
 		$linkHapus	= paramEncrypt("po_customer#|#" . $data['id_poc']);
 		$temp 		= strtolower(str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data['nama_kab']));
@@ -159,7 +160,11 @@ if ($tot_record <= 0) {
 			$disposisi = 'Ditolak ' . $arrPosisi[$data['disposisi']];
 			$background = 'style="background-color:#f5f5f5"';
 		} else if ($data['disposisi_poc'] == 0)
-			$disposisi = 'Terdaftar';
+			if ($data['is_draft'] == 1) {
+				$disposisi = 'Draft';
+			} else {
+				$disposisi = 'Terdaftar';
+			}
 		else if ($data['disposisi_poc'] == 1)
 			$disposisi = 'Verifikasi ' . $arrPosisi[$data['disposisi']];
 		else $disposisi = '';
@@ -215,12 +220,10 @@ if ($tot_record <= 0) {
 				</td>
 					<td class="text-center">' . $attach . '</td>
 					<td class="text-center action">
-					
-						<a class="margin-sm btn btn-action btn-info" title="Detail" href="' . $linkDetail . '"><i class="fa fa-info-circle"></i></a>
-						' . ($data['poc_approved'] && $data['poc_approved'] == 1
-			? '<a class="margin-sm btn btn-action btn-primary" title="Plan" href="' . $linkPlan . '"><i class="fa fa-file-alt"></i></a>'
-			: '<a class="margin-sm btn btn-action btn-danger" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>'
-		) . '
+						<a class="margin-sm btn btn-action btn-info" title="Detail" href="' . $linkDetail . '">
+							<i class="fa fa-info-circle"></i>
+						</a>' . ($data['poc_approved'] && $data['poc_approved'] == 1 ? '<a class="margin-sm btn btn-action btn-primary" title="Plan" href="' . $linkPlan . '"><i class="fa fa-file-alt"></i></a>' : '<a class="margin-sm btn btn-action btn-danger" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>') . '
+						' . ($data['is_draft'] == 1 ? '<a class="margin-sm btn btn-action btn-warning" title="Unblock Request" href="' . $linkUnblock . '"><i class="fa fa-unlock-alt"></i></a>' : '') . '
             		</td>
 				</tr>';
 	}

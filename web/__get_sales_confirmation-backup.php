@@ -63,6 +63,7 @@ $termPayment = $arr_payment[$jns_payment];
 				<th class="text-center" width="250">Customer Name</th>
 				<th class="text-center" width="150">TOP</th>
 				<th class="text-center" width="150">Credit Limit</th>
+				<th class="text-center" width="150">Credit Limit Temp</th>
 				<th class="text-center" width="200">Business</th>
 				<th class="text-center" width="200">Marketing</th>
 			</tr>
@@ -84,6 +85,10 @@ $termPayment = $arr_payment[$jns_payment];
 					<?php echo number_format($row['credit_limit']); ?>
 					<input type="hidden" id="cl" name="cl" value="<?php echo $row['credit_limit']; ?>" />
 				</td>
+				<td class="text-right">
+					<?php echo number_format($row['credit_limit_temp']); ?>
+					<input type="hidden" id="cl" name="cl" value="<?php echo $row['credit_limit_temp']; ?>" />
+				</td>
 				<td class="text-center"><?php echo ($row['tipe_bisnis']) ? $arrT[$row['tipe_bisnis']] : ''; ?></td>
 				<td class="text-center"><?php echo $row['marketing']; ?></td>
 			</tr>
@@ -98,6 +103,13 @@ $termPayment = $arr_payment[$jns_payment];
 			<td>
 				Rp <?php echo number_format($row['credit_limit'], 0, ',', '.'); ?>
 				<input type="hidden" name="credit_limit" readonly value="<?= $row12['credit_limit']; ?>">
+			</td>
+		</tr>
+		<tr>
+			<th>Invoice not issued yet</th>
+			<td>
+				Rp <?php echo number_format($row['po_not_yet'], 0, ',', '.'); ?>
+				<input type="hidden" name="po_not_yet" readonly value="<?= $row12['po_not_yet']; ?>">
 			</td>
 		</tr>
 		<tr>
@@ -305,7 +317,7 @@ $termPayment = $arr_payment[$jns_payment];
 
 	<hr style="margin:10px 0px 20px; border-top:4px double #ddd;">
 
-	<div class="row">
+	<!-- <div class="row">
 		<div class="col-md-6">
 			<div class="form-group form-group-sm">
 				<label class="control-label col-md-4">Schedule Payment</label>
@@ -321,9 +333,9 @@ $termPayment = $arr_payment[$jns_payment];
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> -->
 
-	<div class="_proposed <?php echo ($row['proposed_status'] == '1') ? '' : 'hidden'; ?>">
+	<!-- <div class="_proposed <?php echo ($row['proposed_status'] == '1') ? '' : 'hidden'; ?>">
 		<div class="row">
 			<div class="col-md-6">
 				<div class="form-group form-group-sm">
@@ -403,11 +415,11 @@ $termPayment = $arr_payment[$jns_payment];
 		<?php } ?>
 
 
-	</div>
+	</div> -->
 
 </div>
 
-<hr style="margin:10px 0px 20px; border-top:4px double #ddd;">
+<!-- <hr style="margin:10px 0px 20px; border-top:4px double #ddd;"> -->
 
 <div class="form-horizontal">
 	<?php
