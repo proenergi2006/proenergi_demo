@@ -1184,6 +1184,7 @@ if ($act == "add") {
 
 			$kode_item = $result['d']['detailItem'];
 			$no_customer = $result['d']['customer']['customerNo'];
+			$po_number = $result['d']['poNumber'];
 
 			if (count($res_inv_split) > 0) {
 				foreach ($res_inv_split as $ris) {
@@ -1192,10 +1193,20 @@ if ($act == "add") {
 						$harganya = $harga_kirim;
 					} elseif ($ris['jenis'] == "split_pbbkb") {
 						$harganya = $pbbkb;
+						
+						if ($nomor_po_pbbkb != NULL || $nomor_po_pbbkb != "") {
+							$po_number_pbbkb = $nomor_po_pbbkb;
+						} else {
+							$po_number_pbbkb = $ris['no_po_splitpbbkb'];
+						}
 					} elseif ($ris['jenis'] == "split_oa") {
 						$harganya = $ongkos_angkut;
+						if ($nomor_po_oa != NULL || $nomor_po_oa != "") {
+							$po_number_oa = $nomor_po_oa;
+						} else {
+							$po_number_oa = $ris['no_po_splitoa'];
+						}
 					}
-
 					// var_dump($harganya);
 
 					$sql4 = "
@@ -1216,6 +1227,7 @@ if ($act == "add") {
 						if ($ris['jenis'] == "all_in") {
 							$detailItems['detailItem']['all_in']['no_invoice'] = $ris['no_invoice'];
 							$detailItems['detailItem']['all_in']['id_invoice'] = $ris['id_invoice'];
+							$detailItems['detailItem']['all_in']['po_number'] = $po_number;
 							$detailItems['detailItem']['all_in']['items'][] = [
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
@@ -1228,6 +1240,7 @@ if ($act == "add") {
 							if ($item['item']['no'] != 'NS-001' && $item['item']['no'] != 'PBBKB') {
 								$detailItems['detailItem']['harga_dasar']['no_invoice'] = $ris['no_invoice'];
 								$detailItems['detailItem']['harga_dasar']['id_invoice'] = $ris['id_invoice'];
+								$detailItems['detailItem']['harga_dasar']['po_number'] = $po_number;
 								$detailItems['detailItem']['harga_dasar']['items'][] = [
 									'itemNo'       => $item['item']['no'],
 									'quantity'     => $vol_kirim,
@@ -1241,6 +1254,7 @@ if ($act == "add") {
 							if ($item['item']['no'] == 'NS-001') {
 								$detailItems['detailItem']['oa']['no_invoice'] = $ris['no_invoice'];
 								$detailItems['detailItem']['oa']['id_invoice'] = $ris['id_invoice'];
+								$detailItems['detailItem']['oa']['po_number'] = $po_number_oa;
 								$detailItems['detailItem']['oa']['items'][] = [
 									'itemNo'       => $item['item']['no'],
 									'quantity'     => $vol_kirim,
@@ -1254,6 +1268,7 @@ if ($act == "add") {
 							if ($item['item']['no'] == 'PBBKB') {
 								$detailItems['detailItem']['pbbkb']['no_invoice'] = $ris['no_invoice'];
 								$detailItems['detailItem']['pbbkb']['id_invoice'] = $ris['id_invoice'];
+								$detailItems['detailItem']['pbbkb']['po_number'] = $po_number_pbbkb;
 								$detailItems['detailItem']['pbbkb']['items'][] = [
 									'itemNo'       => $item['item']['no'],
 									'quantity'     => $vol_kirim,
@@ -1296,6 +1311,7 @@ if ($act == "add") {
 			$url_save = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
 			$data = array(
 				"customerNo"        => $res_cust['kode_pelanggan'],
+				"poNumber"	        => $subData['po_number'],
 				"number"            => $subData['no_invoice'],
 				'branchName'        => ($rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang']),
 				'transDate'        	=> $tgl_invoice,
