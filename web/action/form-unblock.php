@@ -23,7 +23,7 @@ $nomor_poc	= htmlspecialchars($_POST["nomor_poc"], ENT_QUOTES);
 $cl_temp	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["cl_temp"]), ENT_QUOTES);
 // echo $cl_temp;
 // exit();
-$top_temp	= htmlspecialchars($_POST["top_temp"], ENT_QUOTES);
+$top_temp	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["top_temp"]), ENT_QUOTES);
 $keterangan	= htmlspecialchars($_POST["keterangan"], ENT_QUOTES);
 $user_pic	= paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']);
 $user_ip	= $_SERVER['REMOTE_ADDR'];
@@ -77,7 +77,7 @@ if ($rowAktif) {
 	$flash->add("error", "Masih terdapat data unblock yang belum terbayar lunas, tidak bisa membuat yang baru", BASE_REFERER);
 }
 
-$insert_unblock = "INSERT into pro_unblock_customer(id_poc, nomor_dokumen, id_customer, cl_temp, keterangan, total_po, created_by, ip_user, date_created) values ('" . $id_poc . "', '" . $no_dokumen . "', '" . $id_cust . "', " . $cl_temp . ", '" . $keterangan . "', " . $cl_temp . ", '" . $user_pic . "', '" . $user_ip . "', NOW())";
+$insert_unblock = "INSERT into pro_unblock_customer(id_poc, nomor_dokumen, id_customer, cl_temp, top_temp, keterangan, total_po, created_by, ip_user, date_created) values ('" . $id_poc . "', '" . $no_dokumen . "', '" . $id_cust . "', " . $cl_temp . ", " . $top_temp . ", '" . $keterangan . "', " . $cl_temp . ", '" . $user_pic . "', '" . $user_ip . "', NOW())";
 $id_unblock = $con->setQuery($insert_unblock);
 $oke = $oke && !$con->hasError();
 

@@ -348,6 +348,19 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 													<td><?php echo $rsm['sm_summary']; ?></td>
 												</tr>
 											<?php } ?>
+											<tr>
+												<td>
+													STATUS
+												</td>
+												<td>:</td>
+												<td>
+													<?php if (intval($cek_po) == 0) : ?>
+														<b>OPEN</b>
+													<?php else : ?>
+														<b>CLOSED</b>
+													<?php endif ?>
+												</td>
+											</tr>
 										</table>
 									</div>
 

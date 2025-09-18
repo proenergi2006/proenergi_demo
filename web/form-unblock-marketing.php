@@ -82,7 +82,7 @@ $flash	= new FlashAlerts;
 											<th class="text-center" width="3%">No</th>
 											<th class="text-center" width="18%">Nomor Dokumen</th>
 											<th class="text-center" width="13%">Nama Customer</th>
-											<th class="text-center" width="15%">CL Temporary</th>
+											<th class="text-center" width="15%">Total PO</th>
 											<th class="text-center" width="5%">TOP Temporary</th>
 											<th class="text-center" width="10%">Tanggal</th>
 											<th class="text-center" width="16%">Status</th>

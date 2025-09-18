@@ -19,6 +19,8 @@ $id_wil = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 $kode_pelanggan = htmlspecialchars($_POST["kode_pelanggan"], ENT_QUOTES);
 
 $cl 		= str_replace(",", "", htmlspecialchars($_POST["cl"], ENT_QUOTES));
+$cl_temp 	= str_replace(",", "", htmlspecialchars($_POST["cl_temp"], ENT_QUOTES));
+$po_not_yet = str_replace(",", "", htmlspecialchars($_POST["po_not_yet"], ENT_QUOTES));
 $up_07 		= str_replace(",", "", htmlspecialchars($_POST["ov_up_07"], ENT_QUOTES));
 $ov_30 		= str_replace(",", "", htmlspecialchars($_POST["ov_under_30"], ENT_QUOTES));
 $ov_60 		= str_replace(",", "", htmlspecialchars($_POST["ov_under_60"], ENT_QUOTES));
@@ -40,6 +42,8 @@ $customer_date  	= htmlspecialchars($_POST["customer_date"], ENT_QUOTES);
 $customer_amount 	= str_replace(",", "", htmlspecialchars($_POST["customer_amount"], ENT_QUOTES));
 
 $credit_limit = ($cl ? $cl : 0);
+$credit_limit_temp = ($cl_temp ? $cl_temp : 0);
+$po_not_yet = ($po_not_yet ? $po_not_yet : 0);
 $not_yet 	= ($not_yet ? $not_yet : 0);
 $up_07 		= ($up_07 ? $up_07 : 0);
 $ov_30 		= ($ov_30 ? $ov_30 : 0);
@@ -104,7 +108,7 @@ if ($role == 10) {
 
 			$sql = "
 					update pro_sales_confirmation set 
-					credit_limit = '" . $credit_limit . "', not_yet = '" . $not_yet . "', ov_up_07 = '" . $up_07 . "', 
+					credit_limit = '" . $credit_limit . "', credit_limit_temp = '" . $credit_limit_temp . "', po_not_yet = '" . $po_not_yet . "', not_yet = '" . $not_yet . "', ov_up_07 = '" . $up_07 . "', 
 					ov_under_30 = '" . $ov_30 . "', ov_under_60 = '" . $ov_60 . "', ov_under_90 = '" . $ov_90 . "', ov_up_90 = '" . $up_90 . "', reminding = '" . $reminding . "', 
 					po_status = '" . $status_po . "', po_volume = '" . $volume_po . "', po_amount = '" . $amount_po . "', 
 					proposed_status = '" . $proposed . "', add_top = '" . $add_top . "', add_cl = '" . $add_cl . "', 
@@ -143,7 +147,7 @@ if ($role == 10) {
 		} else {
 			$sql = "
 					update pro_sales_confirmation set 
-					credit_limit = '" . $credit_limit . "', not_yet = '" . $not_yet . "', ov_up_07 = '" . $up_07 . "', 
+					credit_limit = '" . $credit_limit . "', credit_limit_temp = '" . $credit_limit_temp . "', po_not_yet = '" . $po_not_yet . "', not_yet = '" . $not_yet . "', ov_up_07 = '" . $up_07 . "', 
 					ov_under_30 = '" . $ov_30 . "', ov_under_60 = '" . $ov_60 . "', ov_under_90 = '" . $ov_90 . "', ov_up_90 = '" . $up_90 . "', reminding = '" . $reminding . "', 
 					po_status = '" . $status_po . "', po_volume = '" . $volume_po . "', po_amount = '" . $amount_po . "', 
 					proposed_status = '" . $proposed . "', add_top = '0', add_cl = '0', 
@@ -178,11 +182,11 @@ if ($role == 10) {
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 
-		if ($kode_pelanggan) {
-			$sql3 = "update pro_customer set kode_pelanggan = '" . $kode_pelanggan . "' where id_customer = " . $idc;
-			$con->setQuery($sql3);
-			$oke  = $oke && !$con->hasError();
-		}
+		// if ($kode_pelanggan) {
+		// 	$sql3 = "update pro_customer set kode_pelanggan = '" . $kode_pelanggan . "' where id_customer = " . $idc;
+		// 	$con->setQuery($sql3);
+		// 	$oke  = $oke && !$con->hasError();
+		// }
 
 		if ($approval == 1) $ems1 = "select email_user from acl_user where id_role in(7) and id_wilayah = '" . $id_wil . "'";
 		//$email_jadwal = "select email_user from acl_user where id_role in(11) and id_user = (select id_marketing from pro_customer where id_customer = '".$idc."')";
@@ -206,6 +210,13 @@ if ($role == 10) {
 
 		$terima = 1;
 		$con->setQuery("update pro_sales_confirmation set flag_approval = " . $approval . ", role_approved = 7, tgl_approved = NOW() where id = " . $id);
+		$oke  = $oke && !$con->hasError();
+
+		$sql3 = "SELECT id_customer FROM pro_sales_confirmation WHERE id = '" . $id . "'";
+		$ambil_cust = $con->getRecord($sql3);
+
+		$sql_cust = "UPDATE pro_customer set credit_limit_temp = '" . $add_cl . "' where id_customer = '" . $ambil_cust['id_customer'] . "'";
+		$con->setQuery($sql_cust);
 		$oke  = $oke && !$con->hasError();
 	} else if ($approval == '2') {
 		$sql2 = "
