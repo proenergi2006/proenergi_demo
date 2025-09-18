@@ -221,6 +221,11 @@ $cabang = $con->getResult($query);
 								<tr class="text-center">
 									<td width="50%" style="padding: 5px; border-spacing: 5px;">
 										<b>
+											Tanggal potongan
+										</b>
+									</td>
+									<td>
+										<b>
 											Kategori Potongan
 										</b>
 									</td>
@@ -361,6 +366,7 @@ $cabang = $con->getResult($query);
 								$.each(result.data_invoice_potongan, function(index, item) {
 									$('#tbody-potongan').append(
 										`<tr>
+											<td class="text-center" style="padding: 5px; border-spacing: 5px;">${formatTanggalIndonesia(item.tgl_bayar)}</td>
 											<td class="text-center">${item.kategori}</td>
 											<td class="text-right" style="padding: 5px; border-spacing: 5px;">${formatUang(item.nominal)}</td>
 										</tr>`
@@ -369,7 +375,7 @@ $cabang = $con->getResult($query);
 								});
 								$('#tbody-potongan').append(
 									`<tr>
-										<td class="text-center"><b>TOTAL</b></td>
+										<td class="text-center" colspan="2"><b>TOTAL</b></td>
 										<td class="text-right" style="padding: 5px; border-spacing: 5px;"><b>${formatUang(total_potongan)}</b></td>
 									</tr>`
 								);

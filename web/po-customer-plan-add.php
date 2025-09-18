@@ -43,11 +43,11 @@ if ($row2) {
     $month_so = $explode[4];
 
     $urut_so = $explode[5] + 1;
-    $no_so = sprintf("%03s", $urut_so);
+    $no_so = sprintf("%04s", $urut_so);
     $noms_so = 'SO/' . 'PE/' . $rowWil['inisial_cabang'] . '/' . $year_so . '/' . $arrRomawi[intval($month)] . '/' . $no_so;
 } else {
     $urut_so    = 1;
-    $no_so    = sprintf("%03s", $urut_so);
+    $no_so    = sprintf("%04s", $urut_so);
     $noms_so    = 'SO/' . 'PE/' . $rowWil['inisial_cabang'] . '/' . $year . '/' . $arrRomawi[intval($month)] . '/' . $no_so;
 }
 ?>

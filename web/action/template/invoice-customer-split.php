@@ -1,6 +1,6 @@
 <style>
     table {
-        font-size: 8.5pt;
+        font-size: 9.5pt;
     }
 
     .tabel_header td {
@@ -117,7 +117,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     </tr>
 </table>
 <br>
-<table width="100%" border="0">
+<table width="100%" border="0" style="table-layout: fixed;">
     <tr>
         <td width="25%">
             <b>
@@ -192,8 +192,14 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     <td align="right" width="5%">
                         :
                     </td>
-                    <td align="right">
-                        <?= $res03['nomor_poc'] ?>
+                    <td align="right" style="max-width: 200px; word-wrap: break-word; word-break: break-word;">
+                        <?php if ($res['jenis'] == 'split_oa'): ?>
+                            <?= $res['no_po_splitoa'] ?>
+                        <?php elseif ($res['jenis'] == 'split_pbbkb') : ?>
+                            <?= $res['no_po_splitpbbkb'] ?>
+                        <?php else : ?>
+                            <?= $res03['nomor_poc'] ?>
+                        <?php endif ?>
                     </td>
                 </tr>
                 <tr>
@@ -481,8 +487,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     $harga_kirim = $hsd + $pbbkb;
                     $total_pbbkb = 0;
                 } else {
-                    // $ket_pbbkb = "PBBKB";
-                    $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
+                    $ket_pbbkb = "PBBKB";
+                    // $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
                     $harga_kirim = $hsd;
                     $total_pbbkb = $pbbkb * $total_vol_kirim;
                 }
@@ -519,7 +525,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <?= $produk ?>
             </td>
             <td valign="top" align="center">
-                Ltr
+                Liter
             </td>
             <td valign="top" align="center">
                 <?= number_format($total_vol_kirim) ?>
@@ -568,6 +574,16 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         <tr>
             <td colspan="6" class="b2" align="right">
                 <b>
+                    DPP
+                </b>
+            </td>
+            <td align="right">
+                <?= number_format(($sub_total*11)/12) ?>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" class="b2" align="right">
+                <b>
                     PPN
                 </b>
             </td>
@@ -595,16 +611,19 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <?= number_format($grand_total) ?>
             </td>
         </tr>
-        <tr>
-            <td colspan="6" class="b2" align="right">
-                <b>
-                    Payment
-                </b>
-            </td>
-            <td align="right">
-                <?= number_format($res['total_bayar']) ?>
-            </td>
-        </tr>
+        <?php if ($res['total_bayar']!= 0): ?>
+                          
+            <tr>
+                <td colspan="6" class="b2" align="right">
+                    <b>
+                        Payment
+                    </b>
+                </td>
+                <td align="right">
+                    <?= number_format($res['total_bayar']) ?>
+                </td>
+            </tr>
+        <?php endif ?>
     </tbody>
 </table>
 <table width="100%" style="margin-top:5px;" cellspacing="0" cellpadding="5">
@@ -621,7 +640,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="5">
     <tr>
-        <td width="60%">Description :</td>
+        <td width="70%">Description :</td>
         <td rowspan="7" align="center">
             <?= ucwords($approval) ?>
             <br>
@@ -636,7 +655,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         <td>
             Pembayaran dengan BG/CEK harap diatas namakan PT. PRO ENERGI
             <br>
-            atau transfer ke :
+            atau transfer ke:
         </td>
     </tr>
     <tr>

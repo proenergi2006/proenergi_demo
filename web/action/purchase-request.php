@@ -986,10 +986,18 @@ if ($oke) {
 					$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
 					$rowget_cabang = $con->getRecord($queryget_cabang);
 
-					$queryget_po = "SELECT a.no_so, a.tanggal_kirim, b.*, c.alamat_customer, c.postalcode_customer, d.nama_prov, e.nama_kab FROM pro_po_customer_plan a JOIN pro_po_customer b ON a.id_poc = b.id_poc JOIN pro_customer c ON b.id_customer = c.id_customer JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov JOIN pro_master_kabupaten e ON c.kab_customer = e.id_kab WHERE a.id_plan = '" . $subKey . "'";
+					$queryget_po = "SELECT a.no_so, a.tanggal_kirim, b.*, c.alamat_customer, c.postalcode_customer, d.nama_prov, e.nama_kab, a.id_lcr FROM pro_po_customer_plan a JOIN pro_po_customer b ON a.id_poc = b.id_poc JOIN pro_customer c ON b.id_customer = c.id_customer JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov JOIN pro_master_kabupaten e ON c.kab_customer = e.id_kab WHERE a.id_plan = '" . $subKey . "'";
 					$rowget_po = $con->getRecord($queryget_po);
 
+					$queryget_lcr = "SELECT a.alamat_survey, b.nama_prov, c.nama_kab 
+									FROM pro_customer_lcr a 
+									JOIN pro_master_provinsi b ON a.prov_survey= b.id_prov 
+									JOIN pro_master_kabupaten c ON a.kab_survey = c.id_kab
+									WHERE a.id_lcr ='" . $rowget_po['id_lcr'] . "'";
+					$rowget_lcr = $con->getRecord($queryget_lcr);
+
 					$alamat_customer = $rowget_po['alamat_customer'] . " " . $rowget_po['nama_prov'] . " " . $rowget_po['nama_kab'] . " Kode Pos : " . $rowget_po['postalcode_customer'];
+					$site_customer = $rowget_lcr['alamat_survey'] . " " . $rowget_lcr['nama_prov'] . " " . $rowget_lcr['nama_kab'];
 
 					$url_so = 'https://zeus.accurate.id/accurate/api/sales-order/save.do';
 					// Data yang akan dikirim dalam format JSON
@@ -1034,7 +1042,7 @@ if ($oke) {
 								"number"           	=> $items['nomor_do'],
 								"description"       => $_POST["summary"],
 								"poNumber" 			=> $rowget_po['nomor_poc'],
-								"toAddress" 		=> $alamat_customer,
+								"toAddress" 		=> $site_customer,
 								"transDate" 		=> date("d/m/Y", strtotime($row_plan['tanggal_loading'])),
 								"branchName"  		=> $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 								"detailItem"       	=> []

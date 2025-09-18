@@ -186,7 +186,7 @@ $creditor			 	= ($rsm['credit_facility'] == 1) ? 'value="' . $rsm['creditor'] . 
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header bg-blue">
-					<button type="button" class="close hide" id="clsmdl" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<button type="button" class="close hide" id="clsmdl" data-dismiss="modal" aria-label="Close"></button>
 					<h4 class="modal-title">Loading Data ...</h4>
 				</div>
 				<div class="modal-body">

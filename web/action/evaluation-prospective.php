@@ -298,8 +298,89 @@
 			$mail->send();
 		}
 
-		$con->commit();
-		$con->close();
+		if($role==6){
+			$queryget_customer = "SELECT a.*, b.nama_prov, c.nama_kab, d.nama_cabang, d.inisial_cabang 
+							FROM pro_customer a 
+							JOIN pro_master_provinsi b ON a.prov_customer= b.id_prov 
+							JOIN pro_master_kabupaten c ON a.kab_customer = c.id_kab
+							JOIN pro_master_cabang d ON a.id_wilayah=d.id_master
+							WHERE a.id_customer = '" . $idc . "'";
+			$rowget_customer = $con->getRecord($queryget_customer);
+
+			$npwp=str_replace(array(",",".","-"),"",$rowget_customer['nomor_npwp']);
+
+			$queryget_lcr = "SELECT a.alamat_survey, b.nama_prov, c.nama_kab 
+							FROM pro_customer_lcr a 
+							JOIN pro_master_provinsi b ON a.prov_survey= b.id_prov 
+							JOIN pro_master_kabupaten c ON a.kab_survey = c.id_kab
+							WHERE a.id_customer ='" . $idc . "'";
+			$rowget_lcr = $con->getResult($queryget_lcr);
+
+			$query_kode = "SELECT COUNT(*) FROM pro_customer WHERE kode_pelanggan LIKE '%TEMP%' ORDER BY kode_pelanggan";
+			$getkode = $con->getOne($query_kode);
+			$kode=$getkode+1;
+
+			$urlnya = 'https://zeus.accurate.id/accurate/api/customer/save.do';
+			// Data yang akan dikirim dalam format JSON
+			$data = array(
+				'name'         				=> $rowget_customer['nama_customer'],
+				'customerNo'        		=> 'TEMP'.$kode,
+				'transDate'        			=> date('d/m/Y'),
+				'billCity'          		=> $rowget_customer['nama_kab'],
+				'billCountry'       		=> 'Indonesia',
+				'billProvince'  			=> $rowget_customer['nama_prov'],
+				'billStreet'    			=> $rowget_customer['alamat_customer'],
+				'billZipCode'    			=> $rowget_customer['postalcode_customer'],
+				'branchName'    			=> $rowget_customer['nama_cabang'],
+				'npwpNo'      				=> $npwp,
+				'workPhone' 				=> $rowget_customer['telp_customer'],
+				'email'		 				=> $rowget_customer['email_customer'],
+				'fax' 						=> $rowget_customer['fax_customer'],
+				'customerLimitAge' 			=> true,
+				'customerLimitAgeValue'		=> $rowget_customer['top_payment'],
+				'customerLimitAmount'		=> true,
+				'customerLimitAmountValue'	=> $rowget_customer['credit_limit'],
+				'shipSameAsBill'			=> true,
+				'taxSameAsBill'				=> true,
+				'termName'					=> 'net '.$rowget_customer['top_payment'],
+				'detailShipAddress'			=>[],
+			);
+
+			foreach ($rowget_lcr as $lcr) {
+				$dataShip = [
+					'street'    => $lcr['alamat_survey'],
+					'city'   	=> $lcr['nama_kab'],
+					'country'  	=> 'Indonesia',
+					'province'  => $lcr['nama_prov'],
+				];
+
+
+				$data['detailShipAddress'][] = $dataShip;
+			}
+
+			// Mengonversi data menjadi format JSON
+			$jsonData = json_encode($data);
+			$result = curl_post($urlnya, $jsonData);
+			if ($result['s'] == true) {
+				$sql2 = "update pro_customer set id_accurate = '" . $result['r']['id'] . "', kode_pelanggan ='TEMP".$kode."' 
+						where id_customer = '".$idc."'";
+				$con->setQuery($sql2);
+				$oke  = $oke && !$con->hasError();
+
+				$con->commit();
+				$con->close();
+				header("location: " . BASE_URL_CLIENT . "/verifikasi-data-customer.php");
+				exit();
+			} else {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+			}
+		}else{
+			$con->commit();
+			$con->close();
+		}
 
 		if(count($arrimg) > 0){
 			foreach($arrimg as $data){
@@ -323,7 +404,7 @@
 				header("location: ".BASE_URL_CLIENT."/verifikasi-data-customer.php");	
 				exit();
 			}
-		} else{
+		}else{
 			header("location: ".BASE_URL_CLIENT."/verifikasi-data-customer.php");	
 			exit();
 		}

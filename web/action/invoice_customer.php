@@ -617,6 +617,7 @@ if ($act == "add") {
 					$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
 					$data = array(
 						"customerNo"        => $no_customer,
+						"poNumber"        	=> $po_number,
 						"number"            => $noms_inv,
 						"transDate"         => $tgl_invoice,
 						"taxable"           => true,
@@ -1189,6 +1190,7 @@ if ($act == "add") {
 			if (count($res_inv_split) > 0) {
 				foreach ($res_inv_split as $ris) {
 
+					
 					if ($ris['jenis'] == "all_in" || $ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
 						$harganya = $harga_kirim;
 					} elseif ($ris['jenis'] == "split_pbbkb") {
@@ -1198,6 +1200,7 @@ if ($act == "add") {
 							$po_number_pbbkb = $nomor_po_pbbkb;
 						} else {
 							$po_number_pbbkb = $ris['no_po_splitpbbkb'];
+							$query_update = ", no_po_splitpbbkb = '".$po_number_pbbkb."'";
 						}
 					} elseif ($ris['jenis'] == "split_oa") {
 						$harganya = $ongkos_angkut;
@@ -1205,6 +1208,7 @@ if ($act == "add") {
 							$po_number_oa = $nomor_po_oa;
 						} else {
 							$po_number_oa = $ris['no_po_splitoa'];
+							$query_update = ", no_po_splitoa = '".$po_number_oa."'";
 						}
 					}
 					// var_dump($harganya);
@@ -1319,9 +1323,6 @@ if ($act == "add") {
 			);
 
 			$jsonData = json_encode($data);
-			// var_dump($jsonData);
-			// echo $jsonData;
-			// exit();
 
 			$result_save = curl_post($url_save, $jsonData);
 
@@ -1335,9 +1336,18 @@ if ($act == "add") {
 				$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
 			}
 
-			$update_id_accurate = 'update pro_invoice_admin set total_invoice = "' . $result_save['r']['totalAmount'] . '", id_accurate = "' . $result_save['r']['id'] . '" where id_invoice = "' . $subData['id_invoice'] . '"';
+			$query_update='';
+			if($i === "oa"){
+				$query_update = ", no_po_splitoa = '".$subData['po_number']."'";
+			}else if($i ==="pbbkb"){
+				$query_update = ", no_po_splitpbbkb = '".$subData['po_number']."'";
+			}
+
+			$update_id_accurate = 'update pro_invoice_admin set total_invoice = "' . $result_save['r']['totalAmount'] . '", id_accurate = "' . $result_save['r']['id'] . '"' . $query_update . ' where id_invoice = "' . $subData['id_invoice'] . '"';
 			$con->setQuery($update_id_accurate);
 			$oke  = $oke && !$con->hasError();
+			// var_dump($update_id_accurate);
+			// exit;
 		}
 		// exit();
 
@@ -1937,8 +1947,12 @@ if ($act == "add") {
 	$data_invoice_pembayaran = "SELECT * FROM pro_invoice_admin_detail_bayar WHERE id_invoice = '" . $id_invoice . "'";
 	$res_pembayaran = $con->getResult($data_invoice_pembayaran);
 
-	$data_invoice_potongan = "SELECT * FROM pro_invoice_bukti_potong WHERE id_invoice = '" . $id_invoice . "'";
+	$data_invoice_potongan = "SELECT a.*,b.tgl_bayar FROM pro_invoice_bukti_potong a 
+							join pro_invoice_admin_detail_bayar b on a.id_accurate_sales_receipt=b.id_accurate_sales_receipt
+							WHERE a.id_invoice = '" . $id_invoice . "'";
 	$res_potongan = $con->getResult($data_invoice_potongan);
+	// $data_invoice_potongan = "SELECT * FROM pro_invoice_bukti_potong WHERE id_invoice = '" . $id_invoice . "'";
+	// $res_potongan = $con->getResult($data_invoice_potongan);
 
 	if ($oke) {
 		$result = [

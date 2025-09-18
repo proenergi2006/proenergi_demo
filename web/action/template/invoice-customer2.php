@@ -1,6 +1,6 @@
 <style>
     table {
-        font-size: 8.5pt;
+        font-size:10pt;
     }
 
     .tabel_header td {
@@ -352,7 +352,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                             if ($pbbkb == 0) {
                                 $ket_pbbkb = "PBBKB";
                             } else {
-                                $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
+                                $ket_pbbkb = "PBBKB";
+                                // $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
                             }
                         }
                     }
@@ -495,7 +496,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                             if ($pbbkb == 0) {
                                 $ket_pbbkb = "PBBKB";
                             } else {
-                                $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
+                                $ket_pbbkb = "PBBKB";
+                                // $ket_pbbkb = "PBBKB " . $nilai_pbbkb . "%";
                             }
                         }
                     }
@@ -595,9 +597,9 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                         PBBKB
                     </td>
                     <td valign="top" align="center">
-                        Ltr
+                        Liter
                         <br>
-                        Ltr
+                        Liter
                     </td>
                     <td valign="top" align="center">
                         <?= number_format($total_vol_kirim) ?>
@@ -643,7 +645,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                         <?= $res03['produk'] ?>
                     </td>
                     <td valign="top" align="center">
-                        Ltr
+                        Liter
                     </td>
                     <td valign="top" align="center">
                         <?= number_format($total_vol_kirim) ?>
@@ -678,7 +680,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     <?= $res03['produk'] ?>
                 </td>
                 <td valign="top" align="center">
-                    Ltr
+                    Liter
                 </td>
                 <td valign="top" align="center">
                     <?= number_format($total_vol_kirim) ?>
@@ -723,6 +725,16 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             </td>
             <td align="right">
                 0
+            </td>
+        </tr>
+         <tr>
+            <td colspan="6" class="b2" align="right">
+                <b>
+                    DPP
+                </b>
+            </td>
+            <td align="right">
+                <?= number_format(($sub_total*11)/12) ?>
             </td>
         </tr>
         <tr>
@@ -772,16 +784,19 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <?= number_format($grand_total) ?>
             </td>
         </tr>
-        <tr>
-            <td colspan="6" class="b2" align="right">
-                <b>
-                    Payment
-                </b>
-            </td>
-            <td align="right">
-                <?= number_format($res['total_bayar']) ?>
-            </td>
-        </tr>
+        <?php if ($res['total_bayar']!= 0): ?>
+                          
+            <tr>
+                <td colspan="6" class="b2" align="right">
+                    <b>
+                        Payment
+                    </b>
+                </td>
+                <td align="right">
+                    <?= number_format($res['total_bayar']) ?>
+                </td>
+            </tr>
+        <?php endif ?>
     </tbody>
 </table>
 <table width="100%" style="margin-top:5px;" cellspacing="0" cellpadding="5">
