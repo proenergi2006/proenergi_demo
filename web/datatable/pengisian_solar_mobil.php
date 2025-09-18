@@ -50,7 +50,7 @@ if ($tot_record <= 0) {
         $pathCetakRealisasi =  ACTION_CLIENT . '/cetak_voucher_bbm.php?' . paramEncrypt('id=' . $data['id'] . '&kategori=realisasi');
 
         if ($data['disposisi'] == 0) {
-            if ($id_role == "9") {
+            if ($id_role == "24") {
                 $linkHapus    = paramEncrypt("pengisian_solar_mobil#|#" . $data['id']);
                 $btnHapus = '<a class="margin-sm btn btn-action btn-danger " title="Delete" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>';
                 $btnVerif = "";

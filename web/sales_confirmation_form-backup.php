@@ -15,7 +15,8 @@ $idc 	= isset($enk["idc"]) ? htmlspecialchars($enk["idc"], ENT_QUOTES) : '';
 $role 	= paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
 
 $cek = "
-		select n.*, s.*, p.supply_date, p.nomor_poc, c.kode_pelanggan, c.nama_customer, c.credit_limit, c.credit_limit_used as invoice_not_yet, c.credit_limit_temp as cl_temp, c.tipe_bisnis, c.tipe_bisnis_lain, p.volume_poc, p.harga_poc, e.fullname as marketing, c.jenis_payment, c.top_payment, p.id_poc 
+		select n.*, s.*, p.supply_date, p.nomor_poc, c.kode_pelanggan, c.nama_customer, c.credit_limit, c.tipe_bisnis, c.tipe_bisnis_lain, p.volume_poc, p.harga_poc, 
+		e.fullname as marketing, c.jenis_payment, c.top_payment, p.id_poc 
 		from pro_sales_confirmation n 
 		left join pro_sales_confirmation_approval s on n.id = s.id_sales
 		join pro_customer c on n.id_customer = c.id_customer 
@@ -25,20 +26,20 @@ $cek = "
 	";
 $row 	= $con->getRecord($cek);
 $id_poc = htmlspecialchars($row["id_poc"], ENT_QUOTES);
-$total_amount = $row['harga_poc'] * $row['volume_poc'];
 
-if ($row['disposisi'] == '1') {
+if (!$row['type_customer']) {
 	$cek12 = "
-		select a.top_payment, a.credit_limit, a.credit_limit_used as invoice_not_yet, a.credit_limit_reserved as po_not_yet, a.credit_limit_temp as cl_temp,
-		ROUND(c.not_yet, 0) as not_yet, ROUND(c.ov_up_07, 0) as ov_up_07, ROUND(c.ov_under_30, 0) as ov_under_30, ROUND(c.ov_under_60, 0) as ov_under_60, ROUND(c.ov_under_90, 0) as ov_under_90, ROUND(c.ov_up_90, 0) as ov_up_90 
-		from pro_customer a 
-		join pro_customer_admin_arnya c on a.id_customer = c.id_customer 
-		where a.id_customer = '" . $idc . "'
+			select a.top_payment, a.credit_limit, 
+			c.not_yet as not_yet, c.ov_up_07 as ov_up_07, c.ov_under_30 as ov_under_30, c.ov_under_60 as ov_under_60, c.ov_under_90 as ov_under_90, c.ov_up_90 as ov_up_90 
+			from pro_customer a 
+			join pro_customer_admin_arnya c on a.id_customer = c.id_customer 
+			where a.id_customer = '" . $idc . "'
 		";
 	$row12 = $con->getRecord($cek12);
-	$arnya = $row12['not_yet'] + $row12['ov_up_07'] + $row12['ov_under_30'] + $row12['ov_under_60'] + $row12['ov_under_90'] + $row12['ov_up_90'];
-	$reminding = ($row12['credit_limit'] ? $row12['credit_limit'] + $row12['cl_temp'] - $arnya : 0);
+	$arnya =  $row12['not_yet'] + $row12['ov_up_07'] + $row12['ov_under_30'] + $row12['ov_under_60'] + $row12['ov_under_90'] + $row12['ov_up_90'];
+	$reminding = ($row12['credit_limit'] ? $row12['credit_limit'] - $arnya : 0);
 	$row12['reminding'] = ($reminding ? $reminding : 0);
+	//echo $row['reminding']; exit; 
 }
 
 $cek2 = "select * from pro_sales_confirmation_log where id_sales = '" . $id . "'";
@@ -63,8 +64,8 @@ $arrT = array(
 	"Manufacture"
 );
 
-// $query = "select * from pro_button_control where button='SC'";
-// $row_button = $con->getRecord($query);
+$query = "select * from pro_button_control where button='SC'";
+$row_button = $con->getRecord($query);
 ?>
 <!DOCTYPE html>
 <html lang="en">

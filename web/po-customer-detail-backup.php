@@ -108,11 +108,7 @@ if ($rsm['poc_approved'] == 1)
 else if ($rsm['poc_approved'] == 2) {
 	$disposisi = 'Ditolak ' . $arrPosisi[$rsm['disposisi']];
 } else if ($rsm['disposisi_poc'] == 0)
-	if ($rsm['is_draft'] == 1) {
-		$disposisi = 'Draft';
-	} else {
-		$disposisi = 'Terdaftar';
-	}
+	$disposisi = 'Terdaftar';
 else if ($rsm['disposisi_poc'] == 1)
 	$disposisi = 'Verifikasi ' . $arrPosisi[$rsm['disposisi']];
 else $disposisi = '';
@@ -352,23 +348,6 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 													<td><?php echo $rsm['sm_summary']; ?></td>
 												</tr>
 											<?php } ?>
-											<tr>
-												<td>
-													STATUS
-												</td>
-												<td>:</td>
-												<td>
-													<?php if (intval($cek_po) == 0) : ?>
-														<?php if ($rsm['is_draft'] == 1) : ?>
-															<b>OPEN (Draft)</b>
-														<?php else : ?>
-															<b>OPEN</b>
-														<?php endif ?>
-													<?php else : ?>
-														<b>CLOSED</b>
-													<?php endif ?>
-												</td>
-											</tr>
 										</table>
 									</div>
 
@@ -381,9 +360,7 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 												<?php } ?>
 												<?php if ($rsm['disposisi_poc'] == 0 || $rsm['poc_approved'] == 2) : ?>
 													<a class="btn btn-primary jarak-kanan" style="width:80px;" href="<?php echo $link2; ?>">Edit</a>
-													<?php if ($rsm['is_draft'] == 0) : ?>
-														<a class="btn btn-info jarak-kanan izin-pd" style="width:100px;" href="<?php echo $link3; ?>">Persetujuan</a>
-													<?php endif ?>
+													<a class="btn btn-info jarak-kanan izin-pd" style="width:100px;" href="<?php echo $link3; ?>">Persetujuan</a>
 													<a class="btn btn-primary jarak-kanan" href="<?php echo $link2; ?>">Attachment</a>
 												<?php else : ?>
 													<?php if ($resVolume['jum_vol_realisasi'] < $rsm['volume_poc']) : ?>

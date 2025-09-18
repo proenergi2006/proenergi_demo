@@ -91,7 +91,7 @@ $total_po = $rsm['harga_poc'] * $rsm['volume_poc'];
 								</div>
 								<div class="col-md-6">
 									<div class="form-group form-group-sm">
-										<label class="control-label col-md-5">Nomor POC</label>
+										<label class="control-label col-md-5">Nomor PO</label>
 										<div class="col-md-7">
 											<input type="text" name="nomor_poc" id="nomor_poc" class="form-control text-left" value="<?= $rsm['nomor_poc'] ?>" readonly>
 										</div>
@@ -102,7 +102,7 @@ $total_po = $rsm['harga_poc'] * $rsm['volume_poc'];
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group form-group-sm">
-										<label class="control-label col-md-4">Jumlah CL Temporary</label>
+										<label class="control-label col-md-4">Total PO</label>
 										<div class="col-md-6">
 											<div class="input-group">
 												<span class="input-group-addon">Rp</span>
@@ -113,9 +113,9 @@ $total_po = $rsm['harga_poc'] * $rsm['volume_poc'];
 								</div>
 								<div class="col-md-6">
 									<div class="form-group form-group-sm">
-										<label class="control-label col-md-5">Jumlah TOP Temporary</label>
+										<label class="control-label col-md-5">Proposed Temporary TOP</label>
 										<div class="col-md-4">
-											<input type="text" name="top_temp" id="top_temp" class="form-control text-right" value="0" disabled>
+											<input type="text" name="top_temp" id="top_temp" class="form-control text-right hitung" placeholder="0">
 										</div>
 									</div>
 								</div>
@@ -185,6 +185,7 @@ $total_po = $rsm['harga_poc'] * $rsm['volume_poc'];
 
 	<script>
 		$(document).ready(function() {
+			$(".hitung").number(true, 0, ".", ",");
 
 			document.getElementById("btnSbmt").addEventListener("click", function(e) {
 				Swal.fire({

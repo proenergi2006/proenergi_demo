@@ -46,6 +46,7 @@ $termPayment = $arr_payment[$jns_payment];
 		text-align: left;
 		font-weight: normal;
 		color: #333;
+		width: 50%;
 	}
 
 	.ar-balance-table td {
@@ -63,6 +64,7 @@ $termPayment = $arr_payment[$jns_payment];
 				<th class="text-center" width="250">Customer Name</th>
 				<th class="text-center" width="150">TOP</th>
 				<th class="text-center" width="150">Credit Limit</th>
+				<th class="text-center" width="150">Credit Limit Temporary</th>
 				<th class="text-center" width="200">Business</th>
 				<th class="text-center" width="200">Marketing</th>
 			</tr>
@@ -84,6 +86,10 @@ $termPayment = $arr_payment[$jns_payment];
 					<?php echo number_format($row['credit_limit']); ?>
 					<input type="hidden" id="cl" name="cl" value="<?php echo $row['credit_limit']; ?>" />
 				</td>
+				<td class="text-right">
+					<?php echo number_format($row['disposisi'] == '1' ? $row['cl_temp'] : $row['credit_limit_temp']); ?>
+					<input type="hidden" id="cl_temp" name="cl_temp" value="<?= $row['disposisi'] == '1' ? $row['cl_temp'] : $row['credit_limit_temp']; ?>" />
+				</td>
 				<td class="text-center"><?php echo ($row['tipe_bisnis']) ? $arrT[$row['tipe_bisnis']] : ''; ?></td>
 				<td class="text-center"><?php echo $row['marketing']; ?></td>
 			</tr>
@@ -94,59 +100,59 @@ $termPayment = $arr_payment[$jns_payment];
 <div class="ar-balance-wrapper">
 	<table class="ar-balance-table">
 		<tr>
-			<th>Credit Limit</th>
+			<th>Invoice not issued yet</th>
 			<td>
-				Rp <?php echo number_format($row['credit_limit'], 0, ',', '.'); ?>
-				<input type="hidden" name="credit_limit" readonly value="<?= $row12['credit_limit']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['po_not_yet'] : $row['po_not_yet'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung reminder" name="po_not_yet" readonly value="<?= $row['disposisi'] == '1' ? $row12['po_not_yet'] : $row['po_not_yet']; ?>">
 			</td>
 		</tr>
 		<tr>
 			<th>AR Not yet</th>
 			<td>
-				Rp <?php echo number_format($row12['not_yet'], 0, ',', '.'); ?>
-				<input type="hidden" name="not_yet" readonly value="<?= $row12['not_yet']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['not_yet'] : $row['not_yet'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung rimender" name="not_yet" value="<?= $row['disposisi'] == '1' ? $row12['not_yet'] : $row['not_yet']; ?>" <?= $row['disposisi'] == '2' ? 'readonly' : '' ?>>
 			</td>
 		</tr>
 		<tr>
 			<th>AR Overdue 1–7 days</th>
 			<td>
-				Rp <?php echo number_format($row12['ov_up_07'], 0, ',', '.'); ?>
-				<input type="hidden" name="ov_up_07" readonly value="<?= $row12['ov_up_07']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['ov_up_07'] : $row['ov_up_07'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung rimender" name="ov_up_07" value="<?= $row['disposisi'] == '1' ? $row12['ov_up_07'] : $row['ov_up_07']; ?>" <?= $row['disposisi'] == '2' ? 'readonly' : '' ?>>
 			</td>
 		</tr>
 		<tr>
 			<th>AR Overdue 8–30 days</th>
 			<td>
-				Rp <?php echo number_format($row12['ov_under_30'], 0, ',', '.'); ?>
-				<input type="hidden" name="ov_under_30" readonly value="<?= $row12['ov_under_30']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['ov_under_30'] : $row['ov_under_30'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung rimender" name="ov_under_30" value="<?= $row['disposisi'] == '1' ? $row12['ov_under_30'] : $row['ov_under_30']; ?>" <?= $row['disposisi'] == '2' ? 'readonly' : '' ?>>
 			</td>
 		</tr>
 		<tr>
 			<th>AR Overdue 31–60 days</th>
 			<td>
-				Rp <?php echo number_format($row12['ov_under_60'], 0, ',', '.'); ?>
-				<input type="hidden" name="ov_under_60" readonly value="<?= $row12['ov_under_60']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['ov_under_60'] : $row['ov_under_60'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung rimender" name="ov_under_60" value="<?= $row['disposisi'] == '1' ? $row12['ov_under_60'] : $row['ov_under_60']; ?>" <?= $row['disposisi'] == '2' ? 'readonly' : '' ?>>
 			</td>
 		</tr>
 		<tr>
 			<th>AR Overdue 61–90 days</th>
 			<td>
-				Rp <?php echo number_format($row12['ov_under_90'], 0, ',', '.'); ?>
-				<input type="hidden" name="ov_under_90" readonly value="<?= $row12['ov_under_90']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['ov_under_90'] : $row['ov_under_90'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung rimender" name="ov_under_90" value="<?= $row['disposisi'] == '1' ? $row12['ov_under_90'] : $row['ov_under_90']; ?>" <?= $row['disposisi'] == '2' ? 'readonly' : '' ?>>
 			</td>
 		</tr>
 		<tr>
 			<th>AR Overdue > 90 days</th>
 			<td>
-				Rp <?php echo number_format($row12['ov_up_90'], 0, ',', '.'); ?>
-				<input type="hidden" name="ov_up_90" readonly value="<?= $row12['ov_up_90']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['ov_up_90'] : $row['ov_up_90'], 0, ',', '.'); ?> -->
+				<input type="text" class="form-control hitung rimender" name="ov_up_90" value="<?= $row['disposisi'] == '1' ? $row12['ov_up_90'] : $row['ov_up_90']; ?>" <?= $row['disposisi'] == '2' ? 'readonly' : '' ?>>
 			</td>
 		</tr>
 		<tr>
 			<th>Credit Limit Remaining</th>
 			<td>
-				Rp <?php echo number_format($row12['reminding'], 0, ',', '.'); ?>
-				<input type="hidden" name="reminding" readonly value="<?= $row12['reminding']; ?>">
+				<!-- Rp <?php echo number_format($row['disposisi'] == '1' ? $row12['reminding'] : $row['reminding'], 0, ',', '.'); ?> -->
+				<input type="text" name="reminding" class="form-control hitung" value="<?= $row['disposisi'] == '1' ? $row12['reminding'] : $row['reminding']; ?>" readonly>
 			</td>
 		</tr>
 	</table>
@@ -721,23 +727,38 @@ $_hidden = 'style="display: none;"';
 		$('.rimender').on('keyup change blur', hitung_arnya);
 
 		function hitung_arnya() {
-			var creditlimit = parseFloat($('input[name="cl"]').val().replace(",", "")) || 0;
-			var not_yet = parseFloat($('input[name="not_yet"]').val().replace(",", "")) || 0;
-			var ov_up_07 = parseFloat($('input[name="ov_up_07"]').val().replace(",", "")) || 0;
-			var ov_under_30 = parseFloat($('input[name="ov_under_30"]').val().replace(",", "")) || 0;
-			var ov_under_60 = parseFloat($('input[name="ov_under_60"]').val().replace(",", "")) || 0;
-			var ov_under_90 = parseFloat($('input[name="ov_under_90"]').val().replace(",", "")) || 0;
-			var ov_up_90 = parseFloat($('input[name="ov_up_90"]').val().replace(",", "")) || 0;
-			var amount_po = parseFloat($('input[name="amount_po"]').val().replace(",", "")) || 0;
+			var creditlimit = parseFloat($('input[name="cl"]').val().replace(/,/g, "")) || 0;
+			var creditlimit_temp = parseFloat($('input[name="cl_temp"]').val().replace(/,/g, "")) || 0;
 
-			var nilai_ar = not_yet + ov_up_07 + ov_under_30 + ov_under_60 + ov_under_90 + ov_up_90;
-			var nilai_cl = (creditlimit ? creditlimit - nilai_ar : 0);
-			var nilai_sl = (amount_po > nilai_cl ? (amount_po - nilai_cl) : 0);
+			var po_not_yet = parseFloat($('input[name="po_not_yet"]').val().replace(/,/g, "")) || 0;
+			var not_yet = parseFloat($('input[name="not_yet"]').val().replace(/,/g, "")) || 0;
+			var ov_up_07 = parseFloat($('input[name="ov_up_07"]').val().replace(/,/g, "")) || 0;
+			var ov_under_30 = parseFloat($('input[name="ov_under_30"]').val().replace(/,/g, "")) || 0;
+			var ov_under_60 = parseFloat($('input[name="ov_under_60"]').val().replace(/,/g, "")) || 0;
+			var ov_under_90 = parseFloat($('input[name="ov_under_90"]').val().replace(/,/g, "")) || 0;
+			var ov_up_90 = parseFloat($('input[name="ov_up_90"]').val().replace(/,/g, "")) || 0;
+
+			var amount_po = parseFloat($('input[name="amount_po"]').val().replace(/,/g, "")) || 0;
+
+			// Hitung total credit limit dan AR
+			var total_cl = creditlimit + creditlimit_temp;
+			var total_ar = po_not_yet + not_yet + ov_up_07 + ov_under_30 + ov_under_60 + ov_under_90 + ov_up_90;
+
+			// Hitung sisa limit
+			var nilai_cl = total_cl - total_ar;
+
+			// Hitung kekurangan (ADD CL)
+			var nilai_sl = 0;
+			if (nilai_cl < 0) {
+				nilai_sl = Math.abs(nilai_cl) + amount_po;
+			} else if (amount_po > nilai_cl) {
+				nilai_sl = amount_po - nilai_cl;
+			}
+
 			var unblock = false;
-
 			$("input[name='reminding']").val(nilai_cl);
 
-			if (amount_po > nilai_cl) unblock = true;
+			if (nilai_sl > 0) unblock = true;
 			if (ov_up_07 > 0 || ov_under_30 > 0 || ov_under_60 > 0 || ov_under_90 > 0 || ov_up_90 > 0) unblock = true;
 
 			if (unblock) {
@@ -749,6 +770,7 @@ $_hidden = 'style="display: none;"';
 				$("input[name='add_cl']").val('');
 				$('._proposed').addClass('hidden');
 			}
+
 		}
 
 
