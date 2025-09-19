@@ -327,7 +327,7 @@ if ($act == 'cek') {
 				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
 				$rowget_cabang = $con->getRecord($queryget_cabang);
 
-				if ($rowget['id_accurate'] != null) {
+				if ($rowget['kode_vendor'] != null) {
 
 					// if ($ems1) {
 					// 	$rms1 = $con->getResult($ems1);
