@@ -82,26 +82,26 @@ $pesn .= "<p>" . BASE_SERVER . "</p>";
 
 if ($oke) {
 
-    // if ($ems1) {
-    //     $rms1 = $con->getResult($ems1);
-    //     $mail = new PHPMailer;
-    //     $mail->isSMTP();
-    //     $mail->Host = 'smtp.gmail.com';
-    //     $mail->Port = 465;
-    //     $mail->SMTPSecure = 'ssl';
-    //     $mail->SMTPAuth = true;
-    //     $mail->SMTPKeepAlive = true;
-    //     $mail->Username = USR_EMAIL_PROENERGI202389;
-    //     $mail->Password = PWD_EMAIL_PROENERGI202389;
+    if ($ems1) {
+        $rms1 = $con->getResult($ems1);
+        $mail = new PHPMailer;
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 465;
+        $mail->SMTPSecure = 'ssl';
+        $mail->SMTPAuth = true;
+        $mail->SMTPKeepAlive = true;
+        $mail->Username = USR_EMAIL_PROENERGI202389;
+        $mail->Password = PWD_EMAIL_PROENERGI202389;
 
-    //     $mail->setFrom(USR_EMAIL_PROENERGI202389, 'Pro-Energi');
-    //     foreach ($rms1 as $datms) {
-    //         $mail->addAddress($datms['email_user']);
-    //     }
-    //     $mail->Subject = $sbjk;
-    //     $mail->msgHTML($pesn);
-    //     $mail->send();
-    // }
+        $mail->setFrom(USR_EMAIL_PROENERGI202389, 'Pro-Energi');
+        foreach ($rms1 as $datms) {
+            $mail->addAddress($datms['email_user']);
+        }
+        $mail->Subject = $sbjk;
+        $mail->msgHTML($pesn);
+        $mail->send();
+    }
 
     //Approve CEO untuk Accurate agar membuka PO yang ditutup sebelum di verifikasi CEO
     if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 21) {
