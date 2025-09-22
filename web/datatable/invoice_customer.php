@@ -68,7 +68,8 @@ if ($tot_record == 0) {
 	$result 	= $con->getResult($sql);
 	foreach ($result as $data) {
 		$sql02 	= "SELECT 
-					a.*, 
+					a.*,
+					c.created_time as tgl_create_po,
 					d.harga_dasar, 
 					d.detail_rincian, 
 					d.pembulatan, 
@@ -91,6 +92,7 @@ if ($tot_record == 0) {
 
 				SELECT 
 					a.*, 
+					c.created_time as tgl_create_po,
 					d.harga_dasar, 
 					d.detail_rincian, 
 					d.pembulatan, 
@@ -306,7 +308,11 @@ if ($tot_record == 0) {
 				if ($sesrol == '25') {
 					$btnBayar = "";
 				} else {
-					$btnBayar = '<a target="_blank" class="margin-sm btn btn-action btn-success" title="Pembayaran" href="' . $linkBayar . '"><i class="fas fa-file-invoice"></i></a>';
+					if ($result02['tgl_create_po'] < '2025-10-01 00:00:00') {
+						$btnBayar = '<a target="_blank" class="margin-sm btn btn-action btn-success" title="Pembayaran" href="' . $linkBayar . '"><i class="fas fa-file-invoice"></i></a>';
+					} else {
+						$btnBayar = '';
+					}
 				}
 			} else {
 				$linkBayar = "";
@@ -318,7 +324,11 @@ if ($tot_record == 0) {
 				if ($sesrol == '25') {
 					$btnBayar = "";
 				} else {
-					$btnBayar = '<a target="_blank" class="margin-sm btn btn-action btn-success" title="Pembayaran" href="' . $linkBayar . '"><i class="fas fa-file-invoice"></i></a>';
+					if ($result02['tgl_create_po'] < '2025-10-01 00:00:00') {
+						$btnBayar = '<a target="_blank" class="margin-sm btn btn-action btn-success" title="Pembayaran" href="' . $linkBayar . '"><i class="fas fa-file-invoice"></i></a>';
+					} else {
+						$btnBayar = '';
+					}
 				}
 			} else {
 				$linkBayar = "";
@@ -465,6 +475,7 @@ if ($tot_record == 0) {
 				' . $btn_detail_pembayaran . '
 				</td>
 				<td class="text-center action">
+					' . $btnBayar . '
 					' . $btnCetak . '
 					' . $btnEdit . '
 					' . $btnHapus . '
