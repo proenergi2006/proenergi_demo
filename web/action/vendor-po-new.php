@@ -520,7 +520,7 @@ if ($act == 'cek') {
 					$queryget = "SELECT * FROM pro_master_vendor WHERE id_master = '" . $rowget['id_vendor'] . "'";
 					$rowgetvendor = $con->getRecord($queryget);
 
-					if ($rowgetvendor['id_accurate'] != null) {
+					if ($rowgetvendor['kode_vendor'] != null) {
 
 						$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
 						// Data yang akan dikirim dalam format JSON
@@ -687,7 +687,7 @@ if ($act == 'cek') {
 				$queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
 				$rowget = $con->getRecord($queryget);
 
-				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $dt6 . "'";
+				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $rowget['id_terminal'] . "'";
 				$alamat = $con->getRecord($ambil_alamat);
 
 				$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
@@ -749,10 +749,47 @@ if ($act == 'cek') {
 			$oke  = $oke && !$con->hasError();
 
 			if ($oke) {
-				$con->commit();
-				$con->close();
-				header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
-				exit();
+				$queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
+				$rowget = $con->getRecord($queryget);
+
+				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $rowget['id_terminal'] . "'";
+				$alamat = $con->getRecord($ambil_alamat);
+
+				$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
+
+				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+				$rowget_cabang = $con->getRecord($queryget_cabang);
+
+				$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+
+				$data2 = array(
+					"id"        		=> $rowget['id_accurate'],
+					"toAddress" 		=> $detail_alamat,
+					'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+					"manualClosed" 		=> true,
+					"closeReason" 		=> 'CLOSE PO '.$tgl_close.' - volume close = '.$volume_close
+				);
+				$jsonData2 = json_encode($data2);
+				$result_close = curl_post($urlnya, $jsonData2);
+				
+				if ($result_close['s'] == true) {
+
+					$con->commit();
+					$con->close();
+					header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+					exit();
+				} else {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+				}
+				// $con->commit();
+				// $con->close();
+				// header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+				// exit();
 			} else {
 				$con->rollBack();
 				$con->clearError();
