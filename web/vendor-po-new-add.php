@@ -155,9 +155,6 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $dt8         = "";
     $ket        = "";
     $dt10         = "";
-
-    $produk_acc = "SELECT * FROM pro_master_produk_accurate";
-    $res_produk_acc = $con->getResult($produk_acc);
 }
 
 // GET KODE ITEM ACCURATE
