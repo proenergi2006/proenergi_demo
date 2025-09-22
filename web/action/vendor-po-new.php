@@ -472,10 +472,10 @@ if ($act == 'cek') {
 
 					$sql = "
 					insert into new_pro_inventory_vendor_po_history(id_po_supplier, id_vendor, id_produk, id_terminal, nomor_po, tanggal_inven, volume_po, harga_tebus, kategori_oa, ongkos_angkut, kategori_plat, iuran_migas, nominal_migas, kd_tax, subtotal, ppn_11, dpp_11_12, ppn_12, pph_22, nilai_pbbkb, pbbkb, total_order,  terms, terms_day, keterangan, created_time, created_ip, created_by, disposisi_po,is_resubmission,resubmission_count,keterangan_resubmission)
-					values  ('" . $rowget['id_master'] . "', '" . $rowget['id_vendor'] . "', '" . $rowget['id_produk'] . "', '" . $rowget['id_terminal'] . "', '" . $rowget['nomor_po'] . "', '" . tgl_db($rowget['tanggal_inven']) . "', '" . $rowget['volume_po'] . "', '" . $rowget['harga_tebus'] . "', '" . $rowget['kategori_oa'] . "', '" . $rowget['ongkos_angkut'] . "', '" . $rowget['kategori_plat'] . "', '" . $rowget['iuran_migas'] . "', '" . $rowget['nominal_iuran'] . "', '" . $rowget['kd_tax'] . "', 
+					values  ('" . $rowget['id_master'] . "', '" . $rowget['id_vendor'] . "', '" . $rowget['id_produk'] . "', '" . $rowget['id_terminal'] . "', '" . $rowget['nomor_po'] . "', '" . $rowget['tanggal_inven'] . "', '" . $rowget['volume_po'] . "', '" . $rowget['harga_tebus'] . "', '" . $rowget['kategori_oa'] . "', '" . $rowget['ongkos_angkut'] . "', '" . $rowget['kategori_plat'] . "', '" . $rowget['iuran_migas'] . "', '" . $rowget['nominal_iuran'] . "', '" . $rowget['kd_tax'] . "', 
 					'" . $rowget['subtotal'] . "', '" . $rowget['ppn_11'] . "', '" . $rowget['dpp11_12'] . "', '" . $rowget['ppn_12'] . "', '" . $rowget['pph_22'] . "', '" . $rowget['pbbkb_tawar'] . "', '" . $rowget['pbbkb'] . "', '" . $rowget['totalOrder'] . "', '" . $rowget['terms'] . "', '" . $rowget['terms_day'] . "', '" . $rowget['ket'] . "', '" . $rowget['created_time'] . "', '" . $rowget['created_ip'] . "', '" . $rowget['created_by'] . "', '" . $rowget['disposisi_po'] . "','" . $rowget['is_resubmission'] . "','" . $rowget['resubmission_count'] . "','" . $keterangan_resubmission . "')";
 					$con->setQuery($sql);
-					$oke  = $oke && !$con->hasError();
+				$oke  = $oke && !$con->hasError();
 				}
 			}
 

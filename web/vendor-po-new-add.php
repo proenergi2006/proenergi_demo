@@ -15,7 +15,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $section     = "PO Suplier";
     $idr = isset($enk["idr"]) ? htmlspecialchars($enk["idr"], ENT_QUOTES) : '';
     $sql = "
-			select a.*, a1.id_po_supplier, b.jenis_produk, b.merk_dagang, d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal 
+			select a.*, a1.id_po_supplier, b.jenis_produk, b.merk_dagang, d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, f.keterangan_resubmission
 			from new_pro_inventory_vendor_po a 
 			join pro_master_produk b on a.id_produk = b.id_master 
 			join pro_master_vendor d on a.id_vendor = d.id_master 

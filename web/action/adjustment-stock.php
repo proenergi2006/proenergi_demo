@@ -263,7 +263,7 @@ if ($act == 'add') {
                     'adjustmentAccountNo'   => $akun_penyesuaian,
                     'transDate'             => $tgl_penerimaan,
                     'description'           => $keterangan,
-                    'branchName'  => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+                    'branchName'            => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
                     'detailItem'            => array([
                         'itemAdjustmentType' => "ADJUSTMENT_IN",
                         'itemNo'             => $kode_item_terima,
@@ -315,7 +315,7 @@ if ($act == 'add') {
                     'transDate'         => $tgl,
                     'description'       => $keterangan,
                     'vendorNo'          => $kode_vendor,
-                    'branchName'        => ($rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang']),
+                    'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
                     'detailItem'        => array([
                         'itemNo'       => strval($result_item['d']['detailItem'][0]['item']['no']),
                         'quantity'     => $adj_inven_return
