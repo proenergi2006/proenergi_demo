@@ -150,7 +150,7 @@ if ($tot_record <= 0) {
         <td class="text-right"> 
 <p style="margin-bottom:0px;">PO: ' . number_format($data['harga_po']) . '</p>
 <p style="margin-bottom:0px;">RI : ' . number_format($data['harga_tebus']) . '</p></td>
-		<td class="text-right">' . $status . '</td>';
+		<td class="text-right">' . $resubmit . $status . '</td>';
 
 
         // Tambahkan blok action berdasarkan nilai $showAction
