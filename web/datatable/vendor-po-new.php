@@ -76,6 +76,7 @@ if ($tot_record <= 0) {
     foreach ($result as $data) {
         $count++;
         $status        = "";
+        $resubmit        = "";
         $background = "";
 
 

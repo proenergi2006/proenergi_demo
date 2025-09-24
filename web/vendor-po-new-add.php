@@ -115,7 +115,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             if ($name === 'PBBKB' && (in_array($notes, ['null', null, 'NULL', NULL]))) {
                 $biaya['pbbkb'] = [
                     'name' => $name,
-                    'notes' => 'null',
+                    'notes' => '',
                     'allocate' => $allocate
                 ];
             } elseif (strpos($name, '22') !== false) {
