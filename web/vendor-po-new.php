@@ -14,7 +14,21 @@ $arrBln = array(1 => "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Ju
 <!DOCTYPE html>
 <html lang="en">
 <?php load_headHtml(BASE_PATH_CSS, BASE_PATH_JS, array("js" => array("myGrid", "jqueryUI"), "css" => array("jqueryUI"))); ?>
-
+<style type="text/css">
+    .badge {
+        display: inline-block;
+        padding: 0.5em 1em;
+        border-radius: 0.5em;
+        color: #fff;
+        font-size: 0.9em;
+        margin: 0.5em;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .badge-warning {
+        background-color:rgb(242, 163, 28);
+    }
+</style>
 <body class="skin-blue fixed">
     <?php include_once($public_base_directory . "/web/layout/header.php"); ?>
     <div class="wrapper row-offcanvas row-offcanvas-left">
