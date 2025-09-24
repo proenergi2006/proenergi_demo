@@ -220,21 +220,21 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <?= $res['nm_customer'] ?>
+            <?= strtoupper($res['nm_customer']) ?>
             <br>
-            <?= $res['alamat_customer'] ?>
+            <?= strtoupper($res['alamat_customer']) ?>
             <br>
-            <?= $res['nama_prov'] ?>
-            <?= $res['nama_kab'] ?>
+            <?= strtoupper($res['nama_prov']) ?>
+            <?= strtoupper($res['nama_kab']) ?>
             <?= $res['kode_pos'] ?>
         </td>
         <td></td>
         <td valign="top">
-            <?= $res03['wilayah_angkut'] ?>
-            <?= $res03['alamat_survey'] ?>
+            <?= strtoupper($res03['wilayah_angkut']) ?>
+            <?= strtoupper($res03['alamat_survey']) ?>
             <br>
-            <?= $res03['provinsi_angkut'] ?>
-            <?= $res03['kab_angkut'] ?>
+            <?= strtoupper($res03['provinsi_angkut']) ?>
+            <?= strtoupper($res03['kab_angkut']) ?>
         </td>
         <td></td>
     </tr>
@@ -578,7 +578,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 </b>
             </td>
             <td align="right">
-                <?= number_format(($sub_total*11)/12) ?>
+                <?= number_format(($sub_total * 11) / 12) ?>
             </td>
         </tr>
         <tr>
@@ -611,8 +611,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <?= number_format($grand_total) ?>
             </td>
         </tr>
-        <?php if ($res['total_bayar']!= 0): ?>
-                          
+        <?php if ($res['total_bayar'] != 0): ?>
+
             <tr>
                 <td colspan="6" class="b2" align="right">
                     <b>
@@ -633,7 +633,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         </td>
         <td align="left" class="b1 b2 b3 b4">
             <b>
-                <?php echo terbilang($grand_total) ?>
+                <?php echo terbilang(round($grand_total)) ?>
             </b>
         </td>
     </tr>
@@ -728,7 +728,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         </td>
     </tr>
 </table>
-<hr style="height: 3px; border: 0px solid #D6D6D6; border-top-width: 1px;">
+<!-- <hr style="height: 3px; border: 0px solid #D6D6D6; border-top-width: 1px;">
 <table>
     <tr>
         <td>
@@ -765,4 +765,4 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             <?= $res['marketing'] ?>
         </td>
     </tr>
-</table>
+</table> -->
