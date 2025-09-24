@@ -313,11 +313,13 @@ if ($oke) {
         $getItem = $result_so['d']['detailItem'];
 
         foreach ($getItem as $detail) {
-            $detailItems['detailItem'][] = [
-                "itemNo" => $detail['item']['no'],
-                "quantity" => $detail['quantity'],
-                "warehouseName" => $detail['warehouse']['name']
-            ];
+            if ($detail['item']['itemType'] == 'INVENTORY') {
+                $detailItems['detailItem'][] = [
+                    "itemNo" => $detail['item']['no'],
+                    "quantity" => $detail['quantity'],
+                    "warehouseName" => $detail['warehouse']['name']
+                ];
+            }
         }
 
         $data_sr = array(
