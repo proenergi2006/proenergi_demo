@@ -24,7 +24,7 @@ if (isset($_POST['kode_vendor']) && !empty($_POST['kode_vendor'])) {
     // Inisialisasi sesi cURL
     $ch = curl_init();
 
-    $bearerToken = 'aat.NTA.eyJ2IjoxLCJ1Ijo3NTM3MDEsImQiOjIwMDY3NzcsImFpIjo1MDAwMywiYWsiOiIxNzgyZjY0MS00ZjQ3LTQ0OTUtODk4Ny01OTdiMzMwNTlmZmIiLCJhbiI6IkFPTCAtU1lPUCIsImFwIjoiNjFkNDgwOGEtNGNmZS00MTFjLWI2ZjUtOTUyNDg3ZmVmMjk0IiwidCI6MTc1NTQ5ODE4NjI5NH0.TmgruJj7NKY685RR5aTbkKQVY2EwYBLuIuhLLov4AzctCPI2WLnZLWzd42588aIcb3Rd78Twk2C2ScBOken9TsJcAkNV+jcHT6PGdLq9tAiUvfcd4K+bModLapDpvV/3YVODgxDNnSOyxW//pfxuo57SjxDvkpCVqaIZ9CRnPIHtlU5qC6P+8BUL15QhX4jLT7O80g1nE+8=.Sx1+qzuyjW3YlxVzp+3z4OO26YjstDqshexfaLurDMg';
+    $bearerToken = 'aat.NTA.eyJ2IjoxLCJ1Ijo3NTM3MDEsImQiOjIwOTQ2NTcsImFpIjo1MDAwMywiYWsiOiIxNzgyZjY0MS00ZjQ3LTQ0OTUtODk4Ny01OTdiMzMwNTlmZmIiLCJhbiI6IkFPTCAtU1lPUCIsImFwIjoiNjFkNDgwOGEtNGNmZS00MTFjLWI2ZjUtOTUyNDg3ZmVmMjk0IiwidCI6MTc1ODY4MDE5ODc5Mn0.bxRRQfs5CVNwzTFmHM37R2TwSewYxUp3z1eypmNKreHwSX1JWtS+xEvWoqa9whj5CGGZyrKf+m96FylYTu3sA0vhdvdWCEQ5RDWpMpNcgXdxBPwPb33i3I6RWByQgAhCerQtHpNX6fCBkEwGMtEUFGzSxMy5UCbfR3tTI/J4NAxixna3e+nSjimNv4vhOcReSpSHJQUKjQw=.ZkHs9XU7hVr5G7jxi5HRexAVJJK0M+uN5ELer6uxv3k';
 
     $query_item = http_build_query([
         'fields' => 'id,number,shipDate',
