@@ -9,19 +9,32 @@ $oke = true;
 $con->beginTransaction();
 $con->clearError();
 
-// $data_customer = "SELECT id_customer, kode_pelanggan, nama_customer, credit_limit, credit_limit_used, credit_limit_reserved FROM pro_customer WHERE kode_pelanggan IS NOT NULL AND id_customer = 65";
-// $res_customer = $con->getResult($data_customer);
-
-// foreach ($res_customer as $rc) {
-//   $data_invoice = "SELECT id_invoice, id_customer, id_accurate, no_invoice, tgl_invoice, tgl_invoice_dikirim, total_invoice, total_bayar, status_ar FROM pro_invoice_admin WHERE id_customer = '" . $rc['id_customer'] . "' AND (is_lunas = 0 OR is_lunas IS NULL OR total_bayar = 0) AND tgl_invoice >= '2024-08-08' ORDER BY id_invoice DESC";
-//   $res_invoice = $con->getResult($data_invoice);
-//   // echo json_encode($res_invoice);
-//   // exit();
-// }
-
 $today = DateTime::createFromFormat('Y-m-d', date('Y-m-d'));
 
-$data_customer = "SELECT id_customer, top_payment FROM pro_customer WHERE kode_pelanggan IS NOT NULL AND id_customer = 4903";
+$data_customer = "SELECT c.id_customer, c.top_payment
+  FROM pro_customer c
+  WHERE c.kode_pelanggan IS NOT NULL
+    AND EXISTS (
+      SELECT 1
+      FROM pro_po_customer a
+      LEFT JOIN (
+        SELECT id_poc,
+               SUM(IF(COALESCE(realisasi_kirim,0)=0, COALESCE(volume_kirim,0), COALESCE(realisasi_kirim,0))) AS vol_plan,
+               SUM(COALESCE(realisasi_kirim,0)) AS realisasi
+        FROM pro_po_customer_plan
+        WHERE status_plan NOT IN (2,3)
+        GROUP BY id_poc
+      ) h ON h.id_poc = a.id_poc
+      LEFT JOIN (
+        SELECT id_poc, SUM(COALESCE(volume_close,0)) AS volume_close_po
+        FROM pro_po_customer_close
+        WHERE st_Aktif = 'Y'
+        GROUP BY id_poc
+      ) pc ON pc.id_poc = a.id_poc
+      WHERE a.id_customer = c.id_customer
+        AND a.tanggal_poc >= '2025-10-01'
+        AND (COALESCE(a.volume_poc,0) - COALESCE(h.vol_plan,0) - COALESCE(pc.volume_close_po,0)) > 0
+    )";
 $res_customer = $con->getResult($data_customer);
 
 foreach ($res_customer as $rc) {
