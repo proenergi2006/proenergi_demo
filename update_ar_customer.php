@@ -14,6 +14,8 @@ $today = DateTime::createFromFormat('Y-m-d', date('Y-m-d'));
 $data_customer = "SELECT c.id_customer, c.top_payment
   FROM pro_customer c
   WHERE c.kode_pelanggan IS NOT NULL
+
+    /* 1) Punya PO Customer dengan sisa buku > 0 sejak 2025-10-01 */
     AND EXISTS (
       SELECT 1
       FROM pro_po_customer a
@@ -22,9 +24,9 @@ $data_customer = "SELECT c.id_customer, c.top_payment
                SUM(IF(COALESCE(realisasi_kirim,0)=0, COALESCE(volume_kirim,0), COALESCE(realisasi_kirim,0))) AS vol_plan,
                SUM(COALESCE(realisasi_kirim,0)) AS realisasi
         FROM pro_po_customer_plan
-        WHERE status_plan NOT IN (2,3)
+        WHERE status_plan NOT IN (2,3)         -- exclude cancel/void
         GROUP BY id_poc
-      ) h ON h.id_poc = a.id_poc
+      ) h  ON h.id_poc  = a.id_poc
       LEFT JOIN (
         SELECT id_poc, SUM(COALESCE(volume_close,0)) AS volume_close_po
         FROM pro_po_customer_close
@@ -34,98 +36,113 @@ $data_customer = "SELECT c.id_customer, c.top_payment
       WHERE a.id_customer = c.id_customer
         AND a.tanggal_poc >= '2025-10-01'
         AND (COALESCE(a.volume_poc,0) - COALESCE(h.vol_plan,0) - COALESCE(pc.volume_close_po,0)) > 0
+    )
+
+    /* 2) Punya invoice outstanding (belum lunas & masih ada sisa bayar) */
+    AND EXISTS (
+      SELECT 1
+      FROM pro_invoice_admin ia
+      WHERE ia.id_customer = c.id_customer
+        AND ia.tgl_invoice_dikirim IS NOT NULL
+        AND (ia.is_lunas = 0 OR ia.is_lunas IS NULL)
+        AND (COALESCE(ia.total_invoice,0) - COALESCE(ia.total_bayar,0)) > 0
     )";
 $res_customer = $con->getResult($data_customer);
 
-foreach ($res_customer as $rc) {
-  $id_customer = $rc['id_customer'];
+if ($res_customer) {
+  foreach ($res_customer as $rc) {
+    $id_customer = $rc['id_customer'];
 
-  $data_invoice = "SELECT id_invoice, tgl_invoice, total_invoice, total_bayar, tgl_invoice_dikirim FROM pro_invoice_admin WHERE id_customer = '$id_customer' AND (is_lunas = 0 OR is_lunas IS NULL OR total_bayar = 0) AND tgl_invoice >= '2024-08-08' AND tgl_invoice_dikirim IS NOT NULL";
-  $res_invoice = $con->getResult($data_invoice);
+    $data_invoice = "SELECT id_invoice, tgl_invoice, total_invoice, total_bayar, tgl_invoice_dikirim FROM pro_invoice_admin WHERE id_customer = '$id_customer' AND (is_lunas = 0 OR is_lunas IS NULL OR total_bayar = 0) AND tgl_invoice >= '2024-08-08' AND tgl_invoice_dikirim IS NOT NULL";
+    $res_invoice = $con->getResult($data_invoice);
 
-  // Inisialisasi aging
-  $not_yet = $ov_up_07 = $ov_under_30 = $ov_under_60 = $ov_under_90 = $ov_up_90 = 0;
+    // Inisialisasi aging
+    $not_yet = $ov_up_07 = $ov_under_30 = $ov_under_60 = $ov_under_90 = $ov_up_90 = 0;
 
-  if (count($res_invoice) > 0) {
+    if (count($res_invoice) > 0) {
 
-    foreach ($res_invoice as $inv) {
-      $tgl_invoice_dikirim = new DateTime($inv['tgl_invoice_dikirim']);
-      $topDays = (int) $rc['top_payment']; // pastikan bertipe int
+      foreach ($res_invoice as $inv) {
+        $tgl_invoice_dikirim = new DateTime($inv['tgl_invoice_dikirim']);
+        $topDays = (int) $rc['top_payment']; // pastikan bertipe int
 
-      // Tambahkan TOP (misalnya 30 hari)
-      $tgl_jatuh_tempo = clone $tgl_invoice_dikirim; // supaya tidak merusak original
-      $tgl_jatuh_tempo->add(new DateInterval('P' . $topDays . 'D'));
+        // Tambahkan TOP (misalnya 30 hari)
+        $tgl_jatuh_tempo = clone $tgl_invoice_dikirim; // supaya tidak merusak original
+        $tgl_jatuh_tempo->add(new DateInterval('P' . $topDays . 'D'));
 
-      // Hitung selisih dari hari ini ke tanggal jatuh tempo
-      $interval = $tgl_jatuh_tempo->diff($today);
-      $selisih = (int) $interval->format('%a');
+        // Hitung selisih dari hari ini ke tanggal jatuh tempo
+        $interval = $tgl_jatuh_tempo->diff($today);
+        $selisih = (int) $interval->format('%a');
 
-      // Hitung sisa tagihan
-      $sisa_tagihan = (float)$inv['total_invoice'] - (float)$inv['total_bayar'];
-      $status_ar = "";
+        // Hitung sisa tagihan
+        $sisa_tagihan = (float)$inv['total_invoice'] - (float)$inv['total_bayar'];
+        $status_ar = "";
 
-      // echo json_encode($selisih);
-      // Jika tgl_invoice di masa depan, skip aging
-      if ($interval->invert === 1) {
-        // Invoice belum jatuh tempo, bisa abaikan atau masuk ke kategori khusus
-        $status_ar = 'notyet';
-        $not_yet += $sisa_tagihan;
-      } else {
-        // Aging seperti biasa
-        if ($selisih <= 7) {
-          $not_yet += $sisa_tagihan;
+        // echo json_encode($selisih);
+        // Jika tgl_invoice di masa depan, skip aging
+        if ($interval->invert === 1) {
+          // Invoice belum jatuh tempo, bisa abaikan atau masuk ke kategori khusus
           $status_ar = 'notyet';
-        } elseif ($selisih <= 30) {
-          $ov_up_07 += $sisa_tagihan;
-          $status_ar = 'ov_up_07';
-        } elseif ($selisih <= 60) {
-          $ov_under_30 += $sisa_tagihan;
-          $status_ar = 'ov_under_30';
-        } elseif ($selisih <= 90) {
-          $ov_under_60 += $sisa_tagihan;
-          $status_ar = 'ov_under_60';
-        } elseif ($selisih <= 120) {
-          $ov_under_90 += $sisa_tagihan;
-          $status_ar = 'ov_under_90';
+          $not_yet += $sisa_tagihan;
         } else {
-          $ov_up_90 += $sisa_tagihan;
-          $status_ar = 'ov_up_90';
+          // Aging seperti biasa
+          if ($selisih <= 7) {
+            $not_yet += $sisa_tagihan;
+            $status_ar = 'notyet';
+          } elseif ($selisih <= 30) {
+            $ov_up_07 += $sisa_tagihan;
+            $status_ar = 'ov_up_07';
+          } elseif ($selisih <= 60) {
+            $ov_under_30 += $sisa_tagihan;
+            $status_ar = 'ov_under_30';
+          } elseif ($selisih <= 90) {
+            $ov_under_60 += $sisa_tagihan;
+            $status_ar = 'ov_under_60';
+          } elseif ($selisih <= 120) {
+            $ov_under_90 += $sisa_tagihan;
+            $status_ar = 'ov_under_90';
+          } else {
+            $ov_up_90 += $sisa_tagihan;
+            $status_ar = 'ov_up_90';
+          }
         }
+
+        // Update status_ar per invoice
+        $id_invoice = $inv['id_invoice'];
+        $update_status = "UPDATE pro_invoice_admin SET status_ar = '$status_ar' WHERE id_invoice = '$id_invoice'";
+        $con->setQuery($update_status);
+        $oke  = $oke && !$con->hasError();
       }
 
-      // Update status_ar per invoice
-      $id_invoice = $inv['id_invoice'];
-      $update_status = "UPDATE pro_invoice_admin SET status_ar = '$status_ar' WHERE id_invoice = '$id_invoice'";
-      $con->setQuery($update_status);
-      $oke  = $oke && !$con->hasError();
-    }
+      // Update aging summary ke pro_customer_admin_arnya
+      $cek = "SELECT id_arnya FROM pro_customer_admin_arnya WHERE id_customer = '$id_customer'";
+      $res_cek = $con->getRecord($cek);
+      if ($res_cek) {
+        $update_summary = "UPDATE pro_customer_admin_arnya SET 
+        not_yet = '$not_yet',
+        ov_up_07 = '$ov_up_07',
+        ov_under_30 = '$ov_under_30',
+        ov_under_60 = '$ov_under_60',
+        ov_under_90 = '$ov_under_90',
+        ov_up_90 = '$ov_up_90'
+        WHERE id_customer = '$id_customer'";
+        $con->setQuery($update_summary);
+        $oke  = $oke && !$con->hasError();
+      }
 
-    // Update aging summary ke pro_customer_admin_arnya
-    $cek = "SELECT id_arnya FROM pro_customer_admin_arnya WHERE id_customer = '$id_customer'";
-    $res_cek = $con->getRecord($cek);
-    if ($res_cek) {
-      $update_summary = "UPDATE pro_customer_admin_arnya SET 
-      not_yet = '$not_yet',
-      ov_up_07 = '$ov_up_07',
-      ov_under_30 = '$ov_under_30',
-      ov_under_60 = '$ov_under_60',
-      ov_under_90 = '$ov_under_90',
-      ov_up_90 = '$ov_up_90'
-      WHERE id_customer = '$id_customer'";
-      $con->setQuery($update_summary);
-      $oke  = $oke && !$con->hasError();
+      $msg = "Update AR berhasil";
+    } else {
+      $msg = "Tidak ada data update";
     }
-
-    $msg = "Update AR berhasil";
-  } else {
-    $msg = "Tidak ada data update";
   }
-}
 
-if ($oke) {
-  $con->commit();
-  echo $msg;
+  if ($oke) {
+    $con->commit();
+    echo $msg;
+  } else {
+    $con->rollback();
+    echo "Update AR gagal. Transaksi dibatalkan.";
+  }
 } else {
   $con->rollback();
-  echo "Update AR gagal. Transaksi dibatalkan.";
+  echo "Tidak ada data";
 }
