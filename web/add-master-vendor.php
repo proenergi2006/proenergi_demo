@@ -17,6 +17,15 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $sql = "select * from pro_master_vendor where id_master = '" . $idr . "';";
     $rsm = $con->getRecord($sql);
     $chk = ($rsm['is_active']) ? "checked" : "";
+
+    $cek_po = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_vendor = '" . $idr . "'";
+    $get_po = $con->getRecord($cek_po);
+
+    if ($get_po) {
+        $readonly = "readonly";
+    } else {
+        $readonly = "";
+    }
 } else {
     $action     = "add";
     $section     = "Tambah Data Vendor";
@@ -85,7 +94,7 @@ if ($result['s'] == true) {
                                         </div>
                                         <div class="col-sm-3">
                                             <label>Inisial Vendor*</label>
-                                            <input type="text" id="inisial_vendor" name="inisial_vendor" class="form-control validate[required]" oninput="this.value = this.value.toUpperCase()" value="<?php echo $rsm['inisial_vendor']; ?>" />
+                                            <input type="text" id="inisial_vendor" name="inisial_vendor" class="form-control validate[required]" oninput="this.value = this.value.toUpperCase()" value="<?php echo $rsm['inisial_vendor']; ?>" <?= $readonly ?> />
                                         </div>
                                     </div>
                                     <div class="form-group row">
