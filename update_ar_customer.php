@@ -34,7 +34,7 @@ $data_customer = "SELECT c.id_customer, c.top_payment
         GROUP BY id_poc
       ) pc ON pc.id_poc = a.id_poc
       WHERE a.id_customer = c.id_customer
-        AND a.tanggal_poc >= '2025-10-01'
+        -- AND a.tanggal_poc >= '2025-10-01'
         AND (COALESCE(a.volume_poc,0) - COALESCE(h.vol_plan,0) - COALESCE(pc.volume_close_po,0)) > 0
     )
 

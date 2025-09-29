@@ -49,7 +49,7 @@ $tgl_close  = htmlspecialchars($_POST["tgl_close"], ENT_QUOTES);
 $volume_close     = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["volume"]), ENT_QUOTES);
 $kategori_plat	= htmlspecialchars($_POST["kategori_plat"], ENT_QUOTES);
 $iuran_migas	= htmlspecialchars($_POST["iuran_migas"], ENT_QUOTES);
-$nominal_iuran	= isset($_POST["nominal_iuran"])? htmlspecialchars(str_replace(array(","), array("", ""), $_POST["nominal_iuran"]), ENT_QUOTES):'0';
+$nominal_iuran	= isset($_POST["nominal_iuran"]) ? htmlspecialchars(str_replace(array(","), array("", ""), $_POST["nominal_iuran"]), ENT_QUOTES) : '0';
 $keterangan_resubmission	= htmlspecialchars($_POST["ket_resubmission"], ENT_QUOTES);
 $kode_item = $_POST["kode_item"];
 $kode_oa = $_POST["kode_item2"];
@@ -290,8 +290,18 @@ if ($act == 'cek') {
 		$arrNom = $con->getRecord($sql01);
 		$arrRom = array(1 => 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII');
 		$blnThn = $arrRom[intval(substr($dt1, 3, 2))] . '/' . substr($dt1, 8, 2);
-		$dt2 	= str_pad(($arrNom['nomor'] + 1), 3, '0', STR_PAD_LEFT) . '/' . strtoupper($arrNom['inisial_vendor']) . '/' . strtoupper($arrNom['inisial_cabang']) . '/' . $blnThn;
 
+		if ($arrNom['nomor'] == 0) {
+			$sql02 = "SELECT inisial_vendor FROM pro_master_vendor WHERE id_master = '" . $dt5 . "'";
+			$get_inisial = $con->getRecord($sql02);
+
+			$sql03 = "SELECT a.id_cabang, b.inisial_cabang FROM pro_master_terminal a JOIN pro_master_cabang b ON a.id_cabang=b.id_master WHERE a.id_master = '" . $dt6 . "'";
+			$get_cabang = $con->getRecord($sql03);
+
+			$dt2 = str_pad(($arrNom['nomor'] + 1), 3, '0', STR_PAD_LEFT) . '/' . strtoupper($get_inisial['inisial_vendor']) . '/' . strtoupper($get_cabang['inisial_cabang']) . '/' . $blnThn;
+		} else {
+			$dt2 	= str_pad(($arrNom['nomor'] + 1), 3, '0', STR_PAD_LEFT) . '/' . strtoupper($arrNom['inisial_vendor']) . '/' . strtoupper($arrNom['inisial_cabang']) . '/' . $blnThn;
+		}
 
 		if ($id1nya) {
 			$oke = true;
@@ -475,7 +485,7 @@ if ($act == 'cek') {
 					values  ('" . $rowget['id_master'] . "', '" . $rowget['id_vendor'] . "', '" . $rowget['id_produk'] . "', '" . $rowget['id_terminal'] . "', '" . $rowget['nomor_po'] . "', '" . $rowget['tanggal_inven'] . "', '" . $rowget['volume_po'] . "', '" . $rowget['harga_tebus'] . "', '" . $rowget['kategori_oa'] . "', '" . $rowget['ongkos_angkut'] . "', '" . $rowget['kategori_plat'] . "', '" . $rowget['iuran_migas'] . "', '" . $rowget['nominal_migas'] . "', '" . $rowget['kd_tax'] . "', 
 					'" . $rowget['subtotal'] . "', '" . $rowget['ppn_11'] . "', '" . $rowget['dpp_11_12'] . "', '" . $rowget['ppn_12'] . "', '" . $rowget['pph_22'] . "', '" . $rowget['nilai_pbbkb'] . "', '" . $rowget['pbbkb'] . "', '" . $rowget['total_order'] . "', '" . $rowget['terms'] . "', '" . $rowget['terms_day'] . "', '" . $rowget['keterangan'] . "', '" . $rowget['created_time'] . "', '" . $rowget['created_ip'] . "', '" . $rowget['created_by'] . "', '" . $rowget['disposisi_po'] . "','" . $rowget['is_resubmission'] . "','" . $rowget['resubmission_count'] . "','" . $keterangan_resubmission . "')";
 					$con->setQuery($sql);
-				$oke  = $oke && !$con->hasError();
+					$oke  = $oke && !$con->hasError();
 				}
 			}
 
@@ -769,11 +779,11 @@ if ($act == 'cek') {
 					"toAddress" 		=> $detail_alamat,
 					'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 					"manualClosed" 		=> true,
-					"closeReason" 		=> 'CLOSE PO '.$tgl_close.' - volume close = '.$volume_close
+					"closeReason" 		=> 'CLOSE PO ' . $tgl_close . ' - volume close = ' . $volume_close
 				);
 				$jsonData2 = json_encode($data2);
 				$result_close = curl_post($urlnya, $jsonData2);
-				
+
 				if ($result_close['s'] == true) {
 
 					$con->commit();
