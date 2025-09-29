@@ -187,12 +187,12 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 												<?php $currval = ($model['tgl_invoice'] ? date("d/m/Y", strtotime($model['tgl_invoice'])) : ''); ?>
-												<input type="text" id="tgl_invoice" name="tgl_invoice" class="form-control datepicker" value="<?php echo $currval; ?>" autocomplete="off" required <?= in_array($model['jenis'], ['split_oa', 'split_pbbkb']) ?'readonly' :  ''  ?> />
-												<?php if(in_array($model['jenis'], ['split_oa', 'split_pbbkb'])):?>
+												<input type="text" id="tgl_invoice" name="tgl_invoice" class="form-control datepicker" value="<?php echo $currval; ?>" autocomplete="off" required <?= in_array($model['jenis'], ['split_oa', 'split_pbbkb']) ? 'readonly' :  ''  ?> />
+												<?php if (in_array($model['jenis'], ['split_oa', 'split_pbbkb'])): ?>
 													<input type="hidden" name="tgl_invoice" value="<?php echo $currval; ?>">
-												
 
-												<?php endif?>
+
+												<?php endif ?>
 											</div>
 										</div>
 									</div>
@@ -768,7 +768,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 														$harga_kirim = ($data1['harga_kirim']) ? number_format($data1['harga_kirim']) : 0;
 													}
 												}
-												$readonly_tbl='';
+												$readonly_tbl = '';
 												if ($data1['jenis'] == "harga_dasar") {
 													$jumlah = ((float)$data1['vol_kirim'] * (float)$harga_dasar_penawaran) - $data1['discount'];
 													$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
@@ -780,11 +780,11 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													$total_ppnnya = (((float)$harga_dasar_penawaran * (float)$data1['vol_kirim']) * $nilai_ppn) / 100;
 													$jumlah_harga = $jumlah + $total_ppnnya;
 												} elseif ($data1['jenis'] == "split_pbbkb") {
-													$readonly_tbl='readonly';
+													$readonly_tbl = 'readonly';
 													$jumlah = (((float)$pbbkb_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
 													$jumlah_harga = $jumlah;
 												} elseif ($data1['jenis'] == "split_oa") {
-													$readonly_tbl='readonly';
+													$readonly_tbl = 'readonly';
 													$jumlah = (((float)$ongkos_angkut_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
 													$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
 												} else {
@@ -1409,6 +1409,13 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											$.each(data.items, function(idx, row) {
 												// var jumlahnya = row.volume_po * row.harga_poc;
 												// total01 = total01 + jumlahnya;
+												if (row.file_sj != null) {
+													var url = "../files/uploaded_user/surat_jalan/" + row.file_sj;
+													var nama_file_sj = row.file_sj;
+												} else {
+													var url = "#";
+													var nama_file_sj = "-";
+												}
 												var penawaran_detail = JSON.parse(row.detail_rincian);
 												var penawaran = "";
 												var harga_dasar = 0;
@@ -1641,6 +1648,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													'<p style="margin-bottom:3px;">No PO Customer : ' + row.nomor_poc + '</p>' +
 													'<p style="margin-bottom:3px;">No DN : ' + row.no_dn + '</p>' +
 													'<p style="margin-bottom:3px;">No SPJ : ' + row.no_spj + '</p>' +
+													'<p style="margin-bottom:3px;">Lampiran SPJ : <a href=' + url + ' target="_blank">' + nama_file_sj + '</a></p>' +
 													'<p style="margin-bottom:3px;">No Penawaran : ' + row.nomor_surat + '</p>' +
 													'<p style="margin-bottom:3px;">No DO : ' + no_do + '</p>' +
 													'<p style="margin-bottom:3px;">No LO : ' + row.nomor_lo_pr + '</p>' +
@@ -1864,6 +1872,13 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 										$.each(data.items, function(idx, row) {
 											// var jumlahnya = row.volume_po * row.harga_poc;
 											// total01 = total01 + jumlahnya;
+											if (row.file_sj != null) {
+												var url = "../files/uploaded_user/surat_jalan/" + row.file_sj;
+												var nama_file_sj = row.file_sj;
+											} else {
+												var url = "#";
+												var nama_file_sj = "-";
+											}
 											var penawaran_detail = JSON.parse(row.detail_rincian);
 											var penawaran = "";
 											var harga_dasar = 0;
@@ -2096,6 +2111,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												'<p style="margin-bottom:3px;">No PO Customer : ' + row.nomor_poc + '</p>' +
 												'<p style="margin-bottom:3px;">No DN : ' + row.no_dn + '</p>' +
 												'<p style="margin-bottom:3px;">No SPJ : ' + row.no_spj + '</p>' +
+												'<p style="margin-bottom:3px;">Lampiran SPJ : <a href=' + url + ' target="_blank">' + nama_file_sj + '</a></p>' +
 												'<p style="margin-bottom:3px;">No Penawaran : ' + row.nomor_surat + '</p>' +
 												'<p style="margin-bottom:3px;">No DO : ' + no_do + '</p>' +
 												'<p style="margin-bottom:3px;">No LO : ' + row.nomor_lo_pr + '</p>' +
