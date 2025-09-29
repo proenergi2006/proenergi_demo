@@ -60,6 +60,19 @@ if ($marketing == "" || $nama == "" || $email == "" || $alamat == "" || $propins
 	$res1 = $con->setQuery($sql1);
 	$oke  = $oke && !$con->hasError();
 
+	$sql_history = "INSERT INTO pro_customer_marketing_history (id_customer, id_marketing, effective_from, effective_to, mutasi_at, mutasi_by, reason) VALUES (
+	'" . $res1 . "',
+	'" . $marketing . "',
+	NOW(),
+	NULL,
+	NOW(),
+	'System',
+	'New Customer'
+	)";
+
+	$con->setQuery($sql_history);
+	$oke = $oke && !$con->hasError();
+
 	$sql2 = "insert ignore into pro_customer_contact(id_customer) values ('" . $res1 . "')";
 	$con->setQuery($sql2);
 	$oke  = $oke && !$con->hasError();
