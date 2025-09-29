@@ -40,17 +40,33 @@
 			$linkEdit	= BASE_URL_CLIENT.'/add-master-vendor.php?'.paramEncrypt('idr='.$data['id_master']);
 			$linkHapus	= paramEncrypt("master_vendor#|#".$data['id_master']);
 			$active		= ($data["is_active"] == 1)?"Active":"Not Active";
+			$role 		= paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
+			$btnDelete	='';
+			if($role == 1){
+				$btnDelete = '<a class="margin-sm delete btn btn-action btn-danger" title="Delete" data-param-idx="'.$linkHapus.'" data-action="deleteGrid"><i class="fa fa-trash"></i></a>';
+			}
+			
         	$content .= '
 				<tr class="clickable-row" data-href="'.$linkEdit.'">
 					<td class="text-center">'.$count.'</td>
 					<td>'.$data['nama_vendor'].'</td>
 					<td class="text-center">'.$active.'</td>
 					<td class="text-center action">
-						<a class="margin-sm btn btn-action btn-info" title="Edit" href="'.$linkEdit.'"><i class="fa fa-edit"></i></a>
-						<a class="margin-sm delete btn btn-action btn-danger" title="Delete" data-param-idx="'.$linkHapus.'" data-action="deleteGrid">
-						<i class="fa fa-trash"></i></a>
+						<a class="margin-sm btn btn-action btn-info" title="Edit" href="'.$linkEdit.'"><i class="fa fa-edit"></i>
+						'.$btnDelete.'
             		</td>
 				</tr>';
+        	// $content .= '
+			// 	<tr class="clickable-row" data-href="'.$linkEdit.'">
+			// 		<td class="text-center">'.$count.'</td>
+			// 		<td>'.$data['nama_vendor'].'</td>
+			// 		<td class="text-center">'.$active.'</td>
+			// 		<td class="text-center action">
+			// 			<a class="margin-sm btn btn-action btn-info" title="Edit" href="'.$linkEdit.'"><i class="fa fa-edit"></i></a>
+			// 			<a class="margin-sm delete btn btn-action btn-danger" title="Delete" data-param-idx="'.$linkHapus.'" data-action="deleteGrid">
+			// 			<i class="fa fa-trash"></i></a>
+            // 		</td>
+			// 	</tr>';
 		} 
 	} 
 

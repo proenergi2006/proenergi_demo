@@ -73,6 +73,38 @@ if ($vendor == "") {
 				$con->close();
 				$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
 			}
+		}else if ($act == 'update') {
+
+			 $sql = "
+				select a.*
+				from pro_master_vendor a 
+				where a.id_master = '" . $idr . "'
+				";
+   			$get_data  = $con->getRecord($sql);
+			$urlnya = 'https://zeus.accurate.id/accurate/api/vendor/save.do';
+			// Data yang akan dikirim dalam format JSON
+			$data = array(
+				'id'        	=> $get_data['id_accurate'],
+				'name'        	=> $vendor,
+				'transDate'     => date("d/m/Y"),
+				'vendorNo'      =>$kode_vendor,
+			);
+
+			$jsonData = json_encode($data);
+
+
+			$result = curl_post($urlnya, $jsonData);
+
+			if ($result['s'] == true) {
+				$con->commit();
+				$con->close();
+				header("location: " . BASE_URL_CLIENT . "/master-vendor.php");
+				exit();
+			} else {
+				$con->clearError();
+				$con->close();
+				$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
+			}
 		}
 	}
 }

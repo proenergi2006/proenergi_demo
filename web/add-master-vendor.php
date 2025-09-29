@@ -17,6 +17,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $sql = "select * from pro_master_vendor where id_master = '" . $idr . "';";
     $rsm = $con->getRecord($sql);
     $chk = ($rsm['is_active']) ? "checked" : "";
+    $kode = explode("-",$rsm['kode_vendor']);
 
     $cek_po = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_vendor = '" . $idr . "'";
     $get_po = $con->getRecord($cek_po);
@@ -89,7 +90,7 @@ if ($result['s'] == true) {
                                             <label>Kode Vendor Accurate *</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon" style="font-size:12px;">V-</span>
-                                                <input type="text" id="kode_vendor" name="kode_vendor" class="form-control validate[required]" value="<?php echo $rsm['kode_vendor']; ?>" />
+                                                <input type="text" id="kode_vendor" name="kode_vendor" class="form-control validate[required]" value="<?php echo $kode[1]; ?>" />
                                             </div>
                                         </div>
                                         <div class="col-sm-3">
