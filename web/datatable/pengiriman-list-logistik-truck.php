@@ -158,12 +158,26 @@ if ($tot_record <= 0) {
 			$nomor_segel = $data['pre_segel'] . "-" . $seg_aw . " s/d " . $data['pre_segel'] . "-" . $seg_ak;
 		else $nomor_segel = '';
 
+		$status_upload = '';
+		$fileRel = trim($data['file_sj'] ?? '');
+
 		if ($data['is_delivered']) {
 			$status = '<p style="margin-bottom:5px;"><b>Delivered</b><br/>' . date("d/m/Y H:i", strtotime($data['tanggal_delivered'])) . '</p>';
 			$status_loaded = '<p style="margin-bottom:5px;"><b>Loaded</b><br/>' . date("d/m/Y", strtotime($data['tanggal_loaded'])) . " " . $data['jam_loaded'] . '</p>';
 			if (!$data['realisasi_volume'] || !$data['terima_jalan']) {
-				$status .= '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-realisasi="1" data-status="realisasi" class="editStsT btn btn-success" 
+				if ($fileRel !== '') {
+					$linkPt = ACTION_CLIENT . "/download-file.php?" . paramEncrypt("tipe=8&file=" . $data['file_sj']);
+
+					// buka di tab baru (Chrome viewer PDF)
+					$status_upload =
+						'<a href="' . $linkPt . '" target ="_blank"><i class="fa fa-file-alt"></i> Surat Jalan</a><br />';
+				} else {
+					$status .= '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-realisasi="1" data-status="realisasi" class="editStsT btn btn-success" 
 								title="Realisasi Kirim dan Terima Surat Jalan"><i class="fa fa-sticky-note-o"></i> <span style="font-size:11px;">Realisasi</span></a>';
+					$status_upload = '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-upload="1" data-status="upload"
+							class="editStsT1 btn btn-success btn-sm px-2 py-0"
+							title="Upload Surat Jalan"><i class="fa fa-sticky-note-o"></i> Upload SJ</a>';
+				}
 			}
 			if ($data['link_gps'] == 'OSLOG') {
 				if ($data['id_wilayah_po'] == '2' && $data['tanggal_loading'] >= '2024-01-01') {
@@ -506,7 +520,7 @@ if ($tot_record <= 0) {
 						<p style="margin-bottom:0px">ETL : ' . tgl_indo($data['tanggal_loading'], 'short') . ' ' . date("H:i", strtotime($data['jam_loading'])) . '</p>
 							<p style="margin-bottom:0px">ETA : ' . tgl_indo($data['tgl_eta_po'], 'short') . ' ' . date("H:i", strtotime($data['jam_eta_po'])) . '</p>
 					</td>
-					<td class="text-left">' . $status . '<hr>' . $status_loaded . '</td>
+					<td class="text-left">' . $status . '<hr>' . $status_upload . '<hr>' . $status_loaded . '</td>
 					<td class="text-center action">
 						<a class="' . $classLink . ' margin-sm btn btn-action btn-info" title="' . $titleLink . '" data-param="' . $linkList . '"><i class="fa fa-info-circle"></i></a>
 						' . $btnExtra1 . '

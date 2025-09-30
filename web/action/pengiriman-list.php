@@ -51,15 +51,6 @@ $idnya_kapal 	= $param[0];
 $customer_kapal = $param_kapal[1];
 
 $catatan_losses = $_POST["catatan_losses"] ?? "";
-
-
-
-
-
-
-
-
-
 $tipe 	= htmlspecialchars($_POST["tipe"], ENT_QUOTES);
 
 if ($file == "logistik") {
@@ -286,9 +277,60 @@ if ($file == "logistik") {
 		$sql1 = "update " . $arrSql[$tipe]["table"] . " set status_pengiriman = '" . json_encode($arrS) . "', realisasi_volume = '" . $dt4 . "', tgl_realisasi = '" . $tglD . "', terima_jalan = '" . $dt5 . "' where " . $arrSql[$tipe]["key"] . " = '" . $idnya . "'";
 		$con->setQuery($sql1);
 		$oke  = $oke && !$con->hasError();
+	} else if ($aksi == "upload_sj") {
+		$max_size	= 2 * 1024 * 1024;
+		$allowedTypes = ['jpg', 'jpeg', 'png', 'pdf'];
+		$pathfile	= $public_base_directory . '/files/uploaded_user/surat_jalan';
+
+		if (!empty($_FILES['file_sj']) && !empty($_FILES['file_sj']['name'])) {
+			$originalName = $_FILES['file_sj']['name'];
+			$tmpName = $_FILES['file_sj']['tmp_name'];
+			$error = $_FILES['file_sj']['error'];
+			$size = $_FILES['file_sj']['size'];
+			$ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+			// Error upload
+			if ($error !== UPLOAD_ERR_OK) {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "Gagal upload file: $originalName (Error code: $error)<br>", BASE_REFERER);
+				return;
+			}
+
+			// Validasi ekstensi
+			if (!in_array($ext, $allowedTypes)) {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "Tipe file tidak diperbolehkan: $originalName<br>", BASE_REFERER);
+				return;
+			}
+
+			// Validasi ukuran file
+			if ($size > $max_size) {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "Ukuran file melebihi 2MB: $originalName<br>", BASE_REFERER);
+				return;
+			}
+
+			$newFileName = "Surat-jalan-" . date("Ymd-His") . "-" . uniqid() . "." . $ext;
+			$destination = $pathfile . '/' . $newFileName;
+
+			if (move_uploaded_file($tmpName, $destination)) {
+				$insert_file = "UPDATE pro_po_ds_detail SET file_sj_ori = '" . $originalName . "', file_sj = '" . $newFileName . "' WHERE id_dsd = '" . $idnya . "'";
+				$con->setQuery($insert_file);
+				$oke = $oke && !$con->hasError();
+			} else {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "Gagal memindahkan file: $originalName<br>", BASE_REFERER);
+			}
+		}
 	}
-
-
 
 	if ($oke) {
 		$con->commit();

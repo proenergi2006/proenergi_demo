@@ -181,7 +181,11 @@ if ($tot_record <= 0) {
         $content .= '
 		<tr>
 			<td class="text-center">' . $count . '</td>
-			<td class="text-center">' . $no_voucher . '</td>
+			<td class="text-center">
+            ' . $no_voucher . '
+            </br>
+            <small>Tanggal Pengajuan : '  . tgl_indo($data['created_at']) . '</small>
+            </td>
 			<td class="text-left">
 			Driver : ' . strtoupper($data['driver']) . '
 			<br>

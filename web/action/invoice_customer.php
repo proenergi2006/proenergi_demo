@@ -525,514 +525,624 @@ if ($act == "add") {
 			$get_id_do_accurate = "select * FROM pro_pr_detail WHERE id_prd='" . $id_prds['id_prd'] . "'";
 			$data_prd = $con->getRecord($get_id_do_accurate);
 
-			$query = http_build_query([
-				'id' => $data_plan['id_accurate'],
-			]);
+			if ($data_plan['id_accurate'] != NULL || $data_plan['id_accurate'] != "") {
+				$query = http_build_query([
+					'id' => $data_plan['id_accurate'],
+				]);
 
-			$urlnya = 'https://zeus.accurate.id/accurate/api/sales-order/detail.do?' . $query;
+				$urlnya = 'https://zeus.accurate.id/accurate/api/sales-order/detail.do?' . $query;
 
-			$result = curl_get($urlnya);
-			// echo json_encode($result['d']['detailItem']);
-			// exit();
+				$result = curl_get($urlnya);
+				// echo json_encode($result['d']['detailItem']);
+				// exit();
 
-			if ($result['s'] == false) {
-				$con->rollBack();
-				$con->clearError();
-				$con->close();
-				$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
-			}
-
-			$kode_item = $result['d']['detailItem'];
-			$no_customer = $result['d']['customer']['customerNo'];
-			$po_number = $result['d']['poNumber'];
-			if ($nomor_po_oa != NULL || $nomor_po_oa != "") {
-				$po_number_oa = $nomor_po_oa;
-			} else {
-				$po_number_oa = $po_number;
-			}
-
-			if ($nomor_po_pbbkb != NULL || $nomor_po_pbbkb != "") {
-				$po_number_pbbkb = $nomor_po_pbbkb;
-			} else {
-				$po_number_pbbkb = $po_number;
-			}
-
-			// $data_item2[] = ['kode' => $kode_item, 'keterangan' => 'kode_item'];
-
-			$sql1 = "SELECT b.tanggal_poc FROM pro_po_ds_detail a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id_dsd = '" . $id_dsd . "'";
-			$row1 = $con->getRecord($sql1);
-
-			$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
-			$res4 	= $con->getRecord($query4);
-
-			if ($split_invoice == "all_in") {
-
-				// $data_item2 = array_merge($data_item_post, $data_item2);
-				foreach ($kode_item as $item) {
-					if ($item['item']['no'] == 'NS-001') {
-						$detailItems['detailItem'][] = [
-							'itemNo'       => $item['item']['no'],
-							'quantity'     => $vol_kirim,
-							'unitPrice'    => $item['unitPrice'],
-							'deliveryOrderNumber' => $data_prd['no_do_syop'],
-							'salesmanListNumber'=>$item['salesmanList'][0]['number']
-						];
-					} elseif ($item['item']['no'] == 'PBBKB') {
-						$detailItems['detailItem'][] = [
-							'itemNo'       => $item['item']['no'],
-							'quantity'     => $vol_kirim,
-							'unitPrice'    => $item['unitPrice'],
-							'deliveryOrderNumber' => $data_prd['no_do_syop'],
-							'salesmanListNumber'=>$item['salesmanList'][0]['number']
-						];
-					} else {
-						$detailItems['detailItem'][] = [
-							'itemNo'       => $item['item']['no'],
-							'quantity'     => $vol_kirim,
-							'unitPrice'    => $item['unitPrice'],
-							'deliveryOrderNumber' => $data_prd['no_do_syop'],
-							'itemCashDiscount' => $discount,
-							'salesmanListNumber'=>$item['salesmanList'][0]['number']
-						];
-					}
-
-					// $detailItems['detailItem'][] = [
-					// 	'itemNo'       => $item['item']['no'],
-					// 	'quantity'     => $vol_kirim,
-					// 	'unitPrice'    => $item['unitPrice'],
-					// 	'deliveryOrderNumber' => $data_prd['no_do_syop'],
-					// 	'itemCashDiscount' => $discount
-					// ];
+				if ($result['s'] == false) {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
 				}
 
-				$sql4 = "
-				insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
-				('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_kirim . "', '" . $discount . "', '" . $jenisnya . "')";
-				$con->setQuery($sql4);
-				$oke  = $oke && !$con->hasError();
+				$kode_item = $result['d']['detailItem'];
+				$no_customer = $result['d']['customer']['customerNo'];
+				$po_number = $result['d']['poNumber'];
+				if ($nomor_po_oa != NULL || $nomor_po_oa != "") {
+					$po_number_oa = $nomor_po_oa;
+				} else {
+					$po_number_oa = $po_number;
+				}
+
+				if ($nomor_po_pbbkb != NULL || $nomor_po_pbbkb != "") {
+					$po_number_pbbkb = $nomor_po_pbbkb;
+				} else {
+					$po_number_pbbkb = $po_number;
+				}
+
+				// $data_item2[] = ['kode' => $kode_item, 'keterangan' => 'kode_item'];
+
+				$sql1 = "SELECT b.tanggal_poc FROM pro_po_ds_detail a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id_dsd = '" . $id_dsd . "'";
+				$row1 = $con->getRecord($sql1);
+
+				$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
+				$res4 	= $con->getRecord($query4);
+
+				if ($split_invoice == "all_in") {
+
+					// $data_item2 = array_merge($data_item_post, $data_item2);
+					foreach ($kode_item as $item) {
+						if ($item['item']['no'] == 'NS-001') {
+							$detailItems['detailItem'][] = [
+								'itemNo'       => $item['item']['no'],
+								'quantity'     => $vol_kirim,
+								'unitPrice'    => $item['unitPrice'],
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber' => $item['salesmanList'][0]['number']
+							];
+						} elseif ($item['item']['no'] == 'PBBKB') {
+							$detailItems['detailItem'][] = [
+								'itemNo'       => $item['item']['no'],
+								'quantity'     => $vol_kirim,
+								'unitPrice'    => $item['unitPrice'],
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'salesmanListNumber' => $item['salesmanList'][0]['number']
+							];
+						} else {
+							$detailItems['detailItem'][] = [
+								'itemNo'       => $item['item']['no'],
+								'quantity'     => $vol_kirim,
+								'unitPrice'    => $item['unitPrice'],
+								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'itemCashDiscount' => $discount,
+								'salesmanListNumber' => $item['salesmanList'][0]['number']
+							];
+						}
+
+						// $detailItems['detailItem'][] = [
+						// 	'itemNo'       => $item['item']['no'],
+						// 	'quantity'     => $vol_kirim,
+						// 	'unitPrice'    => $item['unitPrice'],
+						// 	'deliveryOrderNumber' => $data_prd['no_do_syop'],
+						// 	'itemCashDiscount' => $discount
+						// ];
+					}
+
+					$sql4 = "
+					insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+					('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_kirim . "', '" . $discount . "', '" . $jenisnya . "')";
+					$con->setQuery($sql4);
+					$oke  = $oke && !$con->hasError();
 
 
-				if ($noms01 == $total_pengiriman) {
-					// Eksekusi API request dengan data item yang sudah lengkap
-					$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-					$data = array(
-						"customerNo"        => $no_customer,
-						"poNumber"        	=> $po_number,
-						"number"            => $noms_inv,
-						"transDate"         => $tgl_invoice,
-						"taxable"           => true,
-						'branchName'        => ($rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang']),
-						"detailItem"        => $detailItems['detailItem'],
-					);
+					if ($noms01 == $total_pengiriman) {
+						// Eksekusi API request dengan data item yang sudah lengkap
+						$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+						$data = array(
+							"customerNo"        => $no_customer,
+							"poNumber"        	=> $po_number,
+							"number"            => $noms_inv,
+							"transDate"         => $tgl_invoice,
+							"taxable"           => true,
+							'branchName'        => ($rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang']),
+							"detailItem"        => $detailItems['detailItem'],
+						);
 
-					$jsonData = json_encode($data);
-					// var_dump($detailItems['detailItem']);
-					// exit();
+						$jsonData = json_encode($data);
+						// var_dump($detailItems['detailItem']);
+						// exit();
 
-					$result_save = curl_post($urlnya, $jsonData);
-					if ($result_save['s'] == true) {
-						$id_accurate = $result_save['r']['id'];
-						$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
-						$con->setQuery($update);
-						$oke  = $oke && !$con->hasError();
-					} else {
+						$result_save = curl_post($urlnya, $jsonData);
+						if ($result_save['s'] == true) {
+							$id_accurate = $result_save['r']['id'];
+							$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
+							$con->setQuery($update);
+							$oke  = $oke && !$con->hasError();
+						} else {
+							$con->rollBack();
+							$con->clearError();
+							$con->close();
+							$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+						}
+					}
+				} elseif ($split_invoice == "split_oa") {
+
+					if ($res4['jenis_penawaran'] == "gabung_oa" || $res4['jenis_penawaran'] == "gabung_pbbkboa") {
 						$con->rollBack();
 						$con->clearError();
 						$con->close();
-						$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
-					}
-				}
-			} elseif ($split_invoice == "split_oa") {
-
-				if ($res4['jenis_penawaran'] == "gabung_oa" || $res4['jenis_penawaran'] == "gabung_pbbkboa") {
-					$con->rollBack();
-					$con->clearError();
-					$con->close();
-					$flash->add("error", "Gagal simpan invoice, tidak dapat di split OA karena pada penawaran jenis harga nya GABUNG OA", BASE_REFERER);
-				} else {
-					foreach ($kode_item as $item) {
-
-						if ($item['item']['no'] == 'PBBKB') {
-							$detailItems['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						} elseif ($item['item']['no'] == 'NS-001') {
-							$detailItems_oa['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						} else {
-							$detailItems['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount,
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						}
-					}
-
-
-					// Harga Dasar + PBBKB + PPN
-					if ($kategori == "gabung_pbbkb" || $kategori == "gabung_pbbkboa") {
-						$harga_dasar_split_oa = (($harga_dasar + $pbbkb) * $nilai_ppn / 100) + ($harga_dasar + $pbbkb);
+						$flash->add("error", "Gagal simpan invoice, tidak dapat di split OA karena pada penawaran jenis harga nya GABUNG OA", BASE_REFERER);
 					} else {
-						$harga_dasar_split_oa = $harga_dasar + $pbbkb + ($harga_dasar * $nilai_ppn / 100);
-					}
+						foreach ($kode_item as $item) {
 
-					$sql_split_oa1 = "
-					insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
-					('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_oa . "', '" . $discount . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_oa1);
-					$oke  = $oke && !$con->hasError();
-
-					// INPUT OA
-					$ongkos_angkut_split_oa = $ongkos_angkut + ($ongkos_angkut * $nilai_ppn / 100);
-
-					$sql_split_oa2 = "
-					insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
-					('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $ongkos_angkut_split_oa . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_oa2);
-					$oke  = $oke && !$con->hasError();
-
-					if ($noms01 == $total_pengiriman) {
-						$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-
-						$data = array(
-							"customerNo"        => $no_customer,
-							"poNumber"        	=> $po_number,
-							"number"           	=> $noms_inv,
-							"transDate" 		=> $tgl_invoice,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"taxable" 			=> true,
-							"detailItem"       	=> $detailItems['detailItem'],
-						);
-
-						$jsonData = json_encode($data);
-
-						$result_save = curl_post($urlnya, $jsonData);
-
-						if ($result_save['s'] == true) {
-							$id_accurate = $result_save['r']['id'];
-							$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
-							$con->setQuery($update);
-							$oke  = $oke && !$con->hasError();
-						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							if ($item['item']['no'] == 'PBBKB') {
+								$detailItems['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							} elseif ($item['item']['no'] == 'NS-001') {
+								$detailItems_oa['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							} else {
+								$detailItems['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'itemCashDiscount' => $discount,
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							}
 						}
 
-						$urlnya2 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
 
-						$data2 = array(
-							"customerNo"        => $no_customer,
-							"poNumber"	        => $po_number_oa,
-							"number"           	=> $noms_inv_split_oa,
-							"transDate" 		=> $tgl_invoice,
-							"taxable" 			=> true,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"detailItem"       	=> $detailItems_oa['detailItem']
-						);
-						$jsonData2 = json_encode($data2);
-						// echo $jsonData2;
-						// exit();
-						$result_save2 = curl_post($urlnya2, $jsonData2);
-
-						if ($result_save2['s'] == true) {
-							$id_accurate = $result_save2['r']['id'];
-							$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res2 . '"';
-							$con->setQuery($update);
-							$oke  = $oke && !$con->hasError();
+						// Harga Dasar + PBBKB + PPN
+						if ($kategori == "gabung_pbbkb" || $kategori == "gabung_pbbkboa") {
+							$harga_dasar_split_oa = (($harga_dasar + $pbbkb) * $nilai_ppn / 100) + ($harga_dasar + $pbbkb);
 						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save2['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							$harga_dasar_split_oa = $harga_dasar + $pbbkb + ($harga_dasar * $nilai_ppn / 100);
+						}
+
+						$sql_split_oa1 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_oa . "', '" . $discount . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_oa1);
+						$oke  = $oke && !$con->hasError();
+
+						// INPUT OA
+						$ongkos_angkut_split_oa = $ongkos_angkut + ($ongkos_angkut * $nilai_ppn / 100);
+
+						$sql_split_oa2 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $ongkos_angkut_split_oa . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_oa2);
+						$oke  = $oke && !$con->hasError();
+
+						if ($noms01 == $total_pengiriman) {
+							$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+
+							$data = array(
+								"customerNo"        => $no_customer,
+								"poNumber"        	=> $po_number,
+								"number"           	=> $noms_inv,
+								"transDate" 		=> $tgl_invoice,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"taxable" 			=> true,
+								"detailItem"       	=> $detailItems['detailItem'],
+							);
+
+							$jsonData = json_encode($data);
+
+							$result_save = curl_post($urlnya, $jsonData);
+
+							if ($result_save['s'] == true) {
+								$id_accurate = $result_save['r']['id'];
+								$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
+								$con->setQuery($update);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							}
+
+							$urlnya2 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+
+							$data2 = array(
+								"customerNo"        => $no_customer,
+								"poNumber"	        => $po_number_oa,
+								"number"           	=> $noms_inv_split_oa,
+								"transDate" 		=> $tgl_invoice,
+								"taxable" 			=> true,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> $detailItems_oa['detailItem']
+							);
+							$jsonData2 = json_encode($data2);
+							// echo $jsonData2;
+							// exit();
+							$result_save2 = curl_post($urlnya2, $jsonData2);
+
+							if ($result_save2['s'] == true) {
+								$id_accurate = $result_save2['r']['id'];
+								$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res2 . '"';
+								$con->setQuery($update);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save2['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							}
 						}
 					}
-				}
-			} elseif ($split_invoice == "split_pbbkb") {
+				} elseif ($split_invoice == "split_pbbkb") {
 
-				if ($res4['jenis_penawaran'] == "gabung_pbbkb" || $res4['jenis_penawaran'] == "gabung_pbbkboa") {
-					$con->rollBack();
-					$con->clearError();
-					$con->close();
-					$flash->add("error", "Gagal simpan invoice, tidak dapat di split PBBKB karena pada penawaran jenis harga nya GABUNG PBBKB", BASE_REFERER);
-				} else {
-
-					foreach ($kode_item as $item) {
-
-						if ($item['item']['no'] == 'NS-001') {
-							$detailItems['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						} elseif ($item['item']['no'] == 'PBBKB') {
-							$detailItems_pbbkb['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						} else {
-							$detailItems['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount,
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						}
-					}
-
-					// Harga Dasar + OA + PPN
-					if ($pembulatan == 1) {
-						$harga_dasar_split_pbbkb = round(($harga_dasar + $ongkos_angkut) + (($harga_dasar + $ongkos_angkut) * $nilai_ppn / 100));
+					if ($res4['jenis_penawaran'] == "gabung_pbbkb" || $res4['jenis_penawaran'] == "gabung_pbbkboa") {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", "Gagal simpan invoice, tidak dapat di split PBBKB karena pada penawaran jenis harga nya GABUNG PBBKB", BASE_REFERER);
 					} else {
-						$harga_dasar_split_pbbkb = ($harga_dasar + $ongkos_angkut) + (($harga_dasar + $ongkos_angkut) * $nilai_ppn / 100);
-					}
 
-					$sql_split_pbbkb1 = "
-					insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
-					('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_pbbkb . "', '" . $discount . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_pbbkb1);
-					$oke  = $oke && !$con->hasError();
+						foreach ($kode_item as $item) {
 
-					// PBBKB
-					$split_pbbkb = $pbbkb;
-					$sql_split_pbbkb2 = "insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
-					('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $split_pbbkb . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_pbbkb2);
-					$oke  = $oke && !$con->hasError();
-
-					if ($noms01 == $total_pengiriman) {
-						$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-						// Data yang akan dikirim dalam format JSON
-						$data = array(
-							"customerNo"        => $no_customer,
-							"poNumber"        	=> $po_number,
-							"number"           	=> $noms_inv,
-							"transDate" 		=> $tgl_invoice,
-							"taxable" 			=> true,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"detailItem"       	=> $detailItems['detailItem']
-						);
-
-						$jsonData = json_encode($data);
-						$result_save = curl_post($urlnya, $jsonData);
-
-						if ($result_save['s'] == true) {
-							$id_accurate = $result_save['r']['id'];
-							$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
-							$con->setQuery($update);
-							$oke  = $oke && !$con->hasError();
-						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save['d'][0] . " - Response dari Accurate 1", BASE_REFERER);
+							if ($item['item']['no'] == 'NS-001') {
+								$detailItems['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							} elseif ($item['item']['no'] == 'PBBKB') {
+								$detailItems_pbbkb['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							} else {
+								$detailItems['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'itemCashDiscount' => $discount,
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							}
 						}
 
-						$urlnya2 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-						// Data yang akan dikirim dalam format JSON
-						$data2 = array(
-							"customerNo"        => $no_customer,
-							"poNumber"	        => $po_number_pbbkb,
-							"number"           	=> $noms_inv_split_pbbkb,
-							"transDate" 		=> $tgl_invoice,
-							"taxable" 			=> false,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"detailItem"       	=> $detailItems_pbbkb['detailItem']
-						);
-
-						$jsonData2 = json_encode($data2);
-						$result_save2 = curl_post($urlnya2, $jsonData2);
-
-						if ($result_save2['s'] == true) {
-							$id_accurate = $result_save2['r']['id'];
-							$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res2 . '"';
-							$con->setQuery($update);
-							$oke  = $oke && !$con->hasError();
+						// Harga Dasar + OA + PPN
+						if ($pembulatan == 1) {
+							$harga_dasar_split_pbbkb = round(($harga_dasar + $ongkos_angkut) + (($harga_dasar + $ongkos_angkut) * $nilai_ppn / 100));
 						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save2['d'][0] . " - Response dari Accurate 2", BASE_REFERER);
+							$harga_dasar_split_pbbkb = ($harga_dasar + $ongkos_angkut) + (($harga_dasar + $ongkos_angkut) * $nilai_ppn / 100);
+						}
+
+						$sql_split_pbbkb1 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_pbbkb . "', '" . $discount . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_pbbkb1);
+						$oke  = $oke && !$con->hasError();
+
+						// PBBKB
+						$split_pbbkb = $pbbkb;
+						$sql_split_pbbkb2 = "insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $split_pbbkb . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_pbbkb2);
+						$oke  = $oke && !$con->hasError();
+
+						if ($noms01 == $total_pengiriman) {
+							$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+							// Data yang akan dikirim dalam format JSON
+							$data = array(
+								"customerNo"        => $no_customer,
+								"poNumber"        	=> $po_number,
+								"number"           	=> $noms_inv,
+								"transDate" 		=> $tgl_invoice,
+								"taxable" 			=> true,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> $detailItems['detailItem']
+							);
+
+							$jsonData = json_encode($data);
+							$result_save = curl_post($urlnya, $jsonData);
+
+							if ($result_save['s'] == true) {
+								$id_accurate = $result_save['r']['id'];
+								$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
+								$con->setQuery($update);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save['d'][0] . " - Response dari Accurate 1", BASE_REFERER);
+							}
+
+							$urlnya2 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+							// Data yang akan dikirim dalam format JSON
+							$data2 = array(
+								"customerNo"        => $no_customer,
+								"poNumber"	        => $po_number_pbbkb,
+								"number"           	=> $noms_inv_split_pbbkb,
+								"transDate" 		=> $tgl_invoice,
+								"taxable" 			=> false,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> $detailItems_pbbkb['detailItem']
+							);
+
+							$jsonData2 = json_encode($data2);
+							$result_save2 = curl_post($urlnya2, $jsonData2);
+
+							if ($result_save2['s'] == true) {
+								$id_accurate = $result_save2['r']['id'];
+								$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res2 . '"';
+								$con->setQuery($update);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save2['d'][0] . " - Response dari Accurate 2", BASE_REFERER);
+							}
+						}
+					}
+				} elseif ($split_invoice == "split_all") {
+
+					if ($res4['jenis_penawaran'] == "gabung_oa" || $res4['jenis_penawaran'] == "gabung_pbbkboa" || $res4['jenis_penawaran'] == "gabung_pbbkb") {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", "Gagal simpan invoice, tidak dapat di split ALL karena pada penawaran jenis harga nya GABUNG OA / GABUNG PBBKB", BASE_REFERER);
+					} else {
+						foreach ($kode_item as $item) {
+
+							if ($item['item']['no'] == 'NS-001') {
+								$detailItems_oa['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							} elseif ($item['item']['no'] == 'PBBKB') {
+								$detailItems_pbbkb['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							} else {
+								$detailItems['detailItem'][] = [
+									'itemNo'       => $item['item']['no'],
+									'quantity'     => $vol_kirim,
+									'unitPrice'    => $item['unitPrice'],
+									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'itemCashDiscount' => $discount,
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
+								];
+							}
+						}
+
+						// Harga Dasar + PPN
+						$harga_dasar_split_all = $harga_dasar + ($harga_dasar * $nilai_ppn / 100);
+
+						$sql_split_all1 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_all . "', '" . $discount . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_all1);
+						$oke  = $oke && !$con->hasError();
+
+						// Ongkos Angkut + PPN
+						$ongkos_angkut_split_all = $ongkos_angkut + ($ongkos_angkut * $nilai_ppn / 100);
+
+						$sql_split_all2 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $ongkos_angkut_split_all . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_all2);
+						$oke  = $oke && !$con->hasError();
+
+						// PBBKB
+						$split_pbbkb = $pbbkb;
+						$sql_split_all3 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res3 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $split_pbbkb . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_all3);
+						$oke  = $oke && !$con->hasError();
+
+						if ($noms01 == $total_pengiriman) {
+							// API HSD
+							$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+							$data = array(
+								"customerNo"        => $no_customer,
+								"poNumber"        	=> $po_number,
+								"number"           	=> $noms_inv,
+								"transDate" 		=> $tgl_invoice,
+								"taxable" 			=> true,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> $detailItems['detailItem']
+							);
+							$jsonData = json_encode($data);
+
+							$result_save = curl_post($urlnya, $jsonData);
+
+							if ($result_save['s'] == true) {
+								$id_accurate = $result_save['r']['id'];
+								$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
+								$con->setQuery($update);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							}
+
+							// // API OA
+							$urlnya2 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+							$data2 = array(
+								"customerNo"        => $no_customer,
+								"poNumber"	        => $po_number_oa,
+								"number"           	=> $noms_inv_split_oa,
+								"transDate" 		=> $tgl_invoice,
+								"taxable" 			=> true,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> $detailItems_oa['detailItem']
+							);
+							$jsonData2 = json_encode($data2);
+
+							$result_save2 = curl_post($urlnya2, $jsonData2);
+
+							if ($result_save2['s'] == true) {
+								$id_accurate2 = $result_save2['r']['id'];
+								$update2 = 'update pro_invoice_admin set id_accurate = "' . $id_accurate2 . '" where id_invoice = "' . $res2 . '"';
+								$con->setQuery($update2);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save2['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							}
+
+							// // API PBBKB
+							$urlnya3 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+							$data3 = array(
+								"customerNo"        => $no_customer,
+								"poNumber"	        => $po_number_pbbkb,
+								"number"           	=> $noms_inv_split_pbbkb,
+								"transDate" 		=> $tgl_invoice,
+								"taxable" 			=> false,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								"detailItem"       	=> $detailItems_pbbkb['detailItem']
+							);
+							$jsonData3 = json_encode($data3);
+							$result_save3 = curl_post($urlnya3, $jsonData3);
+
+							if ($result_save3['s'] == true) {
+								$id_accurate3 = $result_save3['r']['id'];
+								$update3 = 'update pro_invoice_admin set id_accurate = "' . $id_accurate3 . '" where id_invoice = "' . $res3 . '"';
+								$con->setQuery($update3);
+								$oke  = $oke && !$con->hasError();
+							} else {
+								$con->rollBack();
+								$con->clearError();
+								$con->close();
+								$flash->add("error", $result_save3['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							}
 						}
 					}
 				}
-			} elseif ($split_invoice == "split_all") {
+				// INI DI PAKE
+				// if ($row1['tanggal_poc'] > '2023-07-29') {
+				// 	if ($refund_tawar != 0) {
+				// 		$sql_refund = "
+				// 		insert into pro_refund(id_invoice, id_dsd, created_at, updated_at) values 
+				// 		('" . json_encode($arrayId) . "', '" . $id_dsd . "', NOW(), NOW())";
+				// 		$con->setQuery($sql_refund);
+				// 		$oke  = $oke && !$con->hasError();
+				// 	}
+				// }
+			} else {
+				$sql1 = "SELECT b.tanggal_poc FROM pro_po_ds_detail a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id_dsd = '" . $id_dsd . "'";
+				$row1 = $con->getRecord($sql1);
 
-				if ($res4['jenis_penawaran'] == "gabung_oa" || $res4['jenis_penawaran'] == "gabung_pbbkboa" || $res4['jenis_penawaran'] == "gabung_pbbkb") {
-					$con->rollBack();
-					$con->clearError();
-					$con->close();
-					$flash->add("error", "Gagal simpan invoice, tidak dapat di split ALL karena pada penawaran jenis harga nya GABUNG OA / GABUNG PBBKB", BASE_REFERER);
-				} else {
-					foreach ($kode_item as $item) {
+				$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
+				$res4 	= $con->getRecord($query4);
 
-						if ($item['item']['no'] == 'NS-001') {
-							$detailItems_oa['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						} elseif ($item['item']['no'] == 'PBBKB') {
-							$detailItems_pbbkb['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
+				if ($split_invoice == "all_in") {
+					$sql4 = "
+					insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+					('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_kirim . "', '" . $discount . "', '" . $jenisnya . "')";
+					$con->setQuery($sql4);
+					$oke  = $oke && !$con->hasError();
+				} elseif ($split_invoice == "split_oa") {
+
+					if ($res4['jenis_penawaran'] == "gabung_oa" || $res4['jenis_penawaran'] == "gabung_pbbkboa") {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", "Gagal simpan invoice, tidak dapat di SPLIT OA karena pada penawaran, jenis harga nya GABUNG OA", BASE_REFERER);
+					} else {
+						// Harga Dasar + PBBKB + PPN
+						if ($kategori == "gabung_pbbkb" || $kategori == "gabung_pbbkboa") {
+							$harga_dasar_split_oa = (($harga_dasar + $pbbkb) * $nilai_ppn / 100) + ($harga_dasar + $pbbkb);
 						} else {
-							$detailItems['detailItem'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount,
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
+							$harga_dasar_split_oa = $harga_dasar + $pbbkb + ($harga_dasar * $nilai_ppn / 100);
 						}
+
+						$sql_split_oa1 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_oa . "', '" . $discount . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_oa1);
+						$oke  = $oke && !$con->hasError();
+
+						// INPUT OA
+						$ongkos_angkut_split_oa = $ongkos_angkut + ($ongkos_angkut * $nilai_ppn / 100);
+
+						$sql_split_oa2 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $ongkos_angkut_split_oa . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_oa2);
+						$oke  = $oke && !$con->hasError();
 					}
+				} elseif ($split_invoice == "split_pbbkb") {
 
-					// Harga Dasar + PPN
-					$harga_dasar_split_all = $harga_dasar + ($harga_dasar * $nilai_ppn / 100);
+					if ($res4['jenis_penawaran'] == "gabung_pbbkb" || $res4['jenis_penawaran'] == "gabung_pbbkboa") {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", "Gagal simpan invoice, tidak dapat di SPLIT PBBKB karena pada penawaran, jenis harga nya GABUNG PBBKB", BASE_REFERER);
+					} else {
 
-					$sql_split_all1 = "
-				insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
-				('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_all . "', '" . $discount . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_all1);
-					$oke  = $oke && !$con->hasError();
-
-					// Ongkos Angkut + PPN
-					$ongkos_angkut_split_all = $ongkos_angkut + ($ongkos_angkut * $nilai_ppn / 100);
-
-					$sql_split_all2 = "
-				insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
-				('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $ongkos_angkut_split_all . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_all2);
-					$oke  = $oke && !$con->hasError();
-
-					// PBBKB
-					$split_pbbkb = $pbbkb;
-					$sql_split_all3 = "
-				insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
-				('" . $noms01 . "', '" . $res3 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $split_pbbkb . "', '" . $jenisnya . "')";
-					$con->setQuery($sql_split_all3);
-					$oke  = $oke && !$con->hasError();
-
-					if ($noms01 == $total_pengiriman) {
-						// API HSD
-						$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-						$data = array(
-							"customerNo"        => $no_customer,
-							"poNumber"        	=> $po_number,
-							"number"           	=> $noms_inv,
-							"transDate" 		=> $tgl_invoice,
-							"taxable" 			=> true,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"detailItem"       	=> $detailItems['detailItem']
-						);
-						$jsonData = json_encode($data);
-
-						$result_save = curl_post($urlnya, $jsonData);
-
-						if ($result_save['s'] == true) {
-							$id_accurate = $result_save['r']['id'];
-							$update = 'update pro_invoice_admin set id_accurate = "' . $id_accurate . '" where id_invoice = "' . $res1 . '"';
-							$con->setQuery($update);
-							$oke  = $oke && !$con->hasError();
+						// Harga Dasar + OA + PPN
+						if ($pembulatan == 1) {
+							$harga_dasar_split_pbbkb = round(($harga_dasar + $ongkos_angkut) + (($harga_dasar + $ongkos_angkut) * $nilai_ppn / 100));
 						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+							$harga_dasar_split_pbbkb = ($harga_dasar + $ongkos_angkut) + (($harga_dasar + $ongkos_angkut) * $nilai_ppn / 100);
 						}
 
-						// // API OA
-						$urlnya2 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-						$data2 = array(
-							"customerNo"        => $no_customer,
-							"poNumber"	        => $po_number_oa,
-							"number"           	=> $noms_inv_split_oa,
-							"transDate" 		=> $tgl_invoice,
-							"taxable" 			=> true,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"detailItem"       	=> $detailItems_oa['detailItem']
-						);
-						$jsonData2 = json_encode($data2);
+						$sql_split_pbbkb1 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_pbbkb . "', '" . $discount . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_pbbkb1);
+						$oke  = $oke && !$con->hasError();
 
-						$result_save2 = curl_post($urlnya2, $jsonData2);
+						// PBBKB
+						$split_pbbkb = $pbbkb;
+						$sql_split_pbbkb2 = "insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $split_pbbkb . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_pbbkb2);
+						$oke  = $oke && !$con->hasError();
+					}
+				} elseif ($split_invoice == "split_all") {
 
-						if ($result_save2['s'] == true) {
-							$id_accurate2 = $result_save2['r']['id'];
-							$update2 = 'update pro_invoice_admin set id_accurate = "' . $id_accurate2 . '" where id_invoice = "' . $res2 . '"';
-							$con->setQuery($update2);
-							$oke  = $oke && !$con->hasError();
-						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save2['d'][0] . " - Response dari Accurate", BASE_REFERER);
-						}
+					if ($res4['jenis_penawaran'] == "gabung_oa" || $res4['jenis_penawaran'] == "gabung_pbbkboa" || $res4['jenis_penawaran'] == "gabung_pbbkb") {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", "Gagal simpan invoice, tidak dapat di SPLIT ALL karena pada penawaran, jenis harga nya GABUNG OA / GABUNG PBBKB", BASE_REFERER);
+					} else {
 
-						// // API PBBKB
-						$urlnya3 = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-						$data3 = array(
-							"customerNo"        => $no_customer,
-							"poNumber"	        => $po_number_pbbkb,
-							"number"           	=> $noms_inv_split_pbbkb,
-							"transDate" 		=> $tgl_invoice,
-							"taxable" 			=> false,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							"detailItem"       	=> $detailItems_pbbkb['detailItem']
-						);
-						$jsonData3 = json_encode($data3);
-						$result_save3 = curl_post($urlnya3, $jsonData3);
+						// Harga Dasar + PPN
+						$harga_dasar_split_all = $harga_dasar + ($harga_dasar * $nilai_ppn / 100);
 
-						if ($result_save3['s'] == true) {
-							$id_accurate3 = $result_save3['r']['id'];
-							$update3 = 'update pro_invoice_admin set id_accurate = "' . $id_accurate3 . '" where id_invoice = "' . $res3 . '"';
-							$con->setQuery($update3);
-							$oke  = $oke && !$con->hasError();
-						} else {
-							$con->rollBack();
-							$con->clearError();
-							$con->close();
-							$flash->add("error", $result_save3['d'][0] . " - Response dari Accurate", BASE_REFERER);
-						}
+						$sql_split_all1 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $res1 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harga_dasar_split_all . "', '" . $discount . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_all1);
+						$oke  = $oke && !$con->hasError();
+
+						// Ongkos Angkut + PPN
+						$ongkos_angkut_split_all = $ongkos_angkut + ($ongkos_angkut * $nilai_ppn / 100);
+
+						$sql_split_all2 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res2 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $ongkos_angkut_split_all . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_all2);
+						$oke  = $oke && !$con->hasError();
+
+						// PBBKB
+						$split_pbbkb = $pbbkb;
+						$sql_split_all3 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, jenisnya) values 
+						('" . $noms01 . "', '" . $res3 . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $split_pbbkb . "', '" . $jenisnya . "')";
+						$con->setQuery($sql_split_all3);
+						$oke  = $oke && !$con->hasError();
 					}
 				}
 			}
-			// INI DI PAKE
-			// if ($row1['tanggal_poc'] > '2023-07-29') {
-			// 	if ($refund_tawar != 0) {
-			// 		$sql_refund = "
-			// 		insert into pro_refund(id_invoice, id_dsd, created_at, updated_at) values 
-			// 		('" . json_encode($arrayId) . "', '" . $id_dsd . "', NOW(), NOW())";
-			// 		$con->setQuery($sql_refund);
-			// 		$oke  = $oke && !$con->hasError();
-			// 	}
-			// }
 		}
 	}
 
@@ -1043,20 +1153,27 @@ if ($act == "add") {
 		header("location: " . $url);
 		exit();
 	} else {
-		$query = array(
-			'id' => $id_accurate
-		);
+		if (isset($id_accurate) && ($id_accurate != NULL || $id_accurate != "")) {
+			$query = array(
+				'id' => $id_accurate
+			);
 
-		$url_del = 'https://zeus.accurate.id/accurate/api/sales-invoice/delete.do';
-		$delete_accurate = curl_delete($url_del, json_encode($query));
-		// print_r($delete_accurate);
-		if ($delete_accurate['s'] == true) {
+			$url_del = 'https://zeus.accurate.id/accurate/api/sales-invoice/delete.do';
+			$delete_accurate = curl_delete($url_del, json_encode($query));
+			// print_r($delete_accurate);
+			if ($delete_accurate['s'] == true) {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
+			} else {
+				$flash->add("error", "Invoice Gagal dihapus, silahkan lakukan hapus manual atau hubungi IT - Response dari Accurate", BASE_REFERER);
+			}
+		} else {
 			$con->rollBack();
 			$con->clearError();
 			$con->close();
 			$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
-		} else {
-			$flash->add("error", "Invoice Gagal dihapus, silahkan lakukan hapus manual atau hubungi IT - Response dari Accurate", BASE_REFERER);
 		}
 	}
 } else if ($act == "update") {
@@ -1168,123 +1285,153 @@ if ($act == "add") {
 			// echo json_encode($res_do);
 			// exit();
 
-			$query = http_build_query([
-				'id' => $data_plan['id_accurate'],
-			]);
+			if ($data_plan['id_accurate'] != NULL || $data_plan['id_accurate'] != "") {
+				$query = http_build_query([
+					'id' => $data_plan['id_accurate'],
+				]);
 
-			$urlnya = 'https://zeus.accurate.id/accurate/api/sales-order/detail.do?' . $query;
+				$urlnya = 'https://zeus.accurate.id/accurate/api/sales-order/detail.do?' . $query;
 
-			$result = curl_get($urlnya);
+				$result = curl_get($urlnya);
 
-			if ($result['s'] == false) {
-				$con->rollBack();
-				$con->clearError();
-				$con->close();
-				$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
-			}
+				if ($result['s'] == false) {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
+				}
 
-			$kode_item = $result['d']['detailItem'];
-			$no_customer = $result['d']['customer']['customerNo'];
-			$po_number = $result['d']['poNumber'];
+				$kode_item = $result['d']['detailItem'];
+				$no_customer = $result['d']['customer']['customerNo'];
+				$po_number = $result['d']['poNumber'];
 
-			if (count($res_inv_split) > 0) {
-				foreach ($res_inv_split as $ris) {
+				if (count($res_inv_split) > 0) {
+					foreach ($res_inv_split as $ris) {
 
-					
-					if ($ris['jenis'] == "all_in" || $ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
-						$harganya = $harga_kirim;
-					} elseif ($ris['jenis'] == "split_pbbkb") {
-						$harganya = $pbbkb;
-						
-						if ($nomor_po_pbbkb != NULL || $nomor_po_pbbkb != "") {
-							$po_number_pbbkb = $nomor_po_pbbkb;
-						} else {
-							$po_number_pbbkb = $ris['no_po_splitpbbkb'];
-							$query_update = ", no_po_splitpbbkb = '".$po_number_pbbkb."'";
-						}
-					} elseif ($ris['jenis'] == "split_oa") {
-						$harganya = $ongkos_angkut;
-						if ($nomor_po_oa != NULL || $nomor_po_oa != "") {
-							$po_number_oa = $nomor_po_oa;
-						} else {
-							$po_number_oa = $ris['no_po_splitoa'];
-							$query_update = ", no_po_splitoa = '".$po_number_oa."'";
-						}
-					}
-					// var_dump($harganya);
 
-					$sql4 = "
-					insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
-					('" . $noms01 . "', '" . $ris['id_invoice'] . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harganya . "', '" . $discount . "', '" . $jenisnya . "')";
+						if ($ris['jenis'] == "all_in" || $ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
+							$harganya = $harga_kirim;
+						} elseif ($ris['jenis'] == "split_pbbkb") {
+							$harganya = $pbbkb;
 
-					$con->setQuery($sql4);
-					$oke  = $oke && !$con->hasError();
-
-					$sql_get_max = "SELECT id_invoice FROM pro_invoice_admin_detail WHERE id_invoice = '" . $ris['id_invoice'] . "'";
-					$row_max = $con->getRecord($sql_get_max);
-
-					if ($row_max['id_invoice'] != $ris['id_invoice']) {
-						$noms01 = 1; // increment id_invoice_detail untuk invoice ini
-					}
-
-					foreach ($kode_item as $item) {
-						if ($ris['jenis'] == "all_in") {
-							$detailItems['detailItem']['all_in']['no_invoice'] = $ris['no_invoice'];
-							$detailItems['detailItem']['all_in']['id_invoice'] = $ris['id_invoice'];
-							$detailItems['detailItem']['all_in']['po_number'] = $po_number;
-							$detailItems['detailItem']['all_in']['items'][] = [
-								'itemNo'       => $item['item']['no'],
-								'quantity'     => $vol_kirim,
-								'unitPrice'    => $item['unitPrice'],
-								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'itemCashDiscount' => $discount,
-								'salesmanListNumber'=>$item['salesmanList'][0]['number']
-							];
-						} elseif ($ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
-							if ($item['item']['no'] != 'NS-001' && $item['item']['no'] != 'PBBKB') {
-								$detailItems['detailItem']['harga_dasar']['no_invoice'] = $ris['no_invoice'];
-								$detailItems['detailItem']['harga_dasar']['id_invoice'] = $ris['id_invoice'];
-								$detailItems['detailItem']['harga_dasar']['po_number'] = $po_number;
-								$detailItems['detailItem']['harga_dasar']['items'][] = [
-									'itemNo'       => $item['item']['no'],
-									'quantity'     => $vol_kirim,
-									'unitPrice'    => $item['unitPrice'],
-									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'itemCashDiscount' => $discount,
-									'salesmanListNumber'=>$item['salesmanList'][0]['number']
-								];
+							if ($nomor_po_pbbkb != NULL || $nomor_po_pbbkb != "") {
+								$po_number_pbbkb = $nomor_po_pbbkb;
+							} else {
+								$po_number_pbbkb = $ris['no_po_splitpbbkb'];
+								$query_update = ", no_po_splitpbbkb = '" . $po_number_pbbkb . "'";
 							}
 						} elseif ($ris['jenis'] == "split_oa") {
-							if ($item['item']['no'] == 'NS-001') {
-								$detailItems['detailItem']['oa']['no_invoice'] = $ris['no_invoice'];
-								$detailItems['detailItem']['oa']['id_invoice'] = $ris['id_invoice'];
-								$detailItems['detailItem']['oa']['po_number'] = $po_number_oa;
-								$detailItems['detailItem']['oa']['items'][] = [
-									'itemNo'       => $item['item']['no'],
-									'quantity'     => $vol_kirim,
-									'unitPrice'    => $item['unitPrice'],
-									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'itemCashDiscount' => $discount,
-									'salesmanListNumber'=>$item['salesmanList'][0]['number']
-								];
+							$harganya = $ongkos_angkut;
+							if ($nomor_po_oa != NULL || $nomor_po_oa != "") {
+								$po_number_oa = $nomor_po_oa;
+							} else {
+								$po_number_oa = $ris['no_po_splitoa'];
+								$query_update = ", no_po_splitoa = '" . $po_number_oa . "'";
 							}
-						} elseif ($ris['jenis'] == "split_pbbkb") {
-							if ($item['item']['no'] == 'PBBKB') {
-								$detailItems['detailItem']['pbbkb']['no_invoice'] = $ris['no_invoice'];
-								$detailItems['detailItem']['pbbkb']['id_invoice'] = $ris['id_invoice'];
-								$detailItems['detailItem']['pbbkb']['po_number'] = $po_number_pbbkb;
-								$detailItems['detailItem']['pbbkb']['items'][] = [
+						}
+						// var_dump($harganya);
+
+						$sql4 = "
+						insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+						('" . $noms01 . "', '" . $ris['id_invoice'] . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harganya . "', '" . $discount . "', '" . $jenisnya . "')";
+
+						$con->setQuery($sql4);
+						$oke  = $oke && !$con->hasError();
+
+						$sql_get_max = "SELECT id_invoice FROM pro_invoice_admin_detail WHERE id_invoice = '" . $ris['id_invoice'] . "'";
+						$row_max = $con->getRecord($sql_get_max);
+
+						if ($row_max['id_invoice'] != $ris['id_invoice']) {
+							$noms01 = 1; // increment id_invoice_detail untuk invoice ini
+						}
+
+						foreach ($kode_item as $item) {
+							if ($ris['jenis'] == "all_in") {
+								$detailItems['detailItem']['all_in']['no_invoice'] = $ris['no_invoice'];
+								$detailItems['detailItem']['all_in']['id_invoice'] = $ris['id_invoice'];
+								$detailItems['detailItem']['all_in']['po_number'] = $po_number;
+								$detailItems['detailItem']['all_in']['items'][] = [
 									'itemNo'       => $item['item']['no'],
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'salesmanListNumber'=>$item['salesmanList'][0]['number']
+									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
+							} elseif ($ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
+								if ($item['item']['no'] != 'NS-001' && $item['item']['no'] != 'PBBKB') {
+									$detailItems['detailItem']['harga_dasar']['no_invoice'] = $ris['no_invoice'];
+									$detailItems['detailItem']['harga_dasar']['id_invoice'] = $ris['id_invoice'];
+									$detailItems['detailItem']['harga_dasar']['po_number'] = $po_number;
+									$detailItems['detailItem']['harga_dasar']['items'][] = [
+										'itemNo'       => $item['item']['no'],
+										'quantity'     => $vol_kirim,
+										'unitPrice'    => $item['unitPrice'],
+										'deliveryOrderNumber' => $data_prd['no_do_syop'],
+										'itemCashDiscount' => $discount,
+										'salesmanListNumber' => $item['salesmanList'][0]['number']
+									];
+								}
+							} elseif ($ris['jenis'] == "split_oa") {
+								if ($item['item']['no'] == 'NS-001') {
+									$detailItems['detailItem']['oa']['no_invoice'] = $ris['no_invoice'];
+									$detailItems['detailItem']['oa']['id_invoice'] = $ris['id_invoice'];
+									$detailItems['detailItem']['oa']['po_number'] = $po_number_oa;
+									$detailItems['detailItem']['oa']['items'][] = [
+										'itemNo'       => $item['item']['no'],
+										'quantity'     => $vol_kirim,
+										'unitPrice'    => $item['unitPrice'],
+										'deliveryOrderNumber' => $data_prd['no_do_syop'],
+										'itemCashDiscount' => $discount,
+										'salesmanListNumber' => $item['salesmanList'][0]['number']
+									];
+								}
+							} elseif ($ris['jenis'] == "split_pbbkb") {
+								if ($item['item']['no'] == 'PBBKB') {
+									$detailItems['detailItem']['pbbkb']['no_invoice'] = $ris['no_invoice'];
+									$detailItems['detailItem']['pbbkb']['id_invoice'] = $ris['id_invoice'];
+									$detailItems['detailItem']['pbbkb']['po_number'] = $po_number_pbbkb;
+									$detailItems['detailItem']['pbbkb']['items'][] = [
+										'itemNo'       => $item['item']['no'],
+										'quantity'     => $vol_kirim,
+										'unitPrice'    => $item['unitPrice'],
+										'deliveryOrderNumber' => $data_prd['no_do_syop'],
+										'itemCashDiscount' => $discount,
+										'salesmanListNumber' => $item['salesmanList'][0]['number']
+									];
+								}
 							}
 						}
 					}
 				}
+			} else {
+				// echo "kesini";
+				// exit();
+				$sql3 = "delete from pro_invoice_admin_detail where id_invoice = '" . $idr . "'";
+				$con->setQuery($sql3);
+				$oke  = $oke && !$con->hasError();
+
+				if (count($res_inv_split) > 0) {
+					foreach ($res_inv_split as $ris) {
+						if ($ris['jenis'] == "all_in" || $ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
+							$harganya = $harga_kirim;
+						} elseif ($ris['jenis'] == "split_pbbkb") {
+							$harganya = $pbbkb;
+						} elseif ($ris['jenis'] == "split_oa") {
+							$harganya = $ongkos_angkut;
+						}
+					}
+				}
+
+				$sql4 = "
+				insert into pro_invoice_admin_detail(id_invoice_detail, id_invoice, id_dsd, tgl_delivered, vol_kirim, harga_kirim, discount, jenisnya) values 
+				('" . $noms01 . "', '" . $idr . "', '" . $id_dsd . "', '" . tgl_db($tgl_delivered) . "', '" . $vol_kirim . "', '" . $harganya . "', '" . $discount . "', '" . $jenisnya . "')";
+
+				$con->setQuery($sql4);
+				$oke  = $oke && !$con->hasError();
+
+				$detailItems['detailItem'] = [];
+				$res_inv_split = 0;
 			}
 		}
 	}
@@ -1292,63 +1439,69 @@ if ($act == "add") {
 	// exit();
 	$url  = BASE_URL_CLIENT . "/invoice_customer.php";
 	if ($oke) {
-		foreach ($res_inv_split as $ris2) {
-			$id_accurate_si = array(
-				'id' => $ris2['id_accurate']
-			);
+		if (count($res_inv_split) > 0) {
+			foreach ($res_inv_split as $ris2) {
+				$id_accurate_si = array(
+					'id' => $ris2['id_accurate']
+				);
 
-			$url_del = 'https://zeus.accurate.id/accurate/api/sales-invoice/delete.do';
-			$delete_accurate = curl_delete($url_del, json_encode($id_accurate_si));
-			// print_r($delete_accurate);
-			if ($delete_accurate['s'] == false) {
-				$con->rollBack();
-				$con->clearError();
-				$con->close();
-				$result = [
-					"status" 	=> false,
-					"pesan" 	=> $delete_accurate['d'][0],
-				];
+				$url_del = 'https://zeus.accurate.id/accurate/api/sales-invoice/delete.do';
+				$delete_accurate = curl_delete($url_del, json_encode($id_accurate_si));
+				// print_r($delete_accurate);
+				if ($delete_accurate['s'] == false) {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$result = [
+						"status" 	=> false,
+						"pesan" 	=> $delete_accurate['d'][0],
+					];
+				}
 			}
 		}
-		$detail_data = $detailItems['detailItem'];
-		foreach ($detail_data as $i => $subData) {
-			$url_save = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
-			$data = array(
-				"customerNo"        => $res_cust['kode_pelanggan'],
-				"poNumber"	        => $subData['po_number'],
-				"number"            => $subData['no_invoice'],
-				'branchName'        => ($rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang']),
-				'transDate'        	=> $tgl_invoice,
-				"detailItem"        => $subData['items'],
-			);
 
-			$jsonData = json_encode($data);
+		if (!empty($detailItems['detailItem']) && is_array($detailItems['detailItem'])) {
+			$detail_data = $detailItems['detailItem'];
+			foreach ($detail_data as $i => $subData) {
+				$url_save = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
+				$data = array(
+					"customerNo"        => $res_cust['kode_pelanggan'],
+					"poNumber"	        => $subData['po_number'],
+					"number"            => $subData['no_invoice'],
+					'branchName'        => ($rowget_cabang['nama_cabang'] == 'HO' ? 'Head Office' : $rowget_cabang['nama_cabang']),
+					'transDate'        	=> $tgl_invoice,
+					"detailItem"        => $subData['items'],
+				);
 
-			$result_save = curl_post($url_save, $jsonData);
+				$jsonData = json_encode($data);
 
-			// echo json_encode($result_save);
-			// exit();
+				$result_save = curl_post($url_save, $jsonData);
 
-			if ($result_save['s'] == false) {
-				$con->rollBack();
-				$con->clearError();
-				$con->close();
-				$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+				// echo json_encode($result_save);
+				// exit();
+
+				if ($result_save['s'] == false) {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result_save['d'][0] . " - Response dari Accurate", BASE_REFERER);
+				}
+
+				$query_update = '';
+				if ($i === "oa") {
+					$query_update = ", no_po_splitoa = '" . $subData['po_number'] . "'";
+				} else if ($i === "pbbkb") {
+					$query_update = ", no_po_splitpbbkb = '" . $subData['po_number'] . "'";
+				}
+
+				$update_id_accurate = 'update pro_invoice_admin set total_invoice = "' . $result_save['r']['totalAmount'] . '", id_accurate = "' . $result_save['r']['id'] . '"' . $query_update . ' where id_invoice = "' . $subData['id_invoice'] . '"';
+				$con->setQuery($update_id_accurate);
+				$oke  = $oke && !$con->hasError();
+				// var_dump($update_id_accurate);
+				// exit;
 			}
-
-			$query_update='';
-			if($i === "oa"){
-				$query_update = ", no_po_splitoa = '".$subData['po_number']."'";
-			}else if($i ==="pbbkb"){
-				$query_update = ", no_po_splitpbbkb = '".$subData['po_number']."'";
-			}
-
-			$update_id_accurate = 'update pro_invoice_admin set total_invoice = "' . $result_save['r']['totalAmount'] . '", id_accurate = "' . $result_save['r']['id'] . '"' . $query_update . ' where id_invoice = "' . $subData['id_invoice'] . '"';
-			$con->setQuery($update_id_accurate);
-			$oke  = $oke && !$con->hasError();
-			// var_dump($update_id_accurate);
-			// exit;
 		}
+
 		// exit();
 
 		$con->commit();
@@ -1759,27 +1912,36 @@ if ($act == "add") {
 
 	if ($oke) {
 
-		$query = array(
-			'id' => $id2
-		);
+		if (isset($id2) && ($id2 != NULL || $id2 != "")) {
+			$query = array(
+				'id' => $id2
+			);
 
-		$url_del = 'https://zeus.accurate.id/accurate/api/sales-invoice/delete.do';
-		$delete_accurate = curl_delete($url_del, json_encode($query));
-		// print_r($delete_accurate);
-		if ($delete_accurate['s'] == true) {
+			$url_del = 'https://zeus.accurate.id/accurate/api/sales-invoice/delete.do';
+			$delete_accurate = curl_delete($url_del, json_encode($query));
+			// print_r($delete_accurate);
+			if ($delete_accurate['s'] == true) {
+				$con->commit();
+				$con->close();
+				$result = [
+					"status" 	=> true,
+					"pesan" 	=> "Berhasil di hapus",
+				];
+			} else {
+				$con->rollBack();
+				$con->clearError();
+				$con->close();
+				$result = [
+					"status" 	=> false,
+					"pesan" 	=> $delete_accurate['d'][0],
+				];
+			}
+		} else {
 			$con->commit();
 			$con->close();
 			$result = [
 				"status" 	=> true,
 				"pesan" 	=> "Berhasil di hapus",
-			];
-		} else {
-			$con->rollBack();
-			$con->clearError();
-			$con->close();
-			$result = [
-				"status" 	=> false,
-				"pesan" 	=> $delete_accurate['d'][0],
 			];
 		}
 	} else {
