@@ -504,135 +504,143 @@ if ($act == 'cek') {
 				// $data_po = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
 				// $rowget = $con->getRecord($data_po);
 
-				$ambil_alamat = "SELECT a.*,b.inisial_cabang FROM pro_master_terminal a
-							JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
-							WHERE a.id_master = '" . $rowget['id_terminal']  . "'";
-				$alamat = $con->getRecord($ambil_alamat);
+				if($rowget['id_accurate']!=null){
+					$ambil_alamat = "SELECT a.*,b.inisial_cabang FROM pro_master_terminal a
+								JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
+								WHERE a.id_master = '" . $rowget['id_terminal']  . "'";
+					$alamat = $con->getRecord($ambil_alamat);
 
-				$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
+					$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
 
-				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+					$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
-				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
-				$rowget_cabang = $con->getRecord($queryget_cabang);
+					$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+					$rowget_cabang = $con->getRecord($queryget_cabang);
 
 
-				$url_delete = 'https://zeus.accurate.id/accurate/api/purchase-order/delete.do';
+					$url_delete = 'https://zeus.accurate.id/accurate/api/purchase-order/delete.do';
 
-				$id_accurate = $rowget['id_accurate'];
-				$data_po_accurate = array(
-					'id' => $id_accurate,
-				);
+					$id_accurate = $rowget['id_accurate'];
+					$data_po_accurate = array(
+						'id' => $id_accurate,
+					);
 
-				$result_po_accurate = curl_delete($url_delete, json_encode($data_po_accurate));
+					$result_po_accurate = curl_delete($url_delete, json_encode($data_po_accurate));
 
-				if ($result_po_accurate['s'] == true) {
-					$queryget = "SELECT * FROM pro_master_vendor WHERE id_master = '" . $rowget['id_vendor'] . "'";
-					$rowgetvendor = $con->getRecord($queryget);
+					if ($result_po_accurate['s'] == true) {
+						$queryget = "SELECT * FROM pro_master_vendor WHERE id_master = '" . $rowget['id_vendor'] . "'";
+						$rowgetvendor = $con->getRecord($queryget);
 
-					if ($rowgetvendor['kode_vendor'] != null) {
+						if ($rowgetvendor['kode_vendor'] != null) {
 
-						$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
-						// Data yang akan dikirim dalam format JSON
-						$data = array(
-							'transDate'        	=> $dt1,
-							'vendorNo'         	=> $rowgetvendor['kode_vendor'],
-							'number'           	=> $dt2,
-							'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-							'paymentTermName'  	=> $terms . ' ' . $terms_day,
-							'charField1'    	=> $dt6_edit,
-							'charField2'    	=> $kategori_plat,
-							'charField3'    	=> $kd_tax,
-							'description'       => $ket,
-							"toAddress" 		=> $detail_alamat,
-							'detailItem'       	=> [],
-							'detailExpense'     => []
-						);
-
-						// Menggunakan foreach untuk mengisi detailItem
-						// foreach ($detailItems as $item) {
-						// 	$data['detailItem'][] = [
-						// 		'itemNo'       => $item['itemNo'],
-						// 		'quantity'     => $item['quantity'],
-						// 		'unitPrice'    => $item['unitPrice'],
-						// 		'useTax1'	   => $item['useTax1'],
-						// 		'warehouseName'=> $item['warehouseName'],
-						// 	];
-						// }
-
-						foreach ($detailItems as $item) {
-							$dataItem = [
-								'itemNo'     	=> $item['itemNo'],
-								'quantity'   	=> $item['quantity'],
-								'unitPrice'  	=> $item['unitPrice'],
-								'useTax1'    	=> $item['useTax1'],
-								'detailNotes'	=> $item['detailNotes'],
-							];
-
-							if ($item['jenis']) {
-								$dataItem['warehouseName'] = $alamat['inisial_cabang'];
-							}
-
-							$data['detailItem'][] = $dataItem;
-						}
-
-						// Menggunakan foreach untuk mengisi detailExpense
-						foreach ($detailExpenses as $expense) {
-							$data['detailExpense'][] = [
-								'accountNo' => $expense['accountNo'],
-								'expenseAmount'  => $expense['expenseAmount'],
-								// 'expenseName' => $expense['expenseName'],
-								'allocateToItemCost' => $expense['allocateToItemCost'],
-								'expenseNotes' => $expense['expenseNotes'],
-							];
-						}
-
-						// Mengonversi data menjadi format JSON
-						$jsonData = json_encode($data);
-						$result = curl_post($urlnya, $jsonData);
-
-						if ($result['s'] == true) {
-							$data2 = array(
-								"id"        		=> $result['r']['id'],
-								"branchName"        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+							$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+							// Data yang akan dikirim dalam format JSON
+							$data = array(
+								'transDate'        	=> $dt1,
+								'vendorNo'         	=> $rowgetvendor['kode_vendor'],
+								'number'           	=> $dt2,
+								'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+								'paymentTermName'  	=> $terms . ' ' . $terms_day,
+								'charField1'    	=> $dt6_edit,
+								'charField2'    	=> $kategori_plat,
+								'charField3'    	=> $kd_tax,
+								'description'       => $ket,
 								"toAddress" 		=> $detail_alamat,
-								"manualClosed" 		=> true,
-								"closeReason" 		=> 'Menunggu Approve'
+								'detailItem'       	=> [],
+								'detailExpense'     => []
 							);
 
-							$jsonData = json_encode($data2);
-							$result_close = curl_post($urlnya, $jsonData);
+							// Menggunakan foreach untuk mengisi detailItem
+							// foreach ($detailItems as $item) {
+							// 	$data['detailItem'][] = [
+							// 		'itemNo'       => $item['itemNo'],
+							// 		'quantity'     => $item['quantity'],
+							// 		'unitPrice'    => $item['unitPrice'],
+							// 		'useTax1'	   => $item['useTax1'],
+							// 		'warehouseName'=> $item['warehouseName'],
+							// 	];
+							// }
+
+							foreach ($detailItems as $item) {
+								$dataItem = [
+									'itemNo'     	=> $item['itemNo'],
+									'quantity'   	=> $item['quantity'],
+									'unitPrice'  	=> $item['unitPrice'],
+									'useTax1'    	=> $item['useTax1'],
+									'detailNotes'	=> $item['detailNotes'],
+								];
+
+								if ($item['jenis']) {
+									$dataItem['warehouseName'] = $alamat['inisial_cabang'];
+								}
+
+								$data['detailItem'][] = $dataItem;
+							}
+
+							// Menggunakan foreach untuk mengisi detailExpense
+							foreach ($detailExpenses as $expense) {
+								$data['detailExpense'][] = [
+									'accountNo' => $expense['accountNo'],
+									'expenseAmount'  => $expense['expenseAmount'],
+									// 'expenseName' => $expense['expenseName'],
+									'allocateToItemCost' => $expense['allocateToItemCost'],
+									'expenseNotes' => $expense['expenseNotes'],
+								];
+							}
+
+							// Mengonversi data menjadi format JSON
+							$jsonData = json_encode($data);
+							$result = curl_post($urlnya, $jsonData);
+
 							if ($result['s'] == true) {
-								$update = "UPDATE new_pro_inventory_vendor_po set id_accurate = '" . $result['r']['id'] . "' WHERE id_master = " . $id1nya;
-								$con->setQuery($update);
-								// echo $jsonData;
-								$con->commit();
-								$con->close();
-								header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
-								exit();
+								$data2 = array(
+									"id"        		=> $result['r']['id'],
+									"branchName"        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+									"toAddress" 		=> $detail_alamat,
+									"manualClosed" 		=> true,
+									"closeReason" 		=> 'Menunggu Approve'
+								);
+
+								$jsonData = json_encode($data2);
+								$result_close = curl_post($urlnya, $jsonData);
+								if ($result['s'] == true) {
+									$update = "UPDATE new_pro_inventory_vendor_po set id_accurate = '" . $result['r']['id'] . "' WHERE id_master = " . $id1nya;
+									$con->setQuery($update);
+									// echo $jsonData;
+									$con->commit();
+									$con->close();
+									header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+									exit();
+								} else {
+									$con->rollBack();
+									$con->clearError();
+									$con->close();
+									$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+								}
 							} else {
 								$con->rollBack();
 								$con->clearError();
 								$con->close();
-								$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+								$flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
 							}
+							
 						} else {
 							$con->rollBack();
 							$con->clearError();
 							$con->close();
-							$flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
+							$flash->add("error", "Vendor pada accurate tidak ditemukan", BASE_REFERER);
 						}
 					} else {
 						$con->rollBack();
 						$con->clearError();
 						$con->close();
-						$flash->add("error", "Vendor pada accurate tidak ditemukan", BASE_REFERER);
+						$flash->add("error", $result_po_accurate["d"][0] . " - Response dari Accurate", BASE_REFERER);
 					}
-				} else {
-					$con->rollBack();
-					$con->clearError();
+				}else{
+					$con->commit();
 					$con->close();
-					$flash->add("error", $result_po_accurate["d"][0] . " - Response dari Accurate", BASE_REFERER);
+					header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+					exit();
 				}
 			} else {
 				$con->rollBack();
@@ -694,41 +702,49 @@ if ($act == 'cek') {
 			$oke  = $oke && !$con->hasError();
 
 			if ($oke) {
-				$queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
-				$rowget = $con->getRecord($queryget);
+				if($rowget['id_accurate']!=null){
 
-				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $rowget['id_terminal'] . "'";
-				$alamat = $con->getRecord($ambil_alamat);
-
-				$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
-
-				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
-
-				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
-				$rowget_cabang = $con->getRecord($queryget_cabang);
-
-				$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
-
-				$data2 = array(
-					"id"        		=> $rowget['id_accurate'],
-					"toAddress" 		=> $detail_alamat,
-					'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-					"manualClosed" 		=> true,
-					"closeReason" 		=> $cancel
-				);
-				$jsonData2 = json_encode($data2);
-				$result_close = curl_post($urlnya, $jsonData2);
-				if ($result_close['s'] == true) {
-
+					$queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
+					$rowget = $con->getRecord($queryget);
+	
+					$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $rowget['id_terminal'] . "'";
+					$alamat = $con->getRecord($ambil_alamat);
+	
+					$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
+	
+					$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+	
+					$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+					$rowget_cabang = $con->getRecord($queryget_cabang);
+	
+					$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+	
+					$data2 = array(
+						"id"        		=> $rowget['id_accurate'],
+						"toAddress" 		=> $detail_alamat,
+						'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+						"manualClosed" 		=> true,
+						"closeReason" 		=> $cancel
+					);
+					$jsonData2 = json_encode($data2);
+					$result_close = curl_post($urlnya, $jsonData2);
+					if ($result_close['s'] == true) {
+	
+						$con->commit();
+						$con->close();
+						header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+						exit();
+					} else {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+					}
+				}else{
 					$con->commit();
 					$con->close();
 					header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
 					exit();
-				} else {
-					$con->rollBack();
-					$con->clearError();
-					$con->close();
-					$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
 				}
 			} else {
 				$con->rollBack();
@@ -759,42 +775,49 @@ if ($act == 'cek') {
 			$oke  = $oke && !$con->hasError();
 
 			if ($oke) {
-				$queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
-				$rowget = $con->getRecord($queryget);
-
-				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $rowget['id_terminal'] . "'";
-				$alamat = $con->getRecord($ambil_alamat);
-
-				$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
-
-				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
-
-				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
-				$rowget_cabang = $con->getRecord($queryget_cabang);
-
-				$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
-
-				$data2 = array(
-					"id"        		=> $rowget['id_accurate'],
-					"toAddress" 		=> $detail_alamat,
-					'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-					"manualClosed" 		=> true,
-					"closeReason" 		=> 'CLOSE PO ' . $tgl_close . ' - volume close = ' . $volume_close
-				);
-				$jsonData2 = json_encode($data2);
-				$result_close = curl_post($urlnya, $jsonData2);
-
-				if ($result_close['s'] == true) {
-
+				if($rowget['id_accurate']!=null){
+					$queryget = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idr . "'";
+					$rowget = $con->getRecord($queryget);
+	
+					$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $rowget['id_terminal'] . "'";
+					$alamat = $con->getRecord($ambil_alamat);
+	
+					$detail_alamat = strtoupper($alamat['nama_terminal']) . " - " . $alamat['lokasi_terminal'];
+	
+					$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+	
+					$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+					$rowget_cabang = $con->getRecord($queryget_cabang);
+	
+					$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+	
+					$data2 = array(
+						"id"        		=> $rowget['id_accurate'],
+						"toAddress" 		=> $detail_alamat,
+						'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+						"manualClosed" 		=> true,
+						"closeReason" 		=> 'CLOSE PO ' . $tgl_close . ' - volume close = ' . $volume_close
+					);
+					$jsonData2 = json_encode($data2);
+					$result_close = curl_post($urlnya, $jsonData2);
+	
+					if ($result_close['s'] == true) {
+	
+						$con->commit();
+						$con->close();
+						header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
+						exit();
+					} else {
+						$con->rollBack();
+						$con->clearError();
+						$con->close();
+						$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+					}
+				}else{
 					$con->commit();
 					$con->close();
 					header("location: " . BASE_URL_CLIENT . "/vendor-po-new.php");
 					exit();
-				} else {
-					$con->rollBack();
-					$con->clearError();
-					$con->close();
-					$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
 				}
 				// $con->commit();
 				// $con->close();
