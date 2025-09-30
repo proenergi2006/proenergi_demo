@@ -26,6 +26,8 @@ $linkCtk1 	= ACTION_CLIENT . "/delivery-order-cetak.php?" . paramEncrypt("idr=" 
 /*dengan code customer*/
 $linkCtk2 	= ACTION_CLIENT . "/delivery-loading-cetak.php?" . paramEncrypt("idr=" . $idr . "&code=yes");
 $linkCtk4 	= ACTION_CLIENT . "/delivery-loading-cetak.php?" . paramEncrypt("idr=" . $idr . "&code=no");
+$linkCtk6 	= ACTION_CLIENT . "/delivery-loading-cetak-sj.php?" . paramEncrypt("idr=" . $idr . "&code=yes");
+$linkCtk7 	= ACTION_CLIENT . "/delivery-loading-cetak-sj.php?" . paramEncrypt("idr=" . $idr . "&code=no");
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -281,7 +281,7 @@
         <div class="col-sm-6 col-sm-top">
             <div class="text-right">
                 <?php if ($row['is_submitted']) { ?>
-                    <div class="btn-group jarak-kanan">
+                    <!-- <div class="btn-group jarak-kanan">
                         <button type="button" class="btn btn-success">Cetak DN</button>
                         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                             <span class="caret"></span>
@@ -290,6 +290,17 @@
                         <ul class="dropdown-menu" role="menu">
                             <li><a target="_blank" href="<?php echo $linkCtk2; ?>">Dengan Inisial</a></li>
                             <li><a target="_blank" href="<?php echo $linkCtk4; ?>">Tanpa Inisial</a></li>
+                        </ul>
+                    </div> -->
+                    <div class="btn-group jarak-kanan">
+                        <button type="button" class="btn btn-success">Cetak DN</button>
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a target="_blank" href="<?php echo $linkCtk6; ?>">Dengan Inisial</a></li>
+                            <li><a target="_blank" href="<?php echo $linkCtk7; ?>">Tanpa Inisial</a></li>
                         </ul>
                     </div>
                     <a class="btn btn-success jarak-kanan" target="_blank" href="<?php echo $linkCtk3; ?>">Cetak BA</a>

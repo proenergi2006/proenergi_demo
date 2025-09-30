@@ -274,7 +274,7 @@
                     </ul>
                 </div>';
 
-                    echo '<a class="btn btn-success jarak-kanan" target="_blank" title="Cetak" href="' . $linkCetak2 . '" style="min-width:90px;">Cetak SPJ</a> ';
+                    // echo '<a class="btn btn-success jarak-kanan" target="_blank" title="Cetak" href="' . $linkCetak2 . '" style="min-width:90px;">Cetak SPJ</a> ';
                 } else if (($row['po_approved'] && $row['ada_selisih'] && !$row['f_proses_selisih'])) {
                     echo '<p style="margin-bottom:0px; font-size:12px;"><i>Cetak PO dan SPJ menunggu proses selisih OA</i></p>';
                 } else echo '&nbsp;';
