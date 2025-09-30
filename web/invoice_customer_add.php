@@ -1648,7 +1648,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													'<p style="margin-bottom:3px;">No PO Customer : ' + row.nomor_poc + '</p>' +
 													'<p style="margin-bottom:3px;">No DN : ' + row.no_dn + '</p>' +
 													'<p style="margin-bottom:3px;">No SPJ : ' + row.no_spj + '</p>' +
-													'<p style="margin-bottom:3px;">Lampiran SPJ : <a href=' + url + ' target="_blank">' + nama_file_sj + '</a></p>' +
+													'<p style="margin-bottom:3px;">Lampiran SJ : <a href=' + url + ' target="_blank">' + nama_file_sj + '</a></p>' +
 													'<p style="margin-bottom:3px;">No Penawaran : ' + row.nomor_surat + '</p>' +
 													'<p style="margin-bottom:3px;">No DO : ' + no_do + '</p>' +
 													'<p style="margin-bottom:3px;">No LO : ' + row.nomor_lo_pr + '</p>' +
@@ -2111,7 +2111,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												'<p style="margin-bottom:3px;">No PO Customer : ' + row.nomor_poc + '</p>' +
 												'<p style="margin-bottom:3px;">No DN : ' + row.no_dn + '</p>' +
 												'<p style="margin-bottom:3px;">No SPJ : ' + row.no_spj + '</p>' +
-												'<p style="margin-bottom:3px;">Lampiran SPJ : <a href=' + url + ' target="_blank">' + nama_file_sj + '</a></p>' +
+												'<p style="margin-bottom:3px;">Lampiran SJ : <a href=' + url + ' target="_blank">' + nama_file_sj + '</a></p>' +
 												'<p style="margin-bottom:3px;">No Penawaran : ' + row.nomor_surat + '</p>' +
 												'<p style="margin-bottom:3px;">No DO : ' + no_do + '</p>' +
 												'<p style="margin-bottom:3px;">No LO : ' + row.nomor_lo_pr + '</p>' +

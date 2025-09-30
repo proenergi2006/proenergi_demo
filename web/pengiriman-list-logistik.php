@@ -472,7 +472,7 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 								</div>
 								<div class="col-sm-4 hide" id="field_tgl_loading">
 									<label>Tanggal Loading</label>
-									<input type="text" name="tgl_loading" id="tgl_loading" class="form-control input-po datepicker" value="" autocomplete="off" width="50%"/>
+									<input type="text" name="tgl_loading" id="tgl_loading" class="form-control input-po datepicker" value="" autocomplete="off" width="50%" />
 								</div>
 							</div>
 							<div class=" row">
@@ -497,6 +497,48 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ========== MODAL: Upload Surat Jalan (PDF) ========== -->
+	<div class="modal fade" id="status_upload_modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog" style="width:1000px;">
+			<div class="modal-content">
+				<div class="modal-header bg-blue">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Upload Surat Jalan (PDF)</h4>
+				</div>
+
+				<div class="modal-body">
+					<!-- header info DO/Customer akan diisi via AJAX -->
+					<div id="infoUpload"></div>
+
+					<!-- error area -->
+					<div id="errUpload" class="text-red" style="margin:6px 0;"></div>
+					<div id="previewSJ" class="embed-responsive" style="display:none; margin-top:8px;">
+						<iframe id="previewSJ_iframe" style="width:100%;height:70vh;" frameborder="0"></iframe>
+					</div>
+
+					<form id="form-upload-sj" enctype="multipart/form-data" onsubmit="return false;">
+						<div class="form-group">
+							<label for="file_sj" style="font-weight:bold">Lampiran Surat Jalan</label>
+							<input type="file" id="file_sj" name="file_sj" class="form-control" accept="application/pdf, image/*">
+							<p class="help-block">Format PDF dan Image, maks 2MB.</p>
+						</div>
+
+						<!-- hidden -->
+						<input type="hidden" id="idUpload" name="idUpload" value="">
+						<input type="hidden" id="tipeUpload" name="tipeUpload" value="">
+					</form>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+					<button type="button" class="btn btn-primary" id="btnUploadSJ">Upload</button>
 				</div>
 			</div>
 		</div>
@@ -847,12 +889,12 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 
 			//pembaruan is_request *iwanhermawan develop 27/09/2024
 
-            $("#dt5_load").change(function() {
+			$("#dt5_load").change(function() {
 				var val = $(this).val();
-				if(val == '2'){
+				if (val == '2') {
 					$("#field_tgl_loading").removeClass("hide");
 					$('#tgl_loading').attr("required", true);
-				}else{
+				} else {
 					$("#field_tgl_loading").addClass("hide");
 					$('#tgl_loading').removeAttr("required", true);
 				}
@@ -874,7 +916,7 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 				var masaAkhir = $("#masa_akhir").val(); // Mendapatkan nilai masa akhir
 				var tgl_loading = $("#tgl_loading").val();
 
-				
+
 				var today = new Date();
 				var endDate = new Date(masaAkhir);
 
@@ -884,7 +926,7 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 					console.log("Param (paramRQ): " + paramRQ);
 					console.log("Jenis Request (dt5): " + jenisRequest);
 					console.log("Catatan (dt6): " + catatan);
-				
+
 					// Cek jika nilai loaded adalah 1 dan jenisRequest adalah 'Change Depot'
 					if (loaded === "1" && jenisRequest === "1") {
 						Swal.fire({
@@ -1342,6 +1384,118 @@ $linkEx2 = BASE_URL_CLIENT . '/report/pengiriman-logistik-kapal-exp.php';
 			});
 			$('#tableGridLength2').on('change', function() {
 				$("#data-kapal-table").ajaxGrid("pageLen", $(this).val());
+			});
+
+			$('#data-truck-table tbody, #data-kapal-table tbody').on('click', '.editStsT1', function() {
+				var param = $(this).data("param");
+				var infor = $(this).data("info");
+				var fileUrl = $(this).data("file") || ""; // <- URL SJ jika sudah ada
+				var angku = $(this).closest('table').attr('id');
+				var tkuLP = (angku === 'data-truck-table') ? 1 : 2;
+
+				$.post("./datatable/get_info_loading.php", {
+					param: infor
+				}, function(html) {
+					var $m = $("#status_upload_modal");
+					$m.find("#infoUpload").html(html);
+					$m.find("#errUpload").html("");
+					$m.find("#file_sj").val("");
+					$m.find("#idUpload").val(param);
+					$m.find("#tipeUpload").val(tkuLP);
+
+					// tampilkan preview bila file sudah ada
+					if (fileUrl) {
+						$m.find("#previewSJ").show();
+						$m.find("#previewSJ_iframe").attr("src", encodeURI(fileUrl) + "#toolbar=1");
+					} else {
+						$m.find("#previewSJ").hide();
+						$m.find("#previewSJ_iframe").attr("src", "");
+					}
+
+					$m.modal({
+						keyboard: false,
+						backdrop: 'static'
+					});
+				});
+			});
+
+			// ========== aksi upload ==========
+			$('#status_upload_modal').on('click', '#btnUploadSJ', function() {
+				var f = $("#file_sj")[0].files[0];
+				if (f.size > (2 * 1024 * 1024)) {
+					$("#errUpload").html("Ukuran file maksimum 2MB.");
+					return;
+				}
+
+				var fd = new FormData();
+				fd.append("file", "logistik");
+				fd.append("aksi", "upload_sj"); // server akan melakukan "scanify" PDF
+				fd.append("param", $("#idUpload").val()); // linkParam terenkripsi (berisi id_dsd di depan)
+				fd.append("tipe", $("#tipeUpload").val()); // 1=truck, 2=kapal
+				fd.append("file_sj", f);
+
+				// show loading, hide modal
+				$("#loading_modal").modal({
+					keyboard: false,
+					backdrop: 'static'
+				});
+				$("#status_upload_modal").modal("hide");
+
+				$.ajax({
+					type: "POST",
+					url: "./action/pengiriman-list.php",
+					data: fd,
+					processData: false,
+					contentType: false,
+					dataType: "json",
+					success: function(res) {
+						$("#loading_modal").modal("hide");
+
+						// Refresh grid
+						if ($("#tipeUpload").val() == "2") $("#data-kapal-table").ajaxGrid("draw");
+						else $("#data-truck-table").ajaxGrid("draw");
+
+						if (res && res.error) {
+							$("#error_modal").find("#error-preview").html(res.error);
+							$("#error_modal").modal({
+								keyboard: false,
+								backdrop: 'static'
+							});
+							return;
+						}
+
+						// === NEW: buka lagi modal upload dengan preview file yang baru ===
+						if (res && res.ok && res.url) {
+							var $m = $("#status_upload_modal");
+							$m.find("#errUpload").html("");
+							$m.find("#file_sj").val("");
+							$m.find("#previewSJ").show();
+							$m.find("#previewSJ_iframe").attr("src", encodeURI(res.url) + "#toolbar=1");
+							// Update judul/info jika mau, mis: tambahkan nama file
+							// $m.find(".modal-title").text("Upload Surat Jalan (PDF) - " + (res.name || ""));
+							$m.modal({
+								keyboard: false,
+								backdrop: 'static'
+							});
+						}
+					},
+					error: function() {
+						$("#loading_modal").modal("hide");
+						$("#error_modal").find("#error-preview").html("Gagal mengunggah file.");
+						$("#error_modal").modal({
+							keyboard: false,
+							backdrop: 'static'
+						});
+					}
+				});
+
+			});
+
+			// bersihkan saat modal ditutup
+			$('#status_upload_modal').on('hidden.bs.modal', function() {
+				$(this).find('#infoUpload,#errUpload').html('');
+				$(this).find('#file_sj').val('');
+				$(this).find('#idUpload,#tipeUpload').val('');
 			});
 		});
 	</script>

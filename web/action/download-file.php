@@ -29,6 +29,9 @@ if ($filetipe == 1) {
 } else if ($filetipe == 7) {
 	$filepath = $public_base_directory . '/files/uploaded_user/lampiran';
 	$filelink = $filepath . '/' . $kategori . $filename;
+} else if ($filetipe == 8) {
+	$filepath = $public_base_directory . '/files/uploaded_user/surat_jalan';
+	$filelink = $filepath . '/' . $filename;
 } else if ($filetipe == 108900) {
 	$filepath = $public_base_directory . '/files/uploaded_user/lampiran';
 	$filelink = $filepath . '/' . $kategori;

@@ -32,7 +32,7 @@ if ($vendor == "") {
 		$lastid = $con->setQuery($sql);
 		$oke = $oke && !$con->hasError();
 	} else if ($act == 'update') {
-		$sql = "update pro_master_vendor set nama_vendor = '" . $vendor . "', is_active = '" . $active . "', inisial_vendor = '" . $inisial_vendor . "', lastupdate_time = NOW(), lastupdate_ip = '" . $_SERVER['REMOTE_ADDR'] . "', lastupdate_by = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "' where id_master = " . $idr;
+		$sql = "update pro_master_vendor set nama_vendor = '" . $vendor . "', kode_vendor = '" . $kode_vendor . "', is_active = '" . $active . "', inisial_vendor = '" . $inisial_vendor . "', lastupdate_time = NOW(), lastupdate_ip = '" . $_SERVER['REMOTE_ADDR'] . "', lastupdate_by = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "' where id_master = " . $idr;
 		$msg = "GAGAL_UBAH";
 		$con->setQuery($sql);
 		$oke = $oke && !$con->hasError();
@@ -73,37 +73,45 @@ if ($vendor == "") {
 				$con->close();
 				$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
 			}
-		}else if ($act == 'update') {
+		} else if ($act == 'update') {
 
-			 $sql = "
+			$sql = "
 				select a.*
 				from pro_master_vendor a 
 				where a.id_master = '" . $idr . "'
 				";
-   			$get_data  = $con->getRecord($sql);
-			$urlnya = 'https://zeus.accurate.id/accurate/api/vendor/save.do';
-			// Data yang akan dikirim dalam format JSON
-			$data = array(
-				'id'        	=> $get_data['id_accurate'],
-				'name'        	=> $vendor,
-				'transDate'     => date("d/m/Y"),
-				'vendorNo'      =>$kode_vendor,
-			);
+			$get_data  = $con->getRecord($sql);
 
-			$jsonData = json_encode($data);
+			if ($get_data['id_accurate'] != NULL || $get_data['id_accurate'] != "") {
+				$urlnya = 'https://zeus.accurate.id/accurate/api/vendor/save.do';
+				// Data yang akan dikirim dalam format JSON
+				$data = array(
+					'id'        	=> $get_data['id_accurate'],
+					'name'        	=> $vendor,
+					'transDate'     => date("d/m/Y"),
+					'vendorNo'      => $kode_vendor,
+				);
+
+				$jsonData = json_encode($data);
 
 
-			$result = curl_post($urlnya, $jsonData);
+				$result = curl_post($urlnya, $jsonData);
 
-			if ($result['s'] == true) {
+				if ($result['s'] == true) {
+					$con->commit();
+					$con->close();
+					header("location: " . BASE_URL_CLIENT . "/master-vendor.php");
+					exit();
+				} else {
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
+				}
+			} else {
 				$con->commit();
 				$con->close();
 				header("location: " . BASE_URL_CLIENT . "/master-vendor.php");
 				exit();
-			} else {
-				$con->clearError();
-				$con->close();
-				$flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
 			}
 		}
 	}
