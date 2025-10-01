@@ -292,63 +292,72 @@ if ($ems1) {
 
 if ($oke) {
     if (($is_request == 3 && $revert == 1) && ($is_loaded == 0 || $is_loaded == 1)) {
-        $queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $wilayah . "'";
-        $rowget_cabang = $con->getRecord($queryget_cabang);
+        if($id_do_accurate!=''||$id_do_accurate!=null){
 
-        $queryget = "SELECT a.*, c.kode_pelanggan,e.no_do_syop FROM pro_po_ds_detail a JOIN pro_po_customer b ON a.id_poc = b.id_poc 
-                    JOIN pro_customer c ON b.id_customer = c.id_customer 
-                    JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov 
-                    JOIN pro_pr_detail e ON a.`id_prd`=e.id_prd
-                    WHERE a.id_dsd = '" . $idr . "'";
-        $rowget = $con->getRecord($queryget);
-
-        $query = http_build_query([
-            'id' => $id_do_accurate
-        ]);
-
-        $urlnya_so = 'https://zeus.accurate.id/accurate/api/delivery-order/detail.do?' . $query;
-
-        $result_so = curl_get($urlnya_so);;
-        $detailItems = [];
-        $getItem = $result_so['d']['detailItem'];
-
-        foreach ($getItem as $detail) {
-            if ($detail['item']['itemType'] == 'INVENTORY') {
-                $detailItems['detailItem'][] = [
-                    "itemNo" => $detail['item']['no'],
-                    "quantity" => $detail['quantity'],
-                    "warehouseName" => $detail['warehouse']['name']
-                ];
+            $queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $wilayah . "'";
+            $rowget_cabang = $con->getRecord($queryget_cabang);
+    
+            $queryget = "SELECT a.*, c.kode_pelanggan,e.no_do_syop FROM pro_po_ds_detail a JOIN pro_po_customer b ON a.id_poc = b.id_poc 
+                        JOIN pro_customer c ON b.id_customer = c.id_customer 
+                        JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov 
+                        JOIN pro_pr_detail e ON a.`id_prd`=e.id_prd
+                        WHERE a.id_dsd = '" . $idr . "'";
+            $rowget = $con->getRecord($queryget);
+    
+            $query = http_build_query([
+                'id' => $id_do_accurate
+            ]);
+    
+            $urlnya_so = 'https://zeus.accurate.id/accurate/api/delivery-order/detail.do?' . $query;
+    
+            $result_so = curl_get($urlnya_so);;
+            $detailItems = [];
+            $getItem = $result_so['d']['detailItem'];
+    
+            foreach ($getItem as $detail) {
+                if ($detail['item']['itemType'] == 'INVENTORY') {
+                    $detailItems['detailItem'][] = [
+                        "itemNo" => $detail['item']['no'],
+                        "quantity" => $detail['quantity'],
+                        "warehouseName" => $detail['warehouse']['name']
+                    ];
+                }
             }
-        }
-
-        $data_sr = array(
-            "customerNo"            => $rowget['kode_pelanggan'],
-            "returnType"            => "DELIVERY",
-            "deliveryOrderNumber"   => $rowget['no_do_syop'],
-            "description"             => "CANCEL TRIP",
-            "transDate"             => date("d/m/Y"),
-            "branchName"              => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-            "detailItem"               => $detailItems['detailItem']
-        );
-
-        // var_dump($data_sr);
-        // exit;
-        $jsonData_sr = json_encode($data_sr);
-        $url_sr = 'https://zeus.accurate.id/accurate/api/sales-return/save.do';
-        $result_sr = curl_post($url_sr, $jsonData_sr);
-
-        if ($result_sr['s'] == true) {
-            $con->commit();
+    
+            $data_sr = array(
+                "customerNo"            => $rowget['kode_pelanggan'],
+                "returnType"            => "DELIVERY",
+                "deliveryOrderNumber"   => $rowget['no_do_syop'],
+                "description"             => "CANCEL TRIP",
+                "transDate"             => date("d/m/Y"),
+                "branchName"              => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+                "detailItem"               => $detailItems['detailItem']
+            );
+    
+            // var_dump($data_sr);
+            // exit;
+            $jsonData_sr = json_encode($data_sr);
+            $url_sr = 'https://zeus.accurate.id/accurate/api/sales-return/save.do';
+            $result_sr = curl_post($url_sr, $jsonData_sr);
+    
+            if ($result_sr['s'] == true) {
+                $con->commit();
+                $con->close();
+                $flash->add("success", "Data DR telah berhasil disimpan", $url);
+                header("location: " . $url);
+                exit();
+            } else {
+                $con->rollBack();
+                $con->clearError();
+                $con->close();
+                $flash->add("error", $result_sr['d'][0] . '- response dari accurate', BASE_REFERER);
+            }
+        }else{
+             $con->commit();
             $con->close();
             $flash->add("success", "Data DR telah berhasil disimpan", $url);
             header("location: " . $url);
             exit();
-        } else {
-            $con->rollBack();
-            $con->clearError();
-            $con->close();
-            $flash->add("error", $result_sr['d'][0] . '- response dari accurate', BASE_REFERER);
         }
     } elseif (($is_request == 2 && $revert == 1)) {
         $cekidacc = "SELECT a.id_do_accurate, a.no_do_syop, d.kode_pelanggan,e.nama_cabang
@@ -362,31 +371,41 @@ if ($oke) {
 		        WHERE a.id_plan='" . $id_plan . "'";
         $getidacc = $con->getRecord($cekidacc);
 
-        $urlnya2 = 'https://zeus.accurate.id/accurate/api/delivery-order/save.do';
-        // Data yang akan dikirim dalam format JSON
-        $data2 = array(
-            "id"                => $getidacc['id_do_accurate'],
-            "customerNo"        => $getidacc['kode_pelanggan'],
-            "number"               => $getidacc['no_do_syop'],
-            "transDate"         => $tgl_loading,
-            "branchName"          => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
-        );
-        $jsonData2 = json_encode($data2);
+        if($getidacc['id_do_accurate']!=null){
 
-        $result = curl_post($urlnya2, $jsonData2);
-
-        if ($result['s'] == true) {
+            $urlnya2 = 'https://zeus.accurate.id/accurate/api/delivery-order/save.do';
+            // Data yang akan dikirim dalam format JSON
+            $data2 = array(
+                "id"                => $getidacc['id_do_accurate'],
+                "customerNo"        => $getidacc['kode_pelanggan'],
+                "number"               => $getidacc['no_do_syop'],
+                "transDate"         => $tgl_loading,
+                "branchName"          => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
+            );
+            $jsonData2 = json_encode($data2);
+    
+            $result = curl_post($urlnya2, $jsonData2);
+    
+            if ($result['s'] == true) {
+                $con->commit();
+                $con->close();
+                $flash->add("success", "Data DR telah berhasil disimpan", $url);
+                header("location: " . $url);
+                exit();
+            } else {
+                $con->rollBack();
+                $con->clearError();
+                $con->close();
+                $flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
+            }
+        }else{
             $con->commit();
             $con->close();
             $flash->add("success", "Data DR telah berhasil disimpan", $url);
             header("location: " . $url);
             exit();
-        } else {
-            $con->rollBack();
-            $con->clearError();
-            $con->close();
-            $flash->add("error", $result['d'][0] . " - Response dari Accurate", BASE_REFERER);
         }
+
     } else {
         $con->commit();
         $con->close();
