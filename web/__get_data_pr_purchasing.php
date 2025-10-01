@@ -57,7 +57,7 @@
 						f.nama_prov, g.nama_kab, 
 						n.nilai_pbbkb, 
 						k.id_penawaran, k.masa_awal, k.masa_akhir, k.id_area, k.flag_approval, 
-						k.refund_tawar, k.other_cost, k.perhitungan, k.detail_rincian, k.harga_dasar, k.gabung_oa, k.pembulatan,
+						k.refund_tawar, k.other_cost, k.perhitungan, k.detail_rincian, k.harga_dasar, k.gabung_oa, k.pembulatan, k.id_cabang as id_cabang_penawaran,
 						o1.harga_normal, o2.harga_normal as harga_normal_new, 
 						h.nama_customer, h.id_customer, 
 						i.fullname, l.nama_area, d.harga_poc, 
@@ -153,6 +153,7 @@
 							//$netprt = ($nethrg - $data['pr_harga_beli']) * $volume;
 							$form_split_pr = $data['splitted_from_pr'];
 							$jenis_penawaran = $data['jenis_penawaran'];
+							$id_cabang_penawaran = $data['id_cabang_penawaran'];
 
 							$pathPt = $public_base_directory . '/files/uploaded_user/lampiran/' . $data['lampiran_poc'];
 							$lampPt = $data['lampiran_poc_ori'];
@@ -423,6 +424,7 @@
 									<input type="hidden" name="id_accurate" value="<?php echo $data['id_accurate']; ?>" />
 									<input type="hidden" name="<?php echo 'kode_customer[' . $idp . ']' ?>" value="<?= $data['kode_pelanggan'] ?>" />
 									<input class="jenis_penawaran" type="hidden" name="<?php echo 'jenis_penawaran[' . $idp . ']' ?>" id="jenis_penawaran" value="<?php echo $jenis_penawaran; ?>" />
+									<input type="hidden" name="<?php echo 'id_cabang_penawaran[' . $idp . ']' ?>" id="id_cabang_penawaran" value="<?php echo $id_cabang_penawaran; ?>" />
 								</td>
 								<td class="text-right">
 									<?php

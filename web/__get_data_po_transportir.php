@@ -75,7 +75,11 @@
                             $tempal = strtolower(str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data['nama_kab']));
                             $alamat    = $data['alamat_survey'] . " " . ucwords($tempal) . " " . $data['nama_prov'];
                             $kirim    = date("d/m/Y", strtotime($data['tgl_kirim_po']));
-                            $tgl_loading_plan = date("d/m/Y", strtotime($data['tgl_loading_plan']));
+                            if ($data['tgl_loading_plan'] != NULL) {
+                                $tgl_loading_plan = date("d/m/Y", strtotime($data['tgl_loading_plan']));
+                            } else {
+                                $tgl_loading_plan = date("d/m/Y");
+                            }
                             $ongkos = ($data['ongkos_po']) ? $data['ongkos_po'] : $data['ongkos_angkut'];
                             $tgleta    = (!$data['tgl_eta_po'] or $data['tgl_eta_po'] == '0000-00-00') ? $kirim : date("d/m/Y", strtotime($data['tgl_eta_po']));
                             $tgletl    = (!$data['tgl_eta_po'] or $data['tgl_etl_po'] == '0000-00-00') ? $tgl_loading_plan : date("d/m/Y", strtotime($data['tgl_etl_po']));

@@ -203,15 +203,20 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			$con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
 
-			$total_order = $volume_close * $harga_liter;
-			$sql = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved - $total_order WHERE id_customer = '" . $customer . "'";
+			$sqlgetPO = "SELECT * FROM pro_po_customer WHERE id_poc='" . $idk . "'";
+			$res = $con->getRecord($sqlgetPO);
 
-			$con->setQuery($sql);
-			$oke  = $oke && !$con->hasError();
+			if ($res['tanggal_poc'] >= "2025-10-01") {
+				$total_order = $volume_close * $harga_liter;
+				$sql = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved - $total_order WHERE id_customer = '" . $customer . "'";
 
-			$history_ar_customer = "INSERT into pro_history_ar_customer(id_poc, kategori, keterangan, nominal, created_time, created_by) values ('" . $idk . "', '5', 'Close PO Customer', $total_order, NOW(), '" . $user_pic . "')";
-			$con->setQuery($history_ar_customer);
-			$oke = $oke && !$con->hasError();
+				$con->setQuery($sql);
+				$oke  = $oke && !$con->hasError();
+
+				$history_ar_customer = "INSERT into pro_history_ar_customer(id_poc, kategori, keterangan, nominal, created_time, created_by) values ('" . $idk . "', '5', 'Close PO Customer', $total_order, NOW(), '" . $user_pic . "')";
+				$con->setQuery($history_ar_customer);
+				$oke = $oke && !$con->hasError();
+			}
 
 			$sql = "INSERT ignore INTO pro_po_customer_close
 								(id_poc,
