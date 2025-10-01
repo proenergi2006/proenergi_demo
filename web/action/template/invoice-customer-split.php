@@ -136,7 +136,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
 
         </td>
         <td rowspan="2" valign="top">
-            <table width="100%" border="0" cellspacing="0" cellpadding="5">
+            <table width="100%" border="0" cellspacing="0" cellpadding="3">
                 <?php if ($res['tgl_invoice'] >= "2024-11-18") : ?>
                     <tr>
                         <td align="right" width="50%">
