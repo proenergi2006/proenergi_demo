@@ -16,10 +16,10 @@ $idr	= htmlspecialchars($_POST["idr"], ENT_QUOTES);
 $id_invoice_enc = paramDecrypt($_POST["id_invoice_encrypt"]);
 $refund = paramDecrypt($_POST["refund"]);
 
-$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+// $id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
-$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
-$rowget_cabang = $con->getRecord($queryget_cabang);
+// $queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+// $rowget_cabang = $con->getRecord($queryget_cabang);
 
 $id_customer			= htmlspecialchars($_POST["id_customer"], ENT_QUOTES);
 $no_invoice_manual		= htmlspecialchars($_POST["no_invoice"], ENT_QUOTES);
@@ -524,6 +524,13 @@ if ($act == "add") {
 
 			$get_id_do_accurate = "select * FROM pro_pr_detail WHERE id_prd='" . $id_prds['id_prd'] . "'";
 			$data_prd = $con->getRecord($get_id_do_accurate);
+			
+			$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran, c.id_cabang as id_cabang_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
+			$res4 	= $con->getRecord($query4);
+			$id_cabang_penawaran =$res4['id_cabang_penawaran'];
+
+			$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang_penawaran . "'";
+			$rowget_cabang = $con->getRecord($queryget_cabang);
 
 			if ($data_plan['id_accurate'] != NULL || $data_plan['id_accurate'] != "") {
 				$query = http_build_query([
@@ -562,9 +569,6 @@ if ($act == "add") {
 
 				$sql1 = "SELECT b.tanggal_poc FROM pro_po_ds_detail a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id_dsd = '" . $id_dsd . "'";
 				$row1 = $con->getRecord($sql1);
-
-				$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
-				$res4 	= $con->getRecord($query4);
 
 				if ($split_invoice == "all_in") {
 
@@ -1281,6 +1285,14 @@ if ($act == "add") {
 
 			$get_id_do_accurate = "select * FROM pro_pr_detail WHERE id_prd='" . $res_ds['id_prd'] . "'";
 			$data_prd = $con->getRecord($get_id_do_accurate);
+
+			$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran, c.id_cabang as id_cabang_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
+			$res4 	= $con->getRecord($query4);
+			$id_cabang_penawaran =$res4['id_cabang_penawaran'];
+
+			$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang_penawaran . "'";
+			$rowget_cabang = $con->getRecord($queryget_cabang);
+
 
 			// echo json_encode($res_do);
 			// exit();
