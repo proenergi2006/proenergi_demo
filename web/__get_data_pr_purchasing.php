@@ -880,9 +880,13 @@ if ($res && ($res[0]['revert_cfo'] || $res[0]['revert_ceo'])) {
 	}
 
 	function myFunction(nom) {
+		var idwValue = $('#idw').val();
 		$.ajax({
 			type: "POST",
 			url: `<?= BASE_URL . "/web/__get_po_by_terminal.php" ?>`,
+			data: {
+				idw: idwValue
+			},
 			dataType: "json",
 			success: function(result) {
 				$('#modalPO').modal({

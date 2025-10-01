@@ -1845,10 +1845,10 @@ if ($act == "add") {
 
 		$url  = BASE_URL_CLIENT . "/invoice_customer.php";
 		if ($oke) {
-			// $con->commit();
-			// $con->close();
-			// header("location: " . $url);
-			// exit();
+			$con->commit();
+			$con->close();
+			header("location: " . $url);
+			exit();
 		} else {
 			$con->rollBack();
 			$con->clearError();
