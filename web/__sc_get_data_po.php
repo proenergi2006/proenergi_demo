@@ -33,6 +33,8 @@ if ($rsm['perhitungan'] == 1) {
 $pathPt = $public_base_directory . '/files/uploaded_user/lampiran/' . $rsm['lampiran_poc'];
 $lampPt = $rsm['lampiran_poc_ori'];
 
+$linkCetak = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $row['id_poc'] . '&tipe=proforma_invoice')
+
 // $arr_payment = array("COD" => "COD (Cash On Delivery)", "CBD" => "CBD (Cash Before Delivery)");
 ?>
 
@@ -129,7 +131,9 @@ $lampPt = $rsm['lampiran_poc_ori'];
                         </tr>
                     </table>
                 </div>
-
+                <?php if ($role == 10) : ?>
+                    <a href="<?= $linkCetak ?>" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> CETAK PROFORMA INVOICE</a>
+                <?php endif ?>
             </div>
         </div>
     </div>
