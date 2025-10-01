@@ -39,75 +39,37 @@ if ($idr != "") {
 // }
 $readonly = "readonly";
 
-$sqlGetWil = "SELECT * FROM pro_master_cabang WHERE id_master='" . $seswil . "'";
+// Ambil inisial cabang
+$sqlGetWil = "SELECT inisial_cabang FROM pro_master_cabang WHERE id_master='" . addslashes($seswil) . "'";
 $row = $con->getRecord($sqlGetWil);
+$cabang = $row ? $row['inisial_cabang'] : '';
 
-$query_no_inv = "SELECT * FROM pro_invoice_admin WHERE no_invoice LIKE '%PE/" . $row['inisial_cabang'] . "%' ORDER BY no_invoice DESC";
+// Roman bulan saat ini
+$roman = [1 => 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][(int)date('n')];
+$yy    = date('y');
+
+// Cari invoice terakhir untuk cabang + periode berjalan
+$query_no_inv = "
+  SELECT no_invoice
+  FROM pro_invoice_admin
+  WHERE no_invoice LIKE 'SI/PE/{$cabang}/{$yy}/{$roman}/%'
+  ORDER BY CAST(SUBSTRING_INDEX(no_invoice,'/',-1) AS UNSIGNED) DESC
+  LIMIT 1
+";
 $row2 = $con->getRecord($query_no_inv);
 
-$arrRomawi 	= array("1" => "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII");
-$year 		= date("y");
-$month 		= date("m");
-
-if ($row2) {
-	$no_invoice = $row2['no_invoice'];
-	$explode = explode("/", $no_invoice);
-	$year_inv = $explode[3];
-	$month_inv = $explode[4];
-
-	switch ($month_inv) {
-		case "I":
-			$bulan = '01';
-			break;
-		case "II":
-			$bulan = '02';
-			break;
-		case "III":
-			$bulan = '03';
-			break;
-		case "IV":
-			$bulan = '04';
-			break;
-		case "V":
-			$bulan = '05';
-			break;
-		case "VI":
-			$bulan = '06';
-			break;
-		case "VII":
-			$bulan = '07';
-			break;
-		case "VIII":
-			$bulan = '08';
-			break;
-		case "IX":
-			$bulan = '09';
-			break;
-		case "X":
-			$bulan = '10';
-			break;
-		case "XI":
-			$bulan = '11';
-			break;
-		case "XII":
-			$bulan = '12';
-			break;
-	}
-
-	if ($bulan == $month && $year_inv == $year) {
-		$urut_inv = $explode[5] + 1;
-		$no_inv = sprintf("%03s", $urut_inv);
-		$noms_inv = 'SI/' . 'PE/' . $row['inisial_cabang'] . '/' . $year_inv . '/' . $arrRomawi[intval($bulan)] . '/' . $no_inv;
-	} else {
-		$urut_inv = 1;
-		$no_inv = sprintf("%03s", $urut_inv);
-		$noms_inv = 'SI/' . 'PE/' . $row['inisial_cabang'] . '/' . $year . '/' . $arrRomawi[intval(date("m"))] . '/' . $no_inv;
-	}
+// Tentukan sequence berikutnya
+if ($row2 && !empty($row2['no_invoice'])) {
+	// Ambil segmen angka terakhir: '.../024' -> 24
+	$lastSeq = (int)substr(strrchr($row2['no_invoice'], '/'), 1);
+	$nextSeq = $lastSeq + 1;
 } else {
-	$urut_inv = 1;
-	$no_inv = sprintf("%03s", $urut_inv);
-	$noms_inv = 'SI/' . 'PE/' . $row['inisial_cabang'] . '/' . $year . '/' . $arrRomawi[intval(date("m"))] . '/' . $no_inv;
+	$nextSeq = 1;
 }
+
+$no_inv_seq = sprintf('%03d', $nextSeq); // 1 -> 001, 24 -> 024, 125 -> 125
+$noms_inv   = "SI/PE/{$cabang}/{$yy}/{$roman}/{$no_inv_seq}";
+
 
 // Cek peran pengguna
 $required_role = ['1', '2', '10', '25'];
