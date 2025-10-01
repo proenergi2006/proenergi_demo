@@ -442,6 +442,7 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 				$oa 	= htmlspecialchars($_POST['Ongkos_Angkut'][$idx], ENT_QUOTES);
 				$pbbkb 	= htmlspecialchars($_POST['PBBKB'][$idx], ENT_QUOTES);
 				$jenis_penawaran = htmlspecialchars($_POST['jenis_penawaran'][$idx], ENT_QUOTES);
+				$id_cabang_penawaran = htmlspecialchars($_POST['id_cabang_penawaran'][$idx], ENT_QUOTES);
 				$kode_customer 	= htmlspecialchars($_POST['kode_customer'][$idx], ENT_QUOTES);
 				$dt10 	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dp10'][$idx]), ENT_QUOTES);
 				$volume = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['volume'][$idx]), ENT_QUOTES);
@@ -944,9 +945,9 @@ if ($oke) {
 				// 	$flash->add("error", $delete_accurate['d'][0] . '- response dari accurate', BASE_REFERER);
 				// }
 			} else {
-				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+				// $id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
-				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+				$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang_penawaran . "'";
 				$rowget_cabang = $con->getRecord($queryget_cabang);
 
 				$get_gudang = "select * FROM vw_terminal_inventory_receive WHERE nomor_po_supplier='" . $nop . "'";
@@ -986,9 +987,9 @@ if ($oke) {
 
 					foreach ($subData as $subKey => $items) {
 
-						$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+						// $id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
-						$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+						$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang_penawaran . "'";
 						$rowget_cabang = $con->getRecord($queryget_cabang);
 
 						$queryget_po = "SELECT a.no_so, a.tanggal_kirim, b.*, c.alamat_customer, c.postalcode_customer, d.nama_prov, e.nama_kab, a.id_lcr FROM pro_po_customer_plan a JOIN pro_po_customer b ON a.id_poc = b.id_poc JOIN pro_customer c ON b.id_customer = c.id_customer JOIN pro_master_provinsi d ON c.prov_customer = d.id_prov JOIN pro_master_kabupaten e ON c.kab_customer = e.id_kab WHERE a.id_plan = '" . $subKey . "'";
@@ -1045,7 +1046,7 @@ if ($oke) {
 								$data2 = array(
 									"customerNo"        => $i,
 									"number"           	=> $items['nomor_do'],
-									"description"       => $_POST["summary"],
+									"description"       => 'DO dari PO ' . $rowget_po['nomor_poc'] . " " . $_POST["summary"],
 									"poNumber" 			=> $rowget_po['nomor_poc'],
 									"toAddress" 		=> $site_customer,
 									"transDate" 		=> date("d/m/Y", strtotime($row_plan['tanggal_loading'])),
