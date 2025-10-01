@@ -78,7 +78,8 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $biaya_oa = '';
     $amount_vat = '';
 
-    if ($rsm['id_accurate'] != null) {
+
+    if ($rsm['id_accurate'] != NULL) {
         //get detail PO
         $query = http_build_query([
             'id' => $rsm['id_accurate'],
@@ -145,6 +146,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 ];
             }
         }
+    } else {
     }
 } else {
     $idr = null;
@@ -325,7 +327,7 @@ if ($result_getrow['sp'] == true) {
                             </div>
 
                             <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($rsm['id_accurate'] == null ? 'hide' : ''); ?>">
+                            <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Kode Item Accurate *</label>
@@ -460,11 +462,8 @@ if ($result_getrow['sp'] == true) {
                                 </div>
                             </div>
 
-                            <script>
-                                var id_accurate = <?php echo json_encode($rsm['id_accurate']); ?>;
-                            </script>
                             <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($kategori_oa == 2 && $rsm['id_accurate']!= null )? "" : "hide" ?>" id="row_jenis_oa">
+                            <div class="row <?php echo ($kategori_oa == 2) ? "" : "hide" ?>" id="row_jenis_oa">
                                 <hr>
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
@@ -479,7 +478,7 @@ if ($result_getrow['sp'] == true) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row <?php echo  $rsm['id_accurate']!= null  ? "" : "hide" ?>" id="row_kode_item">
+                            <div class="row" id="row_kode_item">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Kode OA Accurate *</label>
@@ -529,7 +528,7 @@ if ($result_getrow['sp'] == true) {
                             </div>
 
                             <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya == 1)&& $rsm['id_accurate']!= null ? "" : "hide" ?>" id="row_biaya_oa">
+                            <div class="row <?php echo ($kategori_oa == 2 && $is_biaya == 1) ? "" : "hide" ?>" id="row_biaya_oa">
                                 <div class="col-md-12 ">
                                     <!-- Label utama di atas -->
                                     <label class="control-label">Akun OA Accurate *</label>
@@ -660,7 +659,7 @@ if ($result_getrow['sp'] == true) {
                             </div>
 
                             <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($rsm['id_accurate'] == null ? 'hide' : ''); ?>">
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-2">Akun PPH22 Accurate *</label>
@@ -714,7 +713,7 @@ if ($result_getrow['sp'] == true) {
                             </div>
 
                             <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($rsm['id_accurate'] == null ? 'hide' : ''); ?>">
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-2">Akun PBBKB Accurate *</label>
@@ -770,7 +769,7 @@ if ($result_getrow['sp'] == true) {
                                 </div>
                             </div>
                             <!-- Parameter untuk Accurate -->
-                            <div class="row <?php echo ($rsm['id_accurate'] == null ? 'hide' : ''); ?>">
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-2">Akun Migas Accurate *</label>
@@ -1647,10 +1646,8 @@ if ($result_getrow['sp'] == true) {
 
                     $("#kode_item2").removeAttr("required", true);
 
-                    if(id_accurate!=null){
-                        $("#row_jenis_oa").removeClass("hide");
-                        $("#row_kode_item").removeClass("hide");
-                    }
+                    $("#row_jenis_oa").removeClass("hide");
+                    $("#row_kode_item").removeClass("hide");
                     $("#kode_item2").prop("required", true);
 
                     // var iuran_migas = 0;

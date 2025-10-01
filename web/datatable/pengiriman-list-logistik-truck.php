@@ -165,19 +165,20 @@ if ($tot_record <= 0) {
 			$status = '<p style="margin-bottom:5px;"><b>Delivered</b><br/>' . date("d/m/Y H:i", strtotime($data['tanggal_delivered'])) . '</p>';
 			$status_loaded = '<p style="margin-bottom:5px;"><b>Loaded</b><br/>' . date("d/m/Y", strtotime($data['tanggal_loaded'])) . " " . $data['jam_loaded'] . '</p>';
 			if (!$data['realisasi_volume'] || !$data['terima_jalan']) {
-				if ($fileRel !== '') {
-					$linkPt = ACTION_CLIENT . "/download-file.php?" . paramEncrypt("tipe=8&file=" . $data['file_sj']);
+				$status .= '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-realisasi="1" data-status="realisasi" class="editStsT btn btn-success" 
+				title="Realisasi Kirim dan Terima Surat Jalan"><i class="fa fa-sticky-note-o"></i> <span style="font-size:11px;">Realisasi</span></a>';
+			}
+			if ($fileRel !== '') {
+				$linkPt = ACTION_CLIENT . "/download-file.php?" . paramEncrypt("tipe=8&file=" . $data['file_sj']);
 
-					// buka di tab baru (Chrome viewer PDF)
-					$status_upload =
-						'<a href="' . $linkPt . '" target ="_blank"><i class="fa fa-file-alt"></i> Surat Jalan</a><br />';
-				} else {
-					$status .= '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-realisasi="1" data-status="realisasi" class="editStsT btn btn-success" 
-								title="Realisasi Kirim dan Terima Surat Jalan"><i class="fa fa-sticky-note-o"></i> <span style="font-size:11px;">Realisasi</span></a>';
-					$status_upload = '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-upload="1" data-status="upload"
+				// buka di tab baru (Chrome viewer PDF)
+				$status_upload =
+					'<a href="' . $linkPt . '" target ="_blank"><i class="fa fa-file-alt"></i> Surat Jalan</a><br />';
+			} else {
+
+				$status_upload = '<a data-info="' . $linkInfo . '" data-param="' . $linkParam . '" data-upload="1" data-status="upload"
 							class="editStsT1 btn btn-success btn-sm px-2 py-0"
 							title="Upload Surat Jalan"><i class="fa fa-sticky-note-o"></i> Upload SJ</a>';
-				}
 			}
 			if ($data['link_gps'] == 'OSLOG') {
 				if ($data['id_wilayah_po'] == '2' && $data['tanggal_loading'] >= '2024-01-01') {
