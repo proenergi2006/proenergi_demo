@@ -374,7 +374,10 @@ if ($act == 'cek') {
 						'charField2'    	=> $kategori_plat,
 						'charField3'    	=> $kd_tax,
 						'description'       => $ket,
-						"toAddress" 		=> $detail_alamat,
+						// "toAddress" 		=> $detail_alamat,
+						"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+												Kota Administrasi Jakarta Selatan DKI Jakarta
+												Indonesia',
 						'detailItem'       	=> [],
 						'detailExpense'     => []
 					);
@@ -415,7 +418,10 @@ if ($act == 'cek') {
 					if ($result['s'] == true) {
 						$data2 = array(
 							"id"        		=> $result['r']['id'],
-							"toAddress" 		=> $detail_alamat,
+							"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+													Kota Administrasi Jakarta Selatan DKI Jakarta
+													Indonesia',
+							// "toAddress" 		=> $detail_alamat,
 							'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 							"manualClosed" 		=> true,
 							"closeReason" 		=> 'Menunggu Approve'
@@ -545,7 +551,10 @@ if ($act == 'cek') {
 								'charField2'    	=> $kategori_plat,
 								'charField3'    	=> $kd_tax,
 								'description'       => $ket,
-								"toAddress" 		=> $detail_alamat,
+								"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+														Kota Administrasi Jakarta Selatan DKI Jakarta
+														Indonesia',
+								// "toAddress" 		=> $detail_alamat,
 								'detailItem'       	=> [],
 								'detailExpense'     => []
 							);
@@ -596,7 +605,9 @@ if ($act == 'cek') {
 								$data2 = array(
 									"id"        		=> $result['r']['id'],
 									"branchName"        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-									"toAddress" 		=> $detail_alamat,
+									"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+															Kota Administrasi Jakarta Selatan DKI Jakarta
+															Indonesia',
 									"manualClosed" 		=> true,
 									"closeReason" 		=> 'Menunggu Approve'
 								);

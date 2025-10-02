@@ -200,7 +200,10 @@ if ($act == 'update') {
 									'charField2'    	=> $rowget['kategori_plat'],
 									'charField3'    	=> $rowget['kd_tax'],
 									'description'       => $ket,
-									"toAddress" 		=> $detail_alamat,
+									"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+															Kota Administrasi Jakarta Selatan DKI Jakarta
+															Indonesia',
+									// "toAddress" 		=> $detail_alamat,
 									'detailItem'       	=> [],
 									'detailExpense'     => []
 								);
@@ -277,13 +280,16 @@ if ($act == 'update') {
 
 									$data_receive = array(
 										"receiveNumber" => $rowReceive['no_terima'],
-										"number" => $rowReceive['no_terima'],
-										"transDate" => date("d/m/Y", strtotime($rowReceive['tgl_terima'])),
-										"vendorNo" => $result_save['r']['vendor']['vendorNo'],
-										"description" => "Terima barang dari PO " . $result_save['r']['number'],
-										"toAddress" => $detail_alamat,
-										'branchName'  => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-										'detailItem' => []
+										"number" 		=> $rowReceive['no_terima'],
+										"transDate" 	=> date("d/m/Y", strtotime($rowReceive['tgl_terima'])),
+										"vendorNo" 		=> $result_save['r']['vendor']['vendorNo'],
+										"description"	=> "Terima barang dari PO " . $result_save['r']['number'],
+										// "toAddress" => $detail_alamat,
+										"toAddress" 	=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+															Kota Administrasi Jakarta Selatan DKI Jakarta
+															Indonesia',
+										'branchName' 	=> $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+										'detailItem'	=> []
 									);
 
 									foreach ($result_save['r']['detailItem'] as $item) {
@@ -312,7 +318,9 @@ if ($act == 'update') {
 											'vendorNo'         	=> $result_save['r']['vendor']['vendorNo'],
 											'number'           	=> $result_save['r']['number'],
 											'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-											'toAddress'     	=> $detail_alamat,
+											"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
+																	Kota Administrasi Jakarta Selatan DKI Jakarta
+																	Indonesia',
 											'manualClosed' 		=> true,
 											'closeReason' 		=> 'Menunggu Approve'
 										);
