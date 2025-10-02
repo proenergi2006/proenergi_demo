@@ -30,6 +30,7 @@ $produk			= htmlspecialchars($_POST["produk"], ENT_QUOTES);
 $penerima_refund = $_POST["penerima_refund"];
 $terima_refund = $_POST["terima_refund"];
 $harga_liter	= htmlspecialchars(str_replace(array(","), array(""), $_POST["harga_liter"]), ENT_QUOTES);
+$harga_liter2	= htmlspecialchars(str_replace(array(","), array(""), $_POST["harga_liter2"]), ENT_QUOTES);
 $total_volume	= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST["total_volume"]), ENT_QUOTES);
 $top			= ($top ? $top : '0');
 
@@ -137,7 +138,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			$upl = false;
 			$nqu = '';
 			$sql = "insert ignore into pro_po_customer(id_customer, id_penawaran, top_poc, nomor_poc, tanggal_poc, supply_date, harga_poc, volume_poc, produk_poc, created_time, 
-						created_ip, created_by) values ('" . $customer . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter . "',
+						created_ip, created_by) values ('" . $customer . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter2 . "',
 						'" . $total_volume . "', '" . $produk . "', NOW(), '" . $user_ip . "', '" . $user_pic . "')";
 			$idk = $con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
@@ -207,7 +208,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			$res = $con->getRecord($sqlgetPO);
 
 			if ($res['tanggal_poc'] >= "2025-10-01") {
-				$total_order = $volume_close * $harga_liter;
+				$total_order = $volume_close * $harga_liter2;
 				$sql = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved - $total_order WHERE id_customer = '" . $customer . "'";
 
 				$con->setQuery($sql);
@@ -265,9 +266,9 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			$row_prev = $con->getRecord($sql_prev);
 
 			$volume_lama = (float)$row_prev['volume_poc'];
-			$total_order_lama = $volume_lama * $harga_liter;
+			$total_order_lama = $volume_lama * $harga_liter2;
 
-			$total_order = $total_volume * $harga_liter;
+			$total_order = $total_volume * $harga_liter2;
 
 			// Jika ada perubahan nilai total order, lakukan validasi credit limit
 			if ($total_volume != $volume_lama) {
@@ -300,7 +301,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			if ($filePhoto != "") {
 				$upl = true;
 				$nqu = 'POC_' . $idk . '_' . sanitize_filename($filePhoto);
-				$sql = "update pro_po_customer set nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter . "',
+				$sql = "update pro_po_customer set nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter2 . "',
 							lampiran_poc = '" . $nqu . "', lampiran_poc_ori = '" . sanitize_filename($filePhoto) . "', lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', 
 							lastupdate_by = '" . $user_pic . "' where id_customer = '" . $idr . "' and id_poc = '" . $idk . "'";
 				$con->setQuery($sql);
@@ -323,7 +324,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			} else {
 				$upl = false;
 				$nqu = '';
-				$sql = "update pro_po_customer set nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter . "',
+				$sql = "update pro_po_customer set nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter2 . "',
 							lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', lastupdate_by = '" . $user_pic . "' where id_customer = '" . $idr . "' and id_poc = '" . $idk . "'";
 				$con->setQuery($sql);
 				$oke  = $oke && !$con->hasError();

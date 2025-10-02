@@ -170,7 +170,9 @@ foreach ($rsms as $key => $rsm) {
                                                         </strong>
                                                         <i class="toggle-icon fa fa-chevron-down ml-2"></i>
                                                         <?php if ($data['is_edited'] == 1) : ?>
-                                                            <span class="badge-info">Edited</span>
+                                                            <span style="
+                                                            display:inline-block;padding:.25rem .6rem;border-radius:999px;
+                                                            background:#0d6efd;color:#fff;font-size:.85rem;font-weight:600;">Edited</span>
                                                         <?php endif ?>
                                                     </a>
                                                 </h4>
