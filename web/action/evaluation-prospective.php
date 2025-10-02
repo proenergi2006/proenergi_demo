@@ -309,6 +309,10 @@
 
 			$npwp=str_replace(array(",",".","-"),"",$rowget_customer['nomor_npwp']);
 
+			if(strlen($npwp) == 15){
+				$npwp = '0'.$npwp;
+			}
+
 			$queryget_lcr = "SELECT a.alamat_survey, b.nama_prov, c.nama_kab 
 							FROM pro_customer_lcr a 
 							JOIN pro_master_provinsi b ON a.prov_survey= b.id_prov 
@@ -375,7 +379,7 @@
 				$con->rollBack();
 				$con->clearError();
 				$con->close();
-				$flash->add("error", $result_close["d"][0] . " - Response dari Accurate", BASE_REFERER);
+				$flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
 			}
 		}else{
 			$con->commit();
