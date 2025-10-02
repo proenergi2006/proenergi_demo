@@ -121,7 +121,11 @@ if ($act == 'update') {
 				$rowReceive = $con->getRecord($querygetReceive);
 
 				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
-				$ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $dt6 . "'";
+				$ambil_alamat = "SELECT a.*,b.inisial_cabang,b.nama_cabang FROM pro_master_terminal a
+						JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
+						WHERE a.id_master = '" . $dt6 . "'";
+				$alamat = $con->getRecord($ambil_alamat);
+				// $ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $dt6 . "'";
 
 				$detail_alamat = strtoupper($rowget['nama_terminal']) . " - " . $rowget['lokasi_terminal'];
 
@@ -151,7 +155,7 @@ if ($act == 'update') {
 						'number'           	=> $rowget['nomor_po'],
 						'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 						'description'       => $ket,
-						'toAddress'     	=> $detail_alamat,
+						"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 						'manualClosed' 		=> true,
 						'closeReason' 		=> 'Close PO - ' . $jenis_det
 					);
@@ -207,9 +211,7 @@ if ($act == 'update') {
 									'charField2'    	=> $rowget['kategori_plat'],
 									'charField3'    	=> $rowget['kd_tax'],
 									'description'       => $ket,
-									"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-															Kota Administrasi Jakarta Selatan DKI Jakarta
-															Indonesia',
+									"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 									// "toAddress" 		=> $detail_alamat,
 									'detailItem'       	=> [],
 									'detailExpense'     => []
@@ -225,8 +227,9 @@ if ($act == 'update') {
 											'itemNo'       => $item['item']['no'],
 											'quantity'     => $quantity,
 											'unitPrice'    => $unitPriceLossGain,
-											'useTax1'    => $item['useTax1'],
-											'warehouseName' => $item['warehouse']['name']
+											'useTax1'   	=> $item['useTax1'],
+											'warehouseName' => $item['warehouse']['name'],
+											'departmentName'=> $alamat['nama_cabang']
 										];
 									}
 									if (isset($item["item"]["itemType"]) && $item["item"]["itemType"] === 'INVENTORY') {
@@ -235,7 +238,8 @@ if ($act == 'update') {
 											'quantity'  => $volume_loss_gain,
 											'unitPrice' => $dt16,
 											'useTax1'   => $item['useTax1'],
-											'warehouseName' => $item['warehouse']['name']
+											'warehouseName' => $item['warehouse']['name'],
+											'departmentName'=> $alamat['nama_cabang']
 										];
 									}else if (isset($item["item"]["itemType"]) && $item["item"]["itemType"] !== 'INVENTORY'){
 										$data_save['detailItem'][] = [
@@ -243,6 +247,7 @@ if ($act == 'update') {
 											'quantity'  => $volume_loss_gain,
 											'unitPrice' => $dt16,
 											'useTax1'   => $item['useTax1'],
+											'departmentName'=> $alamat['nama_cabang']
 										];
 									}
 								}
@@ -254,21 +259,24 @@ if ($act == 'update') {
 											'accountNo' => $expense['account']['no'],
 											'expenseAmount'  => $pbbkb,
 											// 'expenseName' => $expense['expenseName'],
-											'allocateToItemCost' => $expense['allocateToItemCost']
+											'allocateToItemCost' => $expense['allocateToItemCost'],
+											'departmentName'=> $alamat['nama_cabang']
 										];
 									} else if (strpos($expense["expenseName"], '22') !== false) {
 										$data_save['detailExpense'][] = [
 											'accountNo' => $expense['account']['no'],
 											'expenseAmount'  => $pph_22,
 											// 'expenseName' => $expense['expenseName'],
-											'allocateToItemCost' => $expense['allocateToItemCost']
+											'allocateToItemCost' => $expense['allocateToItemCost'],
+											'departmentName'=> $alamat['nama_cabang']
 										];
 									} else {
 										$data_save['detailExpense'][] = [
 											'accountNo' => $expense['account']['no'],
 											'expenseAmount'  => $expense['expenseAmount'],
 											// 'expenseName' => $expense['expenseName'],
-											'allocateToItemCost' => $expense['allocateToItemCost']
+											'allocateToItemCost' => $expense['allocateToItemCost'],
+											'departmentName'=> $alamat['nama_cabang']
 										];
 									}
 								}
@@ -292,9 +300,7 @@ if ($act == 'update') {
 										"vendorNo" 		=> $result_save['r']['vendor']['vendorNo'],
 										"description"	=> "Terima barang dari PO " . $result_save['r']['number'],
 										// "toAddress" => $detail_alamat,
-										"toAddress" 	=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-															Kota Administrasi Jakarta Selatan DKI Jakarta
-															Indonesia',
+										"toAddress" 	=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 										'branchName' 	=> $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 										'detailItem'	=> []
 									);
@@ -305,7 +311,8 @@ if ($act == 'update') {
 												'itemNo'    => $item['item']['no'],
 												'quantity'  => $item['quantity'],
 												'useTax1'   => $item['useTax1'],
-												'purchaseOrderNumber' => $result_save['r']['number']
+												'purchaseOrderNumber' => $result_save['r']['number'],
+												'departmentName'=> $alamat['nama_cabang'],
 											];
 										}
 									}
@@ -325,9 +332,7 @@ if ($act == 'update') {
 											'vendorNo'         	=> $result_save['r']['vendor']['vendorNo'],
 											'number'           	=> $result_save['r']['number'],
 											'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-											"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-																	Kota Administrasi Jakarta Selatan DKI Jakarta
-																	Indonesia',
+											"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 											'manualClosed' 		=> true,
 											'closeReason' 		=> 'Menunggu Approve'
 										);

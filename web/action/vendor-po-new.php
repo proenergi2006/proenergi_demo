@@ -317,7 +317,7 @@ if ($act == 'cek') {
 			$oke  = $oke && !$con->hasError();
 			// var_dump($arrkue);
 			// exit;
-			$ambil_alamat = "SELECT a.*,b.inisial_cabang FROM pro_master_terminal a
+			$ambil_alamat = "SELECT a.*,b.inisial_cabang,b.nama_cabang FROM pro_master_terminal a
 							JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
 							WHERE a.id_master = '" . $dt6 . "'";
 			$alamat = $con->getRecord($ambil_alamat);
@@ -382,9 +382,7 @@ if ($act == 'cek') {
 						'charField3'    	=> $kd_tax,
 						'description'       => $ket,
 						// "toAddress" 		=> $detail_alamat,
-						"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-												Kota Administrasi Jakarta Selatan DKI Jakarta
-												Indonesia',
+						"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 						'detailItem'       	=> [],
 						'detailExpense'     => []
 					);
@@ -397,6 +395,7 @@ if ($act == 'cek') {
 							'unitPrice'  	=> $item['unitPrice'],
 							'useTax1'    	=> $item['useTax1'],
 							'detailNotes'	=> $item['detailNotes'],
+							'departmentName'=> $alamat['nama_cabang'],
 						];
 
 						if ($item['jenis']) {
@@ -414,6 +413,7 @@ if ($act == 'cek') {
 							// 'expenseName' => $expense['expenseName'],
 							'allocateToItemCost' => $expense['allocateToItemCost'],
 							'expenseNotes' => $expense['expenseNotes'],
+							'departmentName'=> $alamat['nama_cabang'],
 						];
 					}
 
@@ -425,9 +425,7 @@ if ($act == 'cek') {
 					if ($result['s'] == true) {
 						$data2 = array(
 							"id"        		=> $result['r']['id'],
-							"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-													Kota Administrasi Jakarta Selatan DKI Jakarta
-													Indonesia',
+							"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 							// "toAddress" 		=> $detail_alamat,
 							'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 							"manualClosed" 		=> true,
@@ -518,7 +516,7 @@ if ($act == 'cek') {
 				// $rowget = $con->getRecord($data_po);
 
 				if($rowget['id_accurate']!=null){
-					$ambil_alamat = "SELECT a.*,b.inisial_cabang FROM pro_master_terminal a
+					$ambil_alamat = "SELECT a.*,b.inisial_cabang,b.nama_cabang FROM pro_master_terminal a
 								JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
 								WHERE a.id_master = '" . $rowget['id_terminal']  . "'";
 					$alamat = $con->getRecord($ambil_alamat);
@@ -565,9 +563,7 @@ if ($act == 'cek') {
 								'charField2'    	=> $kategori_plat,
 								'charField3'    	=> $kd_tax,
 								'description'       => $ket,
-								"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-														Kota Administrasi Jakarta Selatan DKI Jakarta
-														Indonesia',
+								"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 								// "toAddress" 		=> $detail_alamat,
 								'detailItem'       	=> [],
 								'detailExpense'     => []
@@ -591,6 +587,7 @@ if ($act == 'cek') {
 									'unitPrice'  	=> $item['unitPrice'],
 									'useTax1'    	=> $item['useTax1'],
 									'detailNotes'	=> $item['detailNotes'],
+									'departmentName'=> $alamat['nama_cabang']
 								];
 
 								if ($item['jenis']) {
@@ -603,11 +600,12 @@ if ($act == 'cek') {
 							// Menggunakan foreach untuk mengisi detailExpense
 							foreach ($detailExpenses as $expense) {
 								$data['detailExpense'][] = [
-									'accountNo' => $expense['accountNo'],
-									'expenseAmount'  => $expense['expenseAmount'],
+									'accountNo' 		=> $expense['accountNo'],
+									'expenseAmount'  	=> $expense['expenseAmount'],
 									// 'expenseName' => $expense['expenseName'],
 									'allocateToItemCost' => $expense['allocateToItemCost'],
-									'expenseNotes' => $expense['expenseNotes'],
+									'expenseNotes' 		=> $expense['expenseNotes'],
+									'departmentName'	=> $alamat['nama_cabang']
 								];
 							}
 
@@ -619,9 +617,7 @@ if ($act == 'cek') {
 								$data2 = array(
 									"id"        		=> $result['r']['id'],
 									"branchName"        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-									"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said
-															Kota Administrasi Jakarta Selatan DKI Jakarta
-															Indonesia',
+									"toAddress" 		=> 'Graha Irama Lt 6 Jl. HR Rasuna Said Kota Administrasi Jakarta Selatan DKI Jakarta Indonesia',
 									"manualClosed" 		=> true,
 									"closeReason" 		=> 'Menunggu Approve'
 								);
