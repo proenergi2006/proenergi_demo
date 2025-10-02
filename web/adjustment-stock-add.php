@@ -112,38 +112,51 @@ if ($result_getcount['sp'] == true) {
     }
 }
 
-//get akun accurate
+//GET KODE AKUN ACCURATE
 $url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
 
+// Fetch initial data to get page count
 $result_getrow = curl_get($url_getrow);
 
 if ($result_getrow['sp'] == true) {
+    // Prepare data for pagination
     $data_akun_get = http_build_query([
-        'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent',
+        'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent,name',
         'sp.pageSize' => $result_getrow['sp']['rowCount'],
     ]);
-    $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get;
 
-    $result_akun = curl_get($url_akun);
+    // Get the total number of pages
+    $pageCount = $result_getrow['sp']['pageCount'];
 
+    // Initialize the array to hold the accounts' details
     $akun_details = [];
 
-    if ($result_akun['s'] == true) {
+    // Loop through each page to fetch account details
+    for ($i = 1; $i <= $pageCount; $i++) {
+        // Update pagination for the current page
+        $data_akun_get_paginated = $data_akun_get . '&sp.page=' . $i;
 
-        foreach ($result_akun['d'] as $key) {
-            if (isset($key['no'])) {
+        // Make the request for the current page
+        $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get_paginated;
+        $result_akun = curl_get($url_akun);
+
+        // If the request was successful, process the data
+        if ($result_akun['s'] == true) {
+            foreach ($result_akun['d'] as $key) {
                 $akun_details[] = [
                     'id' => $key['id'],
                     'no' => $key['no'],
+                    'name' => $key['name'],
                     'accountTypeName' => $key['accountTypeName'],
                     'nameWithIndent' => $key['nameWithIndent'],
                     'noWithIndent' => $key['noWithIndent']
                 ];
             }
         }
-    } else {
-        $akun_details = [];
     }
+
+    // Optionally, output or return the accumulated account details
+    // echo json_encode($akun_details);
 }
 ?>
 <!DOCTYPE html>
