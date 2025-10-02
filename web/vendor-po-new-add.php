@@ -1304,7 +1304,7 @@ if ($result_getrow['sp'] == true) {
                 // Hitung Sub Total
                 // var ppn11 = Math.round((11 * subTotal) / 100);
 
-                var totalOrder = (subTotal + ppn11 + pph + hasil + jumlah_biaya);
+                var totalOrder = (subTotal + ppn11 + pph + hasil);
 
                 // // Tampilkan hasil di input Sub Total
                 $('#dt9').val(subTotal.toFixed(4)); // Menampilkan dengan 2 angka desimal
