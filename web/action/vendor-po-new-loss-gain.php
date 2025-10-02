@@ -187,6 +187,12 @@ if ($act == 'update') {
 							$urlnya_detail = 'https://zeus.accurate.id/accurate/api/purchase-order/detail.do?' . $query;
 
 							$result_detail = curl_get($urlnya_detail);
+							
+							if($rowget['terms'] == 'net'){
+								$payment= $rowget['terms'] . ' ' . $rowget['terms_day'];
+							}else{
+								$payment=$rowget['terms'];
+							}
 
 							if ($result_detail['s'] == true) {
 
@@ -195,7 +201,8 @@ if ($act == 'update') {
 									'vendorNo'         	=> $rowget['kode_vendor'],
 									'number'           	=> $new_nopo,
 									'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-									'paymentTermName'  	=> $rowget['terms'] . ' ' . $rowget['terms_day'],
+									// 'paymentTermName'  	=> $rowget['terms'] . ' ' . $rowget['terms_day'],
+									'paymentTermName'  	=> $payment,
 									'charField1'    	=> $rowget['id_terminal'],
 									'charField2'    	=> $rowget['kategori_plat'],
 									'charField3'    	=> $rowget['kd_tax'],

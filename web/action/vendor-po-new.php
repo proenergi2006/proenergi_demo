@@ -360,6 +360,12 @@ if ($act == 'cek') {
 						$mail->send();
 					}
 
+					if($terms=='NET'){
+						$payment= $terms . ' ' . $terms_day;
+					}else{
+						$payment='C.O.D';
+					}
+
 					$urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
 					// Data yang akan dikirim dalam format JSON
 					$data = array(
@@ -369,7 +375,8 @@ if ($act == 'cek') {
 						'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
 						// 'documentCode'		=> 'CTAS_INVOICE',
 						// 'taxType'			=> 'CTAS_DPP_NILAI_LAIN',
-						'paymentTermName'  	=> $terms . ' ' . $terms_day,
+						// 'paymentTermName'  	=> $terms . ' ' . $terms_day,
+						'paymentTermName'  	=> $payment,
 						'charField1'    	=> $dt6,
 						'charField2'    	=> $kategori_plat,
 						'charField3'    	=> $kd_tax,
@@ -533,6 +540,13 @@ if ($act == 'cek') {
 
 					$result_po_accurate = curl_delete($url_delete, json_encode($data_po_accurate));
 
+					
+					if($terms=='NET'){
+						$payment= $terms . ' ' . $terms_day;
+					}else{
+						$payment='C.O.D';
+					}
+
 					if ($result_po_accurate['s'] == true) {
 						$queryget = "SELECT * FROM pro_master_vendor WHERE id_master = '" . $rowget['id_vendor'] . "'";
 						$rowgetvendor = $con->getRecord($queryget);
@@ -546,7 +560,7 @@ if ($act == 'cek') {
 								'vendorNo'         	=> $rowgetvendor['kode_vendor'],
 								'number'           	=> $dt2,
 								'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
-								'paymentTermName'  	=> $terms . ' ' . $terms_day,
+								'paymentTermName'  	=> $payment,
 								'charField1'    	=> $dt6_edit,
 								'charField2'    	=> $kategori_plat,
 								'charField3'    	=> $kd_tax,
