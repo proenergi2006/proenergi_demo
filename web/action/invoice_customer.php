@@ -524,10 +524,10 @@ if ($act == "add") {
 
 			$get_id_do_accurate = "select * FROM pro_pr_detail WHERE id_prd='" . $id_prds['id_prd'] . "'";
 			$data_prd = $con->getRecord($get_id_do_accurate);
-			
+
 			$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran, c.id_cabang as id_cabang_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
 			$res4 	= $con->getRecord($query4);
-			$id_cabang_penawaran =$res4['id_cabang_penawaran'];
+			$id_cabang_penawaran = $res4['id_cabang_penawaran'];
 
 			$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang_penawaran . "'";
 			$rowget_cabang = $con->getRecord($queryget_cabang);
@@ -1288,7 +1288,7 @@ if ($act == "add") {
 
 			$query4 = "SELECT a.id_dsd, IF(c.gabung_oa=1,'gabung_oa',IF(c.gabung_pbbkb=1,'gabung_pbbkb',IF(c.all_in=1 OR c.gabung_pbbkboa=1,'all_in','break_all'))) AS jenis_penawaran, c.id_cabang as id_cabang_penawaran FROM pro_po_ds_detail as a JOIN pro_po_customer as b ON a.id_poc=b.id_poc JOIN pro_penawaran as c ON b.id_penawaran=c.id_penawaran WHERE id_dsd = '" . $id_dsd . "'";
 			$res4 	= $con->getRecord($query4);
-			$id_cabang_penawaran =$res4['id_cabang_penawaran'];
+			$id_cabang_penawaran = $res4['id_cabang_penawaran'];
 
 			$queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang_penawaran . "'";
 			$rowget_cabang = $con->getRecord($queryget_cabang);
@@ -1419,9 +1419,9 @@ if ($act == "add") {
 			} else {
 				// echo "kesini";
 				// exit();
-				$sql3 = "delete from pro_invoice_admin_detail where id_invoice = '" . $idr . "'";
-				$con->setQuery($sql3);
-				$oke  = $oke && !$con->hasError();
+				// $sql3 = "delete from pro_invoice_admin_detail where id_invoice = '" . $idr . "'";
+				// $con->setQuery($sql3);
+				// $oke  = $oke && !$con->hasError();
 
 				if (count($res_inv_split) > 0) {
 					foreach ($res_inv_split as $ris) {
