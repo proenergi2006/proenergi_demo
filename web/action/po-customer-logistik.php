@@ -54,6 +54,7 @@ if (isset($_POST["newdt4"])) {
 			if ($cek01) {
 				$arrExtraData[] = array('id_plan' => $row1, 'produk' => $dtx01, 'volume' => $volume, 'oanya' => $dtx03);
 			}
+			$no++;
 		}
 	}
 }
