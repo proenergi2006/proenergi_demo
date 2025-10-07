@@ -62,7 +62,7 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 3) {
 }
 
 $sql .= "
-		a.id_customer, a.id_penawaran, a.nomor_surat, a.volume_tawar, a.flag_approval, a.tgl_approval, a.flag_disposisi, a.harga_dasar, a.detail_rincian, a.created_time,
+		a.id_customer, a.id_penawaran, a.nomor_surat, a.volume_tawar, a.flag_approval, a.tgl_approval, a.flag_disposisi, a.harga_dasar, a.detail_rincian, a.created_time, a.is_edited, a.lastupdate_by,
 		b.nama_customer, b.kode_pelanggan, c.id_wilayah, c.fullname, d.nama_cabang, d.id_group_cabang, e.nama_area,
 		if(a.flag_approval = 0 && a.flag_disposisi > 0, 1, 0) as position,
 		CASE 
@@ -164,12 +164,21 @@ if ($tot_record ==  0) {
 			$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya']) . "</p>";
 		}
 
+		if ($data['is_edited'] == 1) {
+			$badge_edited = '<br><span style="
+			display:inline-block;padding:.25rem .6rem;border-radius:999px;
+			background:#0d6efd;color:#fff;font-size:.85rem;font-weight:600;" title="Edited by ' . $data['lastupdate_by'] . '">Edited</span>';
+		} else {
+			$badge_edited = "";
+		}
+
 		$content .= '
 				<tr class="clickable-row" data-href="' . $linkDetail . '"' . $background . '>
 					<td class="text-center">' . $count . '</td>
 					<td>
 						<p style="margin-bottom: 0px"><b>' . $data['nomor_surat'] . '</b></p>
 						<p style="margin-bottom: 0px"><i>' . $data['fullname'] . '</i></p>
+						' . $badge_edited . '
 					</td>
 					<td>
 						<p style="margin-bottom:0px;"><b>' . ($data['kode_pelanggan'] ? $data['kode_pelanggan'] : '-------') . '</b></p>

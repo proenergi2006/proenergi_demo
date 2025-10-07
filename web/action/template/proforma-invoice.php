@@ -194,12 +194,12 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <?= $row_poc['nama_customer'] ?>
+            <?= strtoupper($row_poc['nama_customer']) ?>
             <br>
-            <?= $row_poc['alamat_customer'] ?>
+            <?= strtoupper($row_poc['alamat_customer']) ?>
             <br>
-            <?= $row_poc['prov_customer'] ?>
-            <?= $row_poc['kab_customer'] ?>
+            <?= strtoupper($row_poc['prov_customer']) ?>
+            <?= strtoupper($row_poc['kab_customer']) ?>
             <?= $row_poc['kode_pos'] ?>
         </td>
         <td></td>

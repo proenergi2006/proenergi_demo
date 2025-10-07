@@ -17,7 +17,7 @@ $id_role = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']);
 $fullname = paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']);
 
 $p = new paging;
-$sql = "SELECT a.*, CONCAT(b.nama_mobil,' - ', b.plat_mobil) as nama_mobil, CONCAT(e.nama_transportir,' - ', d.nomor_plat) as nama_truck, c.nama_terminal, c.tanki_terminal FROM pro_pengisian_solar_mobil_opr a LEFT JOIN pro_master_mobil b ON a.id_mobil=b.id_mobil LEFT JOIN pro_master_terminal c ON a.id_terminal=c.id_master LEFT JOIN pro_master_transportir_mobil d ON a.id_truck=d.id_master LEFT JOIN pro_master_transportir e ON d.id_transportir=e.id_master WHERE a.id_wilayah = '" . $seswil . "'";
+$sql = "SELECT a.*, a.created_at as tgl_pengajuan, CONCAT(b.nama_mobil,' - ', b.plat_mobil) as nama_mobil, CONCAT(e.nama_transportir,' - ', d.nomor_plat) as nama_truck, c.nama_terminal, c.tanki_terminal FROM pro_pengisian_solar_mobil_opr a LEFT JOIN pro_master_mobil b ON a.id_mobil=b.id_mobil LEFT JOIN pro_master_terminal c ON a.id_terminal=c.id_master LEFT JOIN pro_master_transportir_mobil d ON a.id_truck=d.id_master LEFT JOIN pro_master_transportir e ON d.id_transportir=e.id_master WHERE a.id_wilayah = '" . $seswil . "'";
 
 if ($q1 != "") {
     $sql .= " and (upper(a.nomor) like '%" . strtoupper($q1) . "%' or upper(a.driver) like '%" . strtoupper($q1) . "%')";
@@ -184,7 +184,7 @@ if ($tot_record <= 0) {
 			<td class="text-center">
             ' . $no_voucher . '
             </br>
-            <small>Tanggal Pengajuan : '  . tgl_indo($data['created_at']) . '</small>
+            <small>Tanggal Pengajuan : '  . tgl_indo($data['tgl_pengajuan']) . '</small>
             </td>
 			<td class="text-left">
 			Driver : ' . strtoupper($data['driver']) . '

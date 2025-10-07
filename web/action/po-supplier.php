@@ -173,6 +173,11 @@ if ($oke) {
                 $con->close();
                 $flash->add("error", "Id accurate tidak ditemukan", BASE_REFERER);
             }
+        } else {
+            $con->commit();
+            $con->close();
+            header("location: " . BASE_URL_CLIENT . "/verifikasi-po.php");
+            exit();
         }
     } else {
         $con->commit();

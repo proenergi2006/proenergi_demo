@@ -13,7 +13,7 @@ $id         = isset($enk["id"]) ? htmlspecialchars($enk["id"], ENT_QUOTES) : '';
 $kategori   = isset($enk["kategori"]) ? htmlspecialchars($enk["kategori"], ENT_QUOTES) : '';
 
 
-$sql = "SELECT a.*, CONCAT(b.nama_mobil,' - ', b.plat_mobil) as nama_mobil, CONCAT(e.nama_transportir,' - ', d.nomor_plat) as nama_truck, c.nama_terminal, c.tanki_terminal FROM pro_pengisian_solar_mobil_opr a LEFT JOIN pro_master_mobil b ON a.id_mobil=b.id_mobil LEFT JOIN pro_master_terminal c ON a.id_terminal=c.id_master LEFT JOIN pro_master_transportir_mobil d ON a.id_truck=d.id_master LEFT JOIN pro_master_transportir e ON d.id_transportir=e.id_master WHERE a.id = '" . $id . "'";
+$sql = "SELECT a.*, a.created_at as tgl_pengajuan, CONCAT(b.nama_mobil,' - ', b.plat_mobil) as nama_mobil, CONCAT(e.nama_transportir,' - ', d.nomor_plat) as nama_truck, c.nama_terminal, c.tanki_terminal FROM pro_pengisian_solar_mobil_opr a LEFT JOIN pro_master_mobil b ON a.id_mobil=b.id_mobil LEFT JOIN pro_master_terminal c ON a.id_terminal=c.id_master LEFT JOIN pro_master_transportir_mobil d ON a.id_truck=d.id_master LEFT JOIN pro_master_transportir e ON d.id_transportir=e.id_master WHERE a.id = '" . $id . "'";
 $data = $con->getRecord($sql);
 
 if ($data['nama_mobil'] == NULL) {
@@ -32,6 +32,7 @@ if ($kategori == "pengajuan_awal") {
     }
     $driver = $data['driver'];
     $keterangan = $data['keterangan'];
+    $tanggal_pengajuan = tgl_indo($data['tgl_pengajuan']);
 } else {
     $judul = "Voucher BBM Realisasi";
     if (fmod($data['volume'], 1) == 0.0) {
@@ -41,6 +42,7 @@ if ($kategori == "pengajuan_awal") {
     }
     $driver = $data['driver_realisasi'];
     $keterangan = $data['keterangan_realisasi'];
+    $tanggal_pengajuan = tgl_indo($data['tgl_realisasi']);
 }
 
 $printe  = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date("d/m/Y H:i:s") . " WIB";
@@ -243,9 +245,7 @@ $html .= '
                     </center>
                 </td>
                 <td width="30%">
-                    <h3>Tanggal: ' . tgl_indo($data['date_admin']) . '</h3>
-                    <br>
-                    <h3>Jam: ' . date('H:i', strtotime($data['date_admin'])) . '</h3>
+                    <h3>Tanggal: ' . $tanggal_pengajuan . '</h3>
                 </td>
             </tr>
         </table>
