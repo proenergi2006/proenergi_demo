@@ -71,10 +71,10 @@
     }
 </style>
 <?php
-if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
-    $due_date = "-";
+if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
+    $due_date = date("d M Y", strtotime($res['tgl_invoice']));
 } else {
-    $due_date = date("d M Y", strtotime("+" . $res03['top_poc'] . "days", strtotime($res['tgl_invoice'])));
+    $due_date = date("d M Y", strtotime("+" . $res03['top_payment'] . "days", strtotime($res['tgl_invoice'])));
 }
 ?>
 <htmlpagefooter name="myHTMLFooter1">
@@ -333,7 +333,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     <tbody>
         <?php foreach ($res02 as $key) : ?>
             <?php
-            $volume       = (int)$key['vol_kirim'];
+            $volume       = (float)$key['vol_kirim'];
             $total_vol_kirim += $volume;
             $total_discount += (int)$key['discount'];
 
@@ -528,7 +528,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 Liter
             </td>
             <td valign="top" align="center">
-                <?= number_format($total_vol_kirim) ?>
+                <?= (fmod($total_vol_kirim, 1) !== 0.0000) ? number_format($total_vol_kirim, 4, ".", ",") :  number_format($total_vol_kirim) ?>
             </td>
             <td valign="top" align="center">
                 <?php if ($res03['pembulatan'] == 2) : ?>
@@ -645,7 +645,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             <?= ucwords($approval) ?>
             <br>
             <br>
-            <hr style="height: 3px; border: 0px solid black; width:50%; margin:0 auto;">
+            <hr style="height: 3px; border: 0px solid black; width:65%; margin:0 auto;">
             <span>
                 <?= ucwords($jabatan) ?>
             </span>
@@ -673,15 +673,37 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
+                    <?php if (in_array($sess_wil, ['3','6'])) : ?>
+                        <td>
+                            Bank Jtrust Indonesia
+                        </td>
+                        <td>
+                            :
+                        </td>
+                        <td>
+                            Cab. Sudirman, Jakarta
+                        </td>
+                    <?php elseif (in_array($sess_wil, ['5','4'])) : ?>
                     <td>
-                        Bank Rakyat Indonesia
+                        Bank Mandiri
                     </td>
                     <td>
                         :
                     </td>
                     <td>
-                        Cab. Veteran
+                       Cab. Graha Irama
                     </td>
+                    <?php else : ?>
+                        <td>
+                            Bank Rakyat Indonesia
+                        </td>
+                        <td>
+                            :
+                        </td>
+                        <td>
+                            Cab. Veteran
+                        </td>
+                    <?php endif ?>
                 </tr>
                 <tr>
                     <td>
@@ -690,8 +712,14 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     <td>
                         :
                     </td>
-                    <td>
-                        0329-01-003694-305
+                     <td>
+                        <?php if ($sess_wil == '6') : ?>
+                            100 2083 604
+                        <?php elseif ($sess_wil == '5') : ?>
+                            1240005570453
+                        <?php else : ?>
+                            0329-01-003694-305
+                        <?php endif ?>
                     </td>
                 </tr>
             </table>

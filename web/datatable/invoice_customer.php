@@ -167,6 +167,13 @@ if ($tot_record == 0) {
 		// echo json_encode($pbbkb_penawaran);
 		// exit();
 
+		if( $arrTermPayment[$data['jenis_payment']] == "CBD"){
+			$top_pembayaran ="-";
+		}else{
+			$top_pembayaran = $data['top_payment'];
+
+		}
+
 		foreach ($decode as $arr1) {
 			if ($data['jenis'] == "all_in") {
 				$nilai = $arr1['nilai'];
@@ -451,8 +458,8 @@ if ($tot_record == 0) {
 					' . tgl_indo($data['tgl_invoice']) . '
 					<br><br>
 					<p>Payment : ' . $arrTermPayment[$data['jenis_payment']] . '</p>
-					<p>TOP : ' . $data['top_payment'] . '</p>
-					<p>' . $due_date . '</p>
+					<p>TOP : ' . $top_pembayaran . '</p>
+					<p>' .($arrTermPayment[$data['jenis_payment']] == "CBD" ? '-' : $due_date). '</p>
 				</td>
 				<td class="text-center">
 					' . tgl_indo($tgl_invoice_dikirim) . '
