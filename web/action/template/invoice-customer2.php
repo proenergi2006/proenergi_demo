@@ -124,7 +124,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 <br>
 <table width="100%" border="0">
     <tr>
-        <td width="25%">
+        <td width="30%">
             <b>
                 Bill To
             </b>
@@ -140,11 +140,11 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
         <td width="3%">
 
         </td>
-        <td rowspan="2" valign="top">
+        <td rowspan="3" valign="top">
             <table width="100%" border="0" cellspacing="0" cellpadding="3">
                 <?php if ($res['tgl_invoice'] >= "2024-11-18") : ?>
                     <tr>
-                        <td align="right" width="50%">
+                        <td align="right" width="36%">
                             <b>
                                 Invoice
                             </b>
@@ -162,7 +162,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     </tr>
                 <?php else : ?>
                     <tr>
-                        <td align="right" width="50%">
+                        <td align="right" width="36%">
                             <b>
                                 Invoice
                             </b>
@@ -176,7 +176,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     </tr>
                 <?php endif ?>
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             Invoice Date
                         </b>
@@ -189,7 +189,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             PO. NO
                         </b>
@@ -202,7 +202,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             Due Date
                         </b>
@@ -219,7 +219,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <?= strtoupper($res['nm_customer']) ?>
+            <b> <?= strtoupper($res['nm_customer']) ?></b>
             <br>
             <?= strtoupper($res['alamat_customer']) ?>
             <br>

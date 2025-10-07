@@ -220,7 +220,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <?= strtoupper($res['nm_customer']) ?>
+               <b> <?= strtoupper($res['nm_customer']) ?></b>
             <br>
             <?= strtoupper($res['alamat_customer']) ?>
             <br>
