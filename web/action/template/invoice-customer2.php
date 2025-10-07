@@ -71,11 +71,16 @@
     }
 </style>
 <?php
-if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
-    $due_date = "-";
+if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
+    $due_date = date("d M Y", strtotime($res['tgl_invoice']));
 } else {
-    $due_date = date("d M Y", strtotime("+" . $res03['top_poc'] . "days", strtotime($res['tgl_invoice'])));
+    $due_date = date("d M Y", strtotime("+" . $res03['top_payment'] . "days", strtotime($res['tgl_invoice'])));
 }
+// if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
+//     $due_date = "-";
+// } else {
+//     $due_date = date("d M Y", strtotime("+" . $res03['top_poc'] . "days", strtotime($res['tgl_invoice'])));
+// }
 ?>
 <htmlpagefooter name="myHTMLFooter1">
     <p style="margin:0; text-align:right;">
@@ -242,10 +247,10 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     Terms
                 </b>
                 <br>
-                <?php if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") : ?>
-                    <?= $res03['top_poc'] ?>
+                <?php if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") : ?>
+                    <?= $res03['jenis_payment'] ?>
                 <?php else : ?>
-                    NET <?= $res03['top_poc'] ?>
+                    NET <?= $res03['top_payment'] ?>
                 <?php endif ?>
             </td>
             <td rowspan="2">
@@ -856,6 +861,16 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                         <td>
                             Cab. Sudirman, Jakarta
                         </td>
+                    <?php elseif ($sess_wil == '5') : ?>
+                    <td>
+                        Bank Mandiri
+                    </td>
+                    <td>
+                        :
+                    </td>
+                    <td>
+                       Cab. Graha Irama
+                    </td>
                     <?php else : ?>
                         <td>
                             Bank Rakyat Indonesia
@@ -878,6 +893,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     <td>
                         <?php if ($sess_wil == '6') : ?>
                             100 2083 604
+                        <?php elseif ($sess_wil == '5') : ?>
+                            1240005570453
                         <?php else : ?>
                             0329-01-003694-305
                         <?php endif ?>

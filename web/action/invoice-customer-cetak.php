@@ -37,7 +37,7 @@ if ($res['id_approval'] == NULL) {
 
 
 $sql02 = "select 
-a.*, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.detail_rincian, j.pembulatan
+a.*, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.detail_rincian, j.pembulatan, c1.jenis_payment,c1.top_payment
 from pro_invoice_admin_detail a 
 join pro_po_ds_detail b on a.id_dsd = b.id_dsd and a.jenisnya = 'truck' 
 join pro_po_customer_plan c on b.id_plan = c.id_plan 
@@ -51,10 +51,11 @@ join pro_penawaran j on d.id_penawaran=j.id_penawaran
 join pro_po_detail b1 on b.id_pod = b1.id_pod 
 join pro_master_transportir_mobil k1 on b1.mobil_po = k1.id_master 
 join pro_master_transportir_sopir l1 on b1.sopir_po = l1.id_master
+join pro_customer c1 on d.id_customer = c1.id_customer
 where 1=1 and a.id_invoice = '" . $idr . "'
 UNION ALL 
 select 
-a.*, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.detail_rincian, j.pembulatan
+a.*, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.detail_rincian, j.pembulatan, c1.jenis_payment,c1.top_payment
 from pro_invoice_admin_detail a 
 join pro_po_ds_kapal b on a.id_dsd = b.id_dsk and a.jenisnya = 'kapal' 
 join pro_pr_detail c on b.id_prd = c.id_prd 
@@ -65,6 +66,7 @@ left join pro_master_wilayah_angkut g on f.id_wil_oa = g.id_master and f.prov_su
 join pro_master_provinsi h on h.id_prov=g.id_prov
 join pro_master_kabupaten i on i.id_kab=g.id_kab
 join pro_penawaran j on e.id_penawaran=j.id_penawaran
+join pro_customer c1 on e.id_customer = c1.id_customer
 where 1=1 and a.id_invoice = '" . $idr . "' 
 order by id_invoice_detail ";
 
@@ -72,7 +74,7 @@ $res02 = $con->getResult($sql02);
 
 $sql03 = "
 		select 
-		a.*, SUM(a.discount) as total_disc, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan
+		a.*, SUM(a.discount) as total_disc, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan,c1.jenis_payment,c1.top_payment
 		from pro_invoice_admin_detail a 
 		join pro_po_ds_detail b on a.id_dsd = b.id_dsd and a.jenisnya = 'truck' 
 		join pro_po_customer_plan c on b.id_plan = c.id_plan 
@@ -86,11 +88,12 @@ $sql03 = "
 		join pro_po_detail b1 on b.id_pod = b1.id_pod 
 		join pro_master_transportir_mobil k1 on b1.mobil_po = k1.id_master 
 		join pro_master_transportir_sopir l1 on b1.sopir_po = l1.id_master
+		join pro_customer c1 on d.id_customer = c1.id_customer
 		where 1=1 and a.id_invoice = '" . $idr . "'
 		HAVING total_disc IS NOT NULL
 		UNION ALL 
 		select 
-		a.*, SUM(a.discount) as total_disc, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan
+		a.*, SUM(a.discount) as total_disc, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan, c1.jenis_payment,c1.top_payment
 		from pro_invoice_admin_detail a 
 		join pro_po_ds_kapal b on a.id_dsd = b.id_dsk and a.jenisnya = 'kapal' 
 		join pro_pr_detail c on b.id_prd = c.id_prd 
@@ -101,6 +104,7 @@ $sql03 = "
 		join pro_master_provinsi h on h.id_prov=g.id_prov
 		join pro_master_kabupaten i on i.id_kab=g.id_kab
 		join pro_penawaran j on e.id_penawaran=j.id_penawaran
+		join pro_customer c1 on e.id_customer = c1.id_customer
 		where 1=1 and a.id_invoice = '" . $idr . "' 
 		HAVING total_disc IS NOT NULL
 		order by id_invoice_detail 
