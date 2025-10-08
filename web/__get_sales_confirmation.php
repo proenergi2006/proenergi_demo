@@ -727,6 +727,8 @@ $_hidden = 'style="display: none;"';
 		$('.rimender').on('keyup change blur', hitung_arnya);
 
 		function hitung_arnya() {
+			var flag = `<?= $row['flag_approval'] ?>`;
+			var proposed_status = `<?= $row['proposed_status'] ?>`;
 			var creditlimit = parseFloat($('input[name="cl"]').val().replace(/,/g, "")) || 0;
 			var creditlimit_temp = parseFloat($('input[name="cl_temp"]').val().replace(/,/g, "")) || 0;
 
@@ -744,33 +746,44 @@ $_hidden = 'style="display: none;"';
 			var total_cl = creditlimit + creditlimit_temp;
 			var total_ar = po_not_yet + not_yet + ov_up_07 + ov_under_30 + ov_under_60 + ov_under_90 + ov_up_90;
 
-			// Hitung sisa limit
-			var nilai_cl = total_cl - total_ar;
+			if (flag == 0) {
+				// Hitung sisa limit
+				var nilai_cl = total_cl - total_ar;
 
-			// Hitung kekurangan (ADD CL)
-			var nilai_sl = 0;
-			if (nilai_cl < 0) {
-				nilai_sl = Math.abs(nilai_cl) + amount_po;
-			} else if (amount_po > nilai_cl) {
-				nilai_sl = amount_po - nilai_cl;
-			}
+				// Hitung kekurangan (ADD CL)
+				var nilai_sl = 0;
+				if (nilai_cl < 0) {
+					nilai_sl = Math.abs(nilai_cl) + amount_po;
+				} else if (amount_po > nilai_cl) {
+					nilai_sl = amount_po - nilai_cl;
+				}
 
-			var unblock = false;
-			$("input[name='reminding']").val(nilai_cl);
+				var unblock = false;
+				$("input[name='reminding']").val(nilai_cl);
 
-			if (nilai_sl > 0) unblock = true;
-			if (ov_up_07 > 0 || ov_under_30 > 0 || ov_under_60 > 0 || ov_under_90 > 0 || ov_up_90 > 0) unblock = true;
+				if (nilai_sl > 0) unblock = true;
+				if (ov_up_07 > 0 || ov_under_30 > 0 || ov_under_60 > 0 || ov_under_90 > 0 || ov_up_90 > 0) unblock = true;
 
-			if (unblock) {
-				$("#proposed2").iCheck('check');
-				$("input[name='add_cl']").val(nilai_sl);
-				$('._proposed').removeClass('hidden');
+				if (unblock) {
+					$("#proposed2").iCheck('check');
+					$("input[name='add_cl']").val(nilai_sl);
+					$('._proposed').removeClass('hidden');
+				} else {
+					$("#proposed1").iCheck('check');
+					$("input[name='add_cl']").val('');
+					$('._proposed').addClass('hidden');
+				}
 			} else {
-				$("#proposed1").iCheck('check');
-				$("input[name='add_cl']").val('');
-				$('._proposed').addClass('hidden');
+				if (proposed_status == 0) {
+					$("#proposed1").iCheck('check');
+					$("input[name='add_cl']").val('');
+					$('._proposed').addClass('hidden');
+				} else {
+					$("#proposed2").iCheck('check');
+					$("input[name='add_cl']").val(nilai_sl);
+					$('._proposed').removeClass('hidden');
+				}
 			}
-
 		}
 
 

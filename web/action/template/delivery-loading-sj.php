@@ -223,6 +223,9 @@ if (count($res) > 0) {
         $nom++;
         $volume_po = $data2['volume_po'];
         $ongkos_po = $data2['ongkos_po'];
+        $id_wilayah = $data2['id_wilayah'];
+        $id_terminal = $data2['id_terminal'];
+        $manual_segel = $data2['manual_segel'];
         $jumlah_po = $volume_po * $ongkos_po;
         $tempal = str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data2['nama_kab']);
         $alamat    = $data2['alamat_survey'] . " " . $tempal . " " . $data2['nama_prov'];
@@ -235,7 +238,7 @@ if (count($res) > 0) {
         if ($data2['jumlah_segel'] == 1) {
             $nomor_segel = $data2['pre_segel'] . "-" . $seg_aw;
         } elseif ($data2['jumlah_segel'] == 2) {
-            $nomor_segel = $data['pre_segel'] . "-" . $seg_aw . ", " . $data2['pre_segel'] . "-" . $seg_ak;
+            $nomor_segel = $data2['pre_segel'] . "-" . $seg_aw . ", " . $data2['pre_segel'] . "-" . $seg_ak;
         } else {
             // Inisialisasi array untuk menampung daftar nomor segel
             $daftar_nomor_segel = array();
@@ -457,7 +460,10 @@ if (count($res) > 0) {
                                 <table width="100%" border="1" style="border: 1px solid #888; border-collapse: collapse;" cellspacing=" 0" cellpadding="5">
                                     <tr>
                                         <td valign="top" height="80px" align="left" class="b1 b3 b4" style="font-size: 10pt;font-family:Arial;">
-                                            Seal : <?= $nomor_segel ?>
+                                            <?php
+                                            $seal = ($id_wilayah == 11 && $id_terminal == 73) ? $manual_segel : $nomor_segel;
+                                            echo 'Seal : ' . $seal;
+                                            ?>
                                         </td>
                                     </tr>
                                 </table>
@@ -658,6 +664,6 @@ if (count($res) > 0) {
 
 
 
-<?php if ($nom < count($res)) echo '<pagebreak sheet-size="Letter" margin-left="10mm" margin-right="10mm" margin-top="20mm" margin-bottom="10mm" />';
+<?php if ($nom < count($res)) echo '<pagebreak sheet-size="A4" margin-left="10mm" margin-right="10mm" margin-top="20mm" margin-bottom="10mm" />';
     }
 } ?>

@@ -85,7 +85,7 @@ $row2 = $conSub->getResult($sql2);
 if ($row1 != null) {
 	$reminding = ($row1[0]['credit_limit'] ? $row1[0]['credit_limit'] + $row1[0]['credit_limit_temp'] - $row1[0]['credit_limit_reserved'] - ($row1[0]['not_yet'] + $row1[0]['ov_up_07'] + $row1[0]['ov_under_30'] + $row1[0]['ov_under_60'] + $row1[0]['ov_under_90'] + $row1[0]['ov_up_90']) : 0);
 
-	$answer['top_payment'] 	= $row1[0]['top_payment'];
+	$answer['top_payment'] 	= $row1[0]['top_customer'];
 	$answer['credit_limit'] = 'Rp ' . ($row1[0]['credit_limit'] ? number_format($row1[0]['credit_limit']) : 0);
 	$answer['credit_limit_temp'] = 'Rp ' . ($row1[0]['credit_limit_temp'] ? number_format($row1[0]['credit_limit_temp']) : 0);
 	$answer['credit_limit_used'] = 'Rp ' . ($row1[0]['credit_limit_used'] ? number_format($row1[0]['credit_limit_used']) : 0);

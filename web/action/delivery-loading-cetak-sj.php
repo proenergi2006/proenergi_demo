@@ -46,9 +46,9 @@ $con->close();
 
 $mpdf = null;
 if (PHP_VERSION >= 5.6) {
-	$mpdf = new \Mpdf\Mpdf(['format' => 'Letter']);
+	$mpdf = new \Mpdf\Mpdf(['format' => 'A4']);
 } else
-	$mpdf = new mPDF('c', 'Letter');
+	$mpdf = new mPDF('c', 'A4');
 $mpdf->SetDisplayMode('fullpage');
 $mpdf->WriteHTML($content);
 $filename = "DN_" . sanitize_filename($idr);
