@@ -14,13 +14,14 @@ $tipe 	= isset($enk["tipe"]) ? htmlspecialchars($enk["tipe"], ENT_QUOTES) : '';
 $sess_wil = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
 $sql = "
-	select a.*, b.nama_customer as nm_customer, c.nama_cabang, c.id_master as id_cabang, d.fullname as marketing, b.alamat_customer, e.nama_prov, f.nama_kab, b.postalcode_customer as kode_pos
+	select a.*, b.nama_customer as nm_customer, c.nama_cabang, c.id_master as id_cabang, d.fullname as marketing, b.alamat_customer, e.nama_prov, f.nama_kab, b.postalcode_customer as kode_pos, g.nama_bank, g.nama_cabang, g.nomor_rekening
 	from pro_invoice_admin a 
 	join pro_customer b on a.id_customer = b.id_customer 
 	join pro_master_cabang c on b.id_wilayah = c.id_master
 	join acl_user d ON d.id_user=b.id_marketing
 	join pro_master_provinsi e on e.id_prov=b.prov_customer
 	join pro_master_kabupaten f on f.id_kab=b.kab_customer
+	left join pro_master_bank g on a.id_bank=g.id_bank
 	where 1=1 and a.id_invoice = '" . $idr . "'
 ";
 $res = $con->getRecord($sql);
@@ -149,7 +150,7 @@ if (PHP_VERSION >= 5.6) {
 	$mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'default_font' => 'Arial']);
 } else
 	$mpdf = new mPDF('c', 'A4', 9, 'arial', 10, 10, 10, 10, 0, 5);
-$mpdf->AddPage('P', '', '', '', '', 12, 12, 12, 12, 12, 12);
+$mpdf->AddPage('P', '', '', '', '', 5, 5, 5, 5, 5, 5);
 $mpdf->SetDisplayMode('fullpage');
 $mpdf->use_kwt = true;
 $mpdf->autoPageBreak = false;

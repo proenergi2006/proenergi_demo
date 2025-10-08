@@ -1,6 +1,6 @@
 <style>
     table {
-        font-size: 8pt;
+        font-size: 10pt;
     }
 
     .tabel_header td {
@@ -93,20 +93,10 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 <sethtmlpagefooter name="myHTMLFooter1" page="ALL" value="on" show-this-page="1" />
 <table border="0" width="100%">
     <tr>
-        <td width="30%">
+        <td width="35%">
             <div style="padding:0;"><img src="<?php echo BASE_IMAGE . "/logo-kiri-penawaran.png"; ?>" width="15%" /></div>
         </td>
-        <td align="right">
-            <h2>SALES INVOICE</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            &nbsp;
-        </td>
-    </tr>
-    <tr>
-        <td>
+        <td width="30%">
             <p>
                 <b>
                     PT PRO ENERGI
@@ -117,6 +107,14 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 JL. HR RASUNA SAID KAV 1-2
                 KUNINGAN TIMUR JAKARTA SELATAN
             </p>
+        </td>
+        <td align="right">
+            <h2>SALES INVOICE</h2>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            &nbsp;
         </td>
     </tr>
 </table>
@@ -287,27 +285,37 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 </div>
 <table width="100%" style="border: 1px solid black; border-collapse: collapse; border-top:none;" cellspacing="0" cellpadding="5">
     <tr>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Item Description
             </b>
         </th>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
+            <b>
+                Item Unit
+            </b>
+        </th>
+        <th align="center" class="b2 b3">
             <b>
                 Qty
             </b>
         </th>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Unit Price
             </b>
         </th>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Discount
             </b>
         </th>
-        <th width="25%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
+            <b>
+                Tax
+            </b>
+        </th>
+        <th align="center" class="b2 b3">
             <b>
                 Amount
             </b>
@@ -589,12 +597,15 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     <td height="10px" valign="top" align="center">
                         <?= $res03['produk'] ?>
                         <br>
-                        <br>
                         PBBKB
                     </td>
                     <td valign="top" align="center">
-                        <?= (fmod($total_vol_kirim, 1) !== 0.0000) ? number_format($total_vol_kirim, 4, ".", ",") :  number_format($total_vol_kirim) ?>
+                        Liter
                         <br>
+                        Liter
+                    </td>
+                    <td valign="top" align="center">
+                        <?= (fmod($total_vol_kirim, 1) !== 0.0000) ? number_format($total_vol_kirim, 4, ".", ",") :  number_format($total_vol_kirim) ?>
                         <br>
                         <?= (fmod($total_vol_kirim, 1) !== 0.0000) ? number_format($total_vol_kirim, 4, ".", ",") :  number_format($total_vol_kirim) ?>
                     </td>
@@ -603,16 +614,13 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                         <?php if ($res03['pembulatan'] == 2) : ?>
                             <?= number_format($harga, 4) ?>
                             <br>
-                            <br>
                             <?= number_format($pbbkb, 4) ?>
                         <?php elseif ($res03['pembulatan'] == 0) : ?>
                             <?= number_format($harga, 2) ?>
                             <br>
-                            <br>
                             <?= number_format($pbbkb, 2) ?>
                         <?php else : ?>
                             <?= (fmod($harga, 1) !== 0.0000) ? number_format($harga, 4, ".", ",") : number_format($harga) ?>
-                            <br>
                             <br>
                             <?= (fmod($pbbkb, 1) !== 0.0000) ? number_format($pbbkb, 4, ".", ",") : number_format($pbbkb)  ?>
                         <?php endif ?>
@@ -621,12 +629,15 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     <td valign="top" align="center">
                         0
                         <br>
-                        <br>
                         0
+                    </td>
+                    <td valign="top" align="center">
+                        -
+                        <br>
+                        -
                     </td>
                     <td valign="top" align="right">
                         <?= number_format($total_harga) ?>
-                        <br>
                         <br>
                         <?= number_format($total_harga_pbbkb) ?>
                     </td>
@@ -635,6 +646,9 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 <tr style="border: 1px solid black;">
                     <td height="10px" valign="top" align="center">
                         <?= $res03['produk'] ?>
+                    </td>
+                    <td valign="top" align="center">
+                        Liter
                     </td>
                     <td valign="top" align="center">
                         <?= (fmod($total_vol_kirim, 1) !== 0.0000) ? number_format($total_vol_kirim, 4, ".", ",") :  number_format($total_vol_kirim) ?>
@@ -653,6 +667,9 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     <td valign="top" align="center">
                         0
                     </td>
+                    <td valign="top" align="center">
+                        -
+                    </td>
                     <td valign="top" align="right">
                         <?= number_format($total_harga) ?>
                     </td>
@@ -664,6 +681,9 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             <tr style="border: 1px solid black;">
                 <td height="10px" valign="top" align="center">
                     <?= $res03['produk'] ?>
+                </td>
+                <td valign="top" align="center">
+                    Liter
                 </td>
                 <td valign="top" align="center">
                     <?= (fmod($total_vol_kirim, 1) !== 0.0000) ? number_format($total_vol_kirim, 4, ".", ",") :  number_format($total_vol_kirim) ?>
@@ -680,13 +700,16 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 <td valign="top" align="center">
                     <?= number_format($res03['total_disc']) ?>
                 </td>
+                <td valign="top" align="center">
+                    -
+                </td>
                 <td valign="top" align="right">
                     <?= number_format($total_harga) ?>
                 </td>
             </tr>
         <?php endif ?>
         <tr>
-            <td colspan="4" class="b1 b2" align="right">
+            <td colspan="6" class="b1 b2" align="right">
                 <b>
                     Sub Total
                 </b>
@@ -698,7 +721,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             </td>
         </tr>
         <tr>
-            <td colspan="4" class="b2" align="right">
+            <td colspan="6" class="b2" align="right">
                 <b>
                     Discount
                 </b>
@@ -708,7 +731,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             </td>
         </tr>
         <tr>
-            <td colspan="4" class="b2" align="right">
+            <td colspan="6" class="b2" align="right">
                 <b>
                     DPP
                 </b>
@@ -718,7 +741,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             </td>
         </tr>
         <tr>
-            <td colspan="4" class="b2" align="right">
+            <td colspan="6" class="b2" align="right">
                 <b>
                     PPN
                 </b>
@@ -733,7 +756,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
         </tr>
         <?php if ($tipe == 'default') : ?>
             <tr>
-                <td colspan="4" class="b2" align="right">
+                <td colspan="6" class="b2" align="right">
                     <b>
                         <?= $ket_pbbkb ?>
                     </b>
@@ -744,7 +767,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             </tr>
         <?php else : ?>
             <tr>
-                <td colspan="4" class="b2" align="right">
+                <td colspan="6" class="b2" align="right">
                     <b>
                         PBBKB
                     </b>
@@ -755,7 +778,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             </tr>
         <?php endif ?>
         <tr>
-            <td colspan="4" class="b2" align="right">
+            <td colspan="6" class="b2" align="right">
                 <b>
                     Total Invoice
                 </b>
@@ -767,7 +790,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
         <?php if ($res['total_bayar'] != 0): ?>
 
             <tr>
-                <td colspan="4" class="b2" align="right">
+                <td colspan="6" class="b2" align="right">
                     <b>
                         Payment
                     </b>
@@ -826,47 +849,35 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
-                    <?php if ($res['nama_bank'] == NULL) : ?>
-                        <?php if (in_array($sess_wil, ['3', '6'])) : ?>
-                            <td>
-                                Bank Jtrust Indonesia
-                            </td>
-                            <td>
-                                :
-                            </td>
-                            <td>
-                                Cab. Sudirman, Jakarta
-                            </td>
-                        <?php elseif (in_array($sess_wil, ['5', '4'])) : ?>
-                            <td>
-                                Bank Mandiri
-                            </td>
-                            <td>
-                                :
-                            </td>
-                            <td>
-                                Cab. Graha Irama
-                            </td>
-                        <?php else : ?>
-                            <td>
-                                Bank Rakyat Indonesia
-                            </td>
-                            <td>
-                                :
-                            </td>
-                            <td>
-                                Cab. Veteran
-                            </td>
-                        <?php endif ?>
-                    <?php else : ?>
+                    <?php if (in_array($sess_wil, ['3', '6'])) : ?>
                         <td>
-                            <?= $res['nama_bank'] ?>
+                            Bank Jtrust Indonesia
                         </td>
                         <td>
                             :
                         </td>
                         <td>
-                            <?= $res['nama_cabang'] ?>
+                            Cab. Sudirman, Jakarta
+                        </td>
+                    <?php elseif (in_array($sess_wil, ['5', '4'])) : ?>
+                        <td>
+                            Bank Mandiri
+                        </td>
+                        <td>
+                            :
+                        </td>
+                        <td>
+                            Cab. Graha Irama
+                        </td>
+                    <?php else : ?>
+                        <td>
+                            Bank Rakyat Indonesia
+                        </td>
+                        <td>
+                            :
+                        </td>
+                        <td>
+                            Cab. Veteran
                         </td>
                     <?php endif ?>
                 </tr>
@@ -878,16 +889,12 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                         :
                     </td>
                     <td>
-                        <?php if ($res['nama_bank'] == NULL) : ?>
-                            <?php if (in_array($sess_wil, ['3', '6'])) : ?>
-                                100 2083 604
-                            <?php elseif (in_array($sess_wil, ['4', '5'])) : ?>
-                                1240005570453
-                            <?php else : ?>
-                                0329-01-003694-305
-                            <?php endif ?>
+                        <?php if (in_array($sess_wil, ['3', '6'])) : ?>
+                            100 2083 604
+                        <?php elseif (in_array($sess_wil, ['4', '5'])) : ?>
+                            1240005570453
                         <?php else : ?>
-                            <?= $res['nomor_rekening'] ?>
+                            0329-01-003694-305
                         <?php endif ?>
                     </td>
                 </tr>

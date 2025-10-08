@@ -38,8 +38,17 @@ if ($q4) {
     $user = " AND j.id_user = '" . $q4 . "'";
 }
 
+// if ($q5) {
+//     $month = " AND n.tgl_invoice BETWEEN STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d') AND LAST_DAY(STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d'))";
+// }
+
 if ($q5) {
-    $month = " AND n.tgl_invoice BETWEEN STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d') AND LAST_DAY(STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d'))";
+    // format $q5 = 'YYYY-MM'
+    $month = " AND pay.max_tgl_bayar BETWEEN
+        STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d')
+        AND LAST_DAY(STR_TO_DATE(CONCAT('" . $q5 . "','-01'), '%Y-%m-%d'))";
+} else {
+    $month = "";
 }
 
 if ($q3 != "") {
@@ -53,6 +62,12 @@ if ($q1) {
 } else {
     $keywords = "";
 }
+
+$joinPay = "LEFT JOIN (
+                SELECT id_invoice, MAX(tgl_bayar) AS max_tgl_bayar
+                FROM pro_invoice_admin_detail_bayar
+                GROUP BY id_invoice
+            ) pay ON pay.id_invoice = a.id_invoice";
 
 $p = new paging;
 $sql = "SELECT DISTINCT 
@@ -134,6 +149,7 @@ JOIN
     pro_invoice_admin_detail p ON a.id_invoice = p.id_invoice AND p.id_dsd=ppdd.id_dsd AND p.jenisnya='truck'
 JOIN 
     pro_master_cabang q ON q.id_master = i.id_wilayah
+" . $joinPay . "
 WHERE  1 = 1
 	" . $wilayah . "
 	" . $user . "
@@ -218,6 +234,7 @@ JOIN
     pro_invoice_admin_detail p ON a.id_invoice = p.id_invoice AND p.id_dsd=ppdd.id_dsk AND p.jenisnya='kapal'
 JOIN 
     pro_master_cabang q ON q.id_master = i.id_wilayah
+    " . $joinPay . "
 WHERE  1 = 1
 	" . $wilayah . "
 	" . $user . "

@@ -750,15 +750,15 @@ if ($idr != "" && $idk != "") {
 							<hr style="border-top:4px double #ddd; margin:5px 0 20px;" />
 
 							<div style="margin-bottom:15px;">
-								<input type="hidden" id="po_not_yet" name="po_not_yet" value="<?php echo $credit_limit_reserved; ?>" />
-								<input type="hidden" id="cl_temp" name="cl_temp" value="<?php echo $rsm['credit_limit_temp']; ?>" />
-								<input type="hidden" id="not_yet" name="not_yet" value="<?php echo $rsm['not_yet']; ?>" />
-								<input type="hidden" id="ov_up_07" name="ov_up_07" value="<?php echo $rsm['ov_up_07']; ?>" />
-								<input type="hidden" id="ov_under_30" name="ov_under_30" value="<?php echo $rsm['ov_under_30']; ?>" />
-								<input type="hidden" id="ov_under_60" name="ov_under_60" value="<?php echo $rsm['ov_under_60']; ?>" />
-								<input type="hidden" id="ov_under_90" name="ov_under_90" value="<?php echo $rsm['ov_under_90']; ?>" />
-								<input type="hidden" id="ov_up_90" name="ov_up_90" value="<?php echo $rsm['ov_up_90']; ?>" />
-								<input type="hidden" id="reminding" name="reminding" value="<?php echo $rsm['reminding']; ?>" />
+								<input type="text" id="po_not_yet" name="po_not_yet" value="<?php echo $credit_limit_reserved; ?>" />
+								<input type="text" id="cl_temp" name="cl_temp" value="<?php echo $rsm['credit_limit_temp']; ?>" />
+								<input type="text" id="not_yet" name="not_yet" value="<?php echo $rsm['not_yet']; ?>" />
+								<input type="text" id="ov_up_07" name="ov_up_07" value="<?php echo $rsm['ov_up_07']; ?>" />
+								<input type="text" id="ov_under_30" name="ov_under_30" value="<?php echo $rsm['ov_under_30']; ?>" />
+								<input type="text" id="ov_under_60" name="ov_under_60" value="<?php echo $rsm['ov_under_60']; ?>" />
+								<input type="text" id="ov_under_90" name="ov_under_90" value="<?php echo $rsm['ov_under_90']; ?>" />
+								<input type="text" id="ov_up_90" name="ov_up_90" value="<?php echo $rsm['ov_up_90']; ?>" />
+								<input type="text" id="reminding" name="reminding" value="<?php echo $rsm['reminding']; ?>" />
 
 								<input type="hidden" name="act" value="<?php echo $action; ?>" />
 								<input type="hidden" name="closepo" value="<?php echo $lsClosePo; ?>" />
@@ -1233,6 +1233,7 @@ if ($idr != "" && $idk != "") {
 					var ov_under_90 = $("#ov_under_90").val();
 					var ov_up_90 = $("#ov_up_90").val();
 					var reminding = $("#reminding").val();
+					alert(total_order)
 
 					Swal.fire({
 						title: "Anda yakin simpan?",
@@ -1265,29 +1266,30 @@ if ($idr != "" && $idk != "") {
 											// form.submit();
 											var unblock = false;
 											if (total_order > reminding) unblock = true;
+											alert(unblock)
 											if (ov_up_07 > 0 || ov_under_30 > 0 || ov_under_60 > 0 || ov_under_90 > 0 || ov_up_90 > 0) unblock = true;
-											if (unblock) {
-												$("#loading_modal").modal("hide");
-												swal.fire({
-													title: '<div style="font-weight:400; font-size:16px; line-height:25px;">Terdapat Proses Unblock pada PO untuk cutomer ini. Apakah anda yakin tetap menyimpan data?</div>',
-													icon: 'warning',
-													showCancelButton: true,
-													confirmButtonColor: '#3085d6',
-													cancelButtonColor: '#d33',
-													confirmButtonText: 'Ya',
-													cancelButtonText: 'Tidak',
-												}).then((result) => {
-													if (result.isConfirmed) {
-														$("#loading_modal").modal({
-															keyboard: false,
-															backdrop: 'static'
-														});
-														form.submit();
-													}
-												});
-											} else {
-												form.submit();
-											}
+											// if (unblock) {
+											// 	$("#loading_modal").modal("hide");
+											// 	swal.fire({
+											// 		title: '<div style="font-weight:400; font-size:16px; line-height:25px;">Terdapat Proses Unblock pada PO untuk cutomer ini. Apakah anda yakin tetap menyimpan data?</div>',
+											// 		icon: 'warning',
+											// 		showCancelButton: true,
+											// 		confirmButtonColor: '#3085d6',
+											// 		cancelButtonColor: '#d33',
+											// 		confirmButtonText: 'Ya',
+											// 		cancelButtonText: 'Tidak',
+											// 	}).then((result) => {
+											// 		if (result.isConfirmed) {
+											// 			$("#loading_modal").modal({
+											// 				keyboard: false,
+											// 				backdrop: 'static'
+											// 			});
+											// 			form.submit();
+											// 		}
+											// 	});
+											// } else {
+											// 	form.submit();
+											// }
 										}
 									}
 								});
