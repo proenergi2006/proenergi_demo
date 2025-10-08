@@ -34,6 +34,7 @@ $ketentuan				= htmlspecialchars($_POST["next_month"], ENT_QUOTES);
 $tgl_delivered			= htmlspecialchars($_POST["tanggal"], ENT_QUOTES);
 $tgl_kirim_awal			= htmlspecialchars($_POST["tgl_kirim_awal"], ENT_QUOTES);
 $tgl_kirim_akhir		= htmlspecialchars($_POST["tgl_kirim_akhir"], ENT_QUOTES);
+$id_bank				= htmlspecialchars($_POST["id_bank"], ENT_QUOTES);
 $lunas					= $_POST["lunas"];
 $is_cetakan				= $_POST["cetakan_invoice"];
 // $kode_oa				= htmlspecialchars($_POST["kode_oa"], ENT_QUOTES);
@@ -328,9 +329,9 @@ if ($act == "add") {
 
 	if ($split_invoice == "all_in") {
 		$sql1 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'all_in', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'all_in', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql1);
 		$oke  = $oke && !$con->hasError();
@@ -350,9 +351,9 @@ if ($act == "add") {
 
 		// Harga Dasar + PBBKB + PPN x Volume Kirim
 		$sql_split_oa1 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_pbbkb', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_pbbkb', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql_split_oa1);
 		$oke  = $oke && !$con->hasError();
@@ -364,9 +365,9 @@ if ($act == "add") {
 		// Ongkos Kirim + PPN x Volume Kirim
 		$noms_inv_split_oa = $noms_inv . "A";
 		$sql_split_oa2 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval,id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res2 = $con->setQuery($sql_split_oa2);
 		$oke  = $oke && !$con->hasError();
@@ -387,9 +388,9 @@ if ($act == "add") {
 	} elseif ($split_invoice == "split_pbbkb") {
 		// Harga Dasar + OA + PPN x Volume Kirim
 		$sql_split_pbbkb1 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_oa) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_oa', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_oa) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_oa', '" . $approval['id_master'] . "', '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql_split_pbbkb1);
 		$oke  = $oke && !$con->hasError();
@@ -401,9 +402,9 @@ if ($act == "add") {
 		// PBBKB x Volume Kirim
 		$noms_inv_split_pbbkb = $noms_inv . "B";
 		$sql_split_pbbkb2 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res2 = $con->setQuery($sql_split_pbbkb2);
 		$oke  = $oke && !$con->hasError();
@@ -425,9 +426,9 @@ if ($act == "add") {
 
 		// Harga Dasar + PPN x Volume Kirim
 		$sql_split_all1 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar', '" . $approval['id_master'] . "', '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql_split_all1);
 		$oke  = $oke && !$con->hasError();
@@ -439,9 +440,9 @@ if ($act == "add") {
 		// Ongkos Kirim + PPN x Volume Kirim
 		$noms_inv_split_oa = $noms_inv . "A";
 		$sql_split_all2 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res2 = $con->setQuery($sql_split_all2);
 		$oke  = $oke && !$con->hasError();
@@ -453,9 +454,9 @@ if ($act == "add") {
 		// PBBKB x Volume Kirim
 		$noms_inv_split_pbbkb = $noms_inv . "B";
 		$sql_split_all3 = "
-		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "',
+		('" . $id_customer . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "', '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res3 = $con->setQuery($sql_split_all3);
 		$oke  = $oke && !$con->hasError();
@@ -1221,7 +1222,7 @@ if ($act == "add") {
 	$oke  = $oke && !$con->hasError();
 
 	$sql1 = "
-		update pro_invoice_admin set tgl_invoice = '" . tgl_db($tgl_invoice) . "', total_invoice = '" . $grand_total_invoice . "', is_cetakan = '" . $is_cetakan . "', no_invoice_customer = '" . $no_invoice_customer . "', status_ar = 'notyet', lastupdate_time = '" . $lastupdate_time . "', lastupdate_ip = '" . $lastupdate_ip . "', lastupdate_by = '" . $lastupdate_by . "' where id_invoice = '" . $idr . "'";
+		update pro_invoice_admin set tgl_invoice = '" . tgl_db($tgl_invoice) . "', total_invoice = '" . $grand_total_invoice . "', is_cetakan = '" . $is_cetakan . "', no_invoice_customer = '" . $no_invoice_customer . "', status_ar = 'notyet', lastupdate_time = '" . $lastupdate_time . "', lastupdate_ip = '" . $lastupdate_ip . "', lastupdate_by = '" . $lastupdate_by . "', id_bank = '" . $id_bank . "' where id_invoice = '" . $idr . "'";
 	$con->setQuery($sql1);
 	$oke  = $oke && !$con->hasError();
 
