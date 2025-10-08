@@ -322,7 +322,9 @@
 
 			$query_kode = "SELECT COUNT(*) FROM pro_customer WHERE kode_pelanggan LIKE '%TEMP%' ORDER BY kode_pelanggan";
 			$getkode = $con->getOne($query_kode);
-			$kode=$getkode+1;
+			$nomor_kode = explode("P",$getkode);
+
+			$kode=(int)$nomor_kode[1]+1;
 
 			$urlnya = 'https://zeus.accurate.id/accurate/api/customer/save.do';
 			// Data yang akan dikirim dalam format JSON
