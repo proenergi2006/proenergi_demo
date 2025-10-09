@@ -1,6 +1,6 @@
 <style>
     table {
-        font-size: 8pt;
+        font-size: 9pt;
     }
 
     .tabel_header td {

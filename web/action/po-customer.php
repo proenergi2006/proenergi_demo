@@ -157,13 +157,13 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			}
 		}
 
-		$history_ar_customer = "INSERT into pro_history_ar_customer(id_poc, kategori, keterangan, nominal, created_time, created_by) values ('" . $idk . "', '1', 'Generate PO Customer', -$total_order, NOW(), '" . $user_pic . "')";
-		$con->setQuery($history_ar_customer);
-		$oke = $oke && !$con->hasError();
+		// $history_ar_customer = "INSERT into pro_history_ar_customer(id_poc, kategori, keterangan, nominal, created_time, created_by) values ('" . $idk . "', '1', 'Generate PO Customer', -$total_order, NOW(), '" . $user_pic . "')";
+		// $con->setQuery($history_ar_customer);
+		// $oke = $oke && !$con->hasError();
 
-		$sql = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved + $total_order  WHERE id_customer = '" . $customer . "'";
-		$con->setQuery($sql);
-		$oke  = $oke && !$con->hasError();
+		// $sql = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved + $total_order  WHERE id_customer = '" . $customer . "'";
+		// $con->setQuery($sql);
+		// $oke  = $oke && !$con->hasError();
 
 		if ($sisa_credit_limit < $total_order) {
 			$po_status = "draft";
@@ -271,32 +271,32 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			$total_order = $total_volume * $harga_liter2;
 
 			// Jika ada perubahan nilai total order, lakukan validasi credit limit
-			if ($total_volume != $volume_lama) {
+			// if ($total_volume != $volume_lama) {
 
-				$cek_reserved_cl = "SELECT * FROM pro_customer WHERE id_customer = '" . $idr . "'";
-				$row_res = $con->getRecord($cek_reserved_cl);
+			// 	$cek_reserved_cl = "SELECT * FROM pro_customer WHERE id_customer = '" . $idr . "'";
+			// 	$row_res = $con->getRecord($cek_reserved_cl);
 
-				$credit_limit_reserved = (float)$row_res['credit_limit_reserved'];
-				$credit_limit_used = (float)$row_res['credit_limit_used'];
-				$credit_limit = (float)$row_res['credit_limit'];
+			// 	$credit_limit_reserved = (float)$row_res['credit_limit_reserved'];
+			// 	$credit_limit_used = (float)$row_res['credit_limit_used'];
+			// 	$credit_limit = (float)$row_res['credit_limit'];
 
-				$sisa_credit_limit = $credit_limit - $credit_limit_used - $credit_limit_reserved + $total_order_lama;
+			// 	$sisa_credit_limit = $credit_limit - $credit_limit_used - $credit_limit_reserved + $total_order_lama;
 
-				if ($sisa_credit_limit < $total_order) {
-					$oke = false;
-					$msg = "Credit Limit tidak mencukupi untuk perubahan volume";
-				}
+			// 	if ($sisa_credit_limit < $total_order) {
+			// 		$oke = false;
+			// 		$msg = "Credit Limit tidak mencukupi untuk perubahan volume";
+			// 	}
 
-				$sql = "UPDATE pro_customer SET credit_limit_reserved = (credit_limit_reserved - $total_order_lama) + $total_order  WHERE id_customer = '" . $idr . "'";
+			// 	$sql = "UPDATE pro_customer SET credit_limit_reserved = (credit_limit_reserved - $total_order_lama) + $total_order  WHERE id_customer = '" . $idr . "'";
 
-				$con->setQuery($sql);
-				$oke  = $oke && !$con->hasError();
+			// 	$con->setQuery($sql);
+			// 	$oke  = $oke && !$con->hasError();
 
-				$sql_history = "UPDATE pro_history_ar_customer SET nominal = -$total_order WHERE id_poc = '" . $idk . "' and kategori = 1";
+			// 	$sql_history = "UPDATE pro_history_ar_customer SET nominal = -$total_order WHERE id_poc = '" . $idk . "' and kategori = 1";
 
-				$con->setQuery($sql_history);
-				$oke  = $oke && !$con->hasError();
-			}
+			// 	$con->setQuery($sql_history);
+			// 	$oke  = $oke && !$con->hasError();
+			// }
 
 			if ($filePhoto != "") {
 				$upl = true;

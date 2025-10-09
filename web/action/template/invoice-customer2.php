@@ -1,6 +1,6 @@
 <style>
     table {
-        font-size: 8pt;
+        font-size: 9pt;
     }
 
     .tabel_header td {
@@ -518,6 +518,8 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 }
 
                 $sub_total = $total_harga;
+                $sub_total_hsd = $total_harga;
+
 
                 if ($res03['pembulatan'] == 1) {
                     if ($res03['all_in'] == 1) {

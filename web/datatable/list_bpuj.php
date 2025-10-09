@@ -20,6 +20,8 @@ $cabang	= isset($_POST["cabang"]) ? htmlspecialchars($_POST["cabang"], ENT_QUOTE
 
 $sess_wil = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
+$linkExport = BASE_URL_CLIENT . '/report/bpuj-exp.php?' . paramEncrypt('q1=' . $q1 . '&q2=' . $q2 . '&q3=' . $q3 . '&q4=' . $q4 . '&q5=' . $q5);
+
 if ($sesrol == '25') {
 	if ($cabang) {
 		$filter_cabang = " a.cabang='" . $cabang . "' AND ";
@@ -69,7 +71,7 @@ $content = "";
 
 $count = 0;
 if ($tot_record == 0) {
-	$content .= '<tr><td colspan="11" style="text-align:center">Data tidak ditemukan </td></tr>';
+	$content .= '<tr><td colspan="11" style="text-align:center"><input type="hidden" id="uriExp" value="' . $linkExport . '" />Data tidak ditemukan </td></tr>';
 } else {
 	$count 		= $position;
 	$tot_page 	= ceil($tot_record / $length);
@@ -123,7 +125,7 @@ if ($tot_record == 0) {
 				<td class="text-right">' . number_format($data['total_uang_bpuj']) . '</td>
 				<td class="text-right">' . number_format($data['yang_dibayarkan']) . '</td>
 				<td class="text-right">' . number_format($row_realisasi['total_realisasi']) . '</td>
-				<td class="text-center">' . $status . '</td>
+				<td class="text-center">' . $status . '<input type="hidden" id="uriExp" value="' . $linkExport . '" /></td>
 				<td class="text-center">' . $status_realisasi . '</td>
 				<td class="text-center action">
 					<a target="_blank" class="margin-sm btn btn-info btn-sm" title="Detail Data" href="' . $linkDetail . '"><i class="fa fa-info"></i></a>

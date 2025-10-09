@@ -209,28 +209,35 @@ switch ($file) {
 		$extend = true;
 		break;
 	case "po_customer":
-		$data_poc = "select id_poc, id_customer, harga_poc, volume_poc from pro_po_customer where id_poc = '" . $id1 . "'";
+		$data_poc = "SELECT * from pro_po_customer where id_poc = '" . $id1 . "'";
 		$row_poc = $con->getRecord($data_poc);
 
-		$total_order = (float)$row_poc['harga_poc'] * (float)$row_poc['volume_poc'];
+		if ($row_poc['sm_result'] == 1) {
+			$oke = false;
+			$msg = "SC sudah di approve BM, tidak dapat hapus PO. Silahkan refresh halaman ini.";
+			break;
+		} else {
+			// $total_order = (float)$row_poc['harga_poc'] * (float)$row_poc['volume_poc'];
 
-		$update_cl_cust = "update pro_customer set credit_limit_reserved = credit_limit_reserved - '" . $total_order . "' where id_customer = '" . $row_poc['id_customer'] . "'";
-		$con->setQuery($update_cl_cust);
-		$oke  = $oke && !$con->hasError();
+			// $update_cl_cust = "update pro_customer set credit_limit_reserved = credit_limit_reserved - '" . $total_order . "' where id_customer = '" . $row_poc['id_customer'] . "'";
+			// $con->setQuery($update_cl_cust);
+			// $oke  = $oke && !$con->hasError();
 
-		$sql 	= "delete from pro_po_customer where id_poc = '" . $id1 . "'";
-		$con->setQuery($sql);
-		$oke  = $oke && !$con->hasError();
+			$sql 	= "delete from pro_po_customer where id_poc = '" . $id1 . "'";
+			$con->setQuery($sql);
+			$oke  = $oke && !$con->hasError();
 
-		$delete_history_ar = "delete from pro_history_ar_customer where id_poc = '" . $id1 . "' and kategori = 1";
-		$con->setQuery($delete_history_ar);
-		$oke  = $oke && !$con->hasError();
+			// $delete_history_ar = "delete from pro_history_ar_customer where id_poc = '" . $id1 . "' and kategori = 1";
+			// $con->setQuery($delete_history_ar);
+			// $oke  = $oke && !$con->hasError();
 
-		$sql2 	= "delete from pro_poc_penerima_refund where id_poc = '" . $id1 . "'";
-		$con->setQuery($sql2);
-		$oke  = $oke && !$con->hasError();
-		$extend = true;
-		break;
+			$sql2 	= "delete from pro_poc_penerima_refund where id_poc = '" . $id1 . "'";
+			$con->setQuery($sql2);
+			$oke  = $oke && !$con->hasError();
+			$extend = true;
+			break;
+		}
+
 	case "do_truck":
 		$trans	= true;
 		$msg = "Maaf, sistem mengalami kendala teknis. Silahkan coba lagi";

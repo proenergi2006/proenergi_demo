@@ -200,6 +200,13 @@ if ($role == 10) {
 	$con->clearError();
 
 	if ($approval == '1') {
+		$data_sc = "SELECT a.*, b.created_by, b.created_time as tgl_buat_po as poc_created_by FROM pro_sales_confirmation as a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id = '" . $id . "'";
+		$row_sc = $con->getRecord($data_sc);
+		$total_order = $row_sc['po_amount'];
+		$id_poc = $row_sc['id_poc'];
+		$user_pic = $row_sc['poc_created_by'];
+		$id_customer = $row_sc['id_customer'];
+
 		$sql2 = "
 				update pro_sales_confirmation_approval set 
 				bm_result = '" . $approval . "', bm_summary = '" . $note . "', bm_result_date = NOW(), bm_pic = '" . $pic . "' 
@@ -207,6 +214,17 @@ if ($role == 10) {
 			";
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
+
+		if ($row_sc['tgl_buat_po'] >= '2025-10-13 00:00:00') {
+			$history_ar_customer = "INSERT into pro_history_ar_customer(id_poc, kategori, keterangan, nominal, created_time, created_by) values ('" . $id_poc . "', '1', 'Generate PO Customer', -$total_order, NOW(), '" . $user_pic . "')";
+			$con->setQuery($history_ar_customer);
+			$oke = $oke && !$con->hasError();
+
+			$update_cl = "UPDATE pro_customer SET credit_limit_reserved = credit_limit_reserved + $total_order  WHERE id_customer = '" . $id_customer . "'";
+			$con->setQuery($update_cl);
+			$oke  = $oke && !$con->hasError();
+		}
+
 
 		$terima = 1;
 		$con->setQuery("update pro_sales_confirmation set flag_approval = " . $approval . ", role_approved = 7, tgl_approved = NOW() where id = " . $id);

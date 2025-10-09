@@ -136,7 +136,7 @@ if ($tot_record == 0) {
 				<td class="text-right">' . number_format($data['yang_dibayarkan']) . '</td>
 				<td class="text-right">' . number_format($row_realisasi['total_realisasi']) . '</td>
 				<td class="text-center">' . $status . '<input type="hidden" id="uriExp" value="' . $linkExport . '" /></td>
-				<td class="text-center">' . $status_realisasi . '<input type="hidden" id="uriExp" value="' . $linkExport . '" /></td>
+				<td class="text-center">' . $status_realisasi . '</td>
 				<td class="text-center action">
 					<a target="_blank" class="margin-sm btn btn-info btn-sm" title="Detail Data" href="' . $linkDetail . '"><i class="fa fa-info"></i></a>
 					' . $buttonEdit . '
