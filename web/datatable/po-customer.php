@@ -78,13 +78,7 @@ $page		= ($start > $tot_page) ? $start - 1 : $start;
 $position 	= $p->findPosition($length, $tot_record, $page);
 
 if ($sesrol == 17 or $sesrol == 18 or $sesrol == 11) {
-	$sql2 = $sql . " ORDER BY CASE 
-		WHEN EXISTS (SELECT 1 FROM pro_po_customer_close WHERE id_poc = a.id_poc AND st_Aktif = 'Y') THEN 2
-		ELSE 1 END, a.id_poc DESC  limit " . $position . ", " . $length;
-	$sql3 = $sql . "
-		ORDER BY CASE 
-			WHEN EXISTS (SELECT 1 FROM pro_po_customer_close WHERE id_poc = a.id_poc AND st_Aktif = 'Y') THEN 2
-			ELSE 1 END, a.id_poc DESC limit " . $position . ", " . $length;
+	$sql2 = $sql . " ORDER BY a.id_poc DESC limit " . $position . ", " . $length;
 } else {
 	$sql2 = $sql . " ORDER BY CASE 
 			WHEN EXISTS (SELECT 1 FROM pro_po_customer_close WHERE id_poc = a.id_poc AND st_Aktif = 'Y') THEN 2
@@ -168,7 +162,12 @@ if ($tot_record <= 0) {
 		$id[] = $data['id_poc'];
 
 
-
+		if ($data['volume_close_po'] > 0) {
+			$status = "<span class='label label-danger'>Closed</span>";
+			$background = "";
+		} else {
+			$status = "";
+		}
 
 
 		$content .= '
@@ -177,6 +176,8 @@ if ($tot_record <= 0) {
 					<td>
 						<p style="margin-bottom: 0px"><b>PO-' . str_pad($data['id_poc'], 4, '0', STR_PAD_LEFT) . '</b></p>
 						<p style="margin-bottom: 0px"><i>' . $disposisi . '</i></p>
+						<br>
+						' . $status . '
 					</td>
 					<td>' . $kodeCust . $data['nama_customer'] . '</td>
 					<td>

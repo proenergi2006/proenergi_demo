@@ -22,6 +22,8 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 
 $query = "SELECT * FROM pro_master_cabang WHERE is_active = '1' AND id_master NOT IN('1','10') ORDER BY nama_cabang ASC";
 $cabang = $con->getResult($query);
+$linkEx1 = BASE_URL_CLIENT . '/report/bpuj-exp.php';
+$session_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,12 +63,13 @@ $cabang = $con->getResult($query);
 							</div>
 						</div>
 						<div class="col-sm-3">
-							<select name="cabang" id="cabang" class="form-control">
+							<select name="select_cabang" id="select_cabang" class="form-control" disabled>
 								<option value="">Semua Cabang</option>
 								<?php foreach ($cabang as $key) : ?>
 									<option <?= $key['id_master'] == '2' ? 'selected' : '' ?> value="<?= $key['id_master'] ?>"><?= ucwords($key['nama_cabang']) ?></option>
 								<?php endforeach ?>
 							</select>
+							<input type="hidden" id="cabang" name="cabang" value="<?= $session_cabang ?>" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
@@ -85,8 +88,11 @@ $cabang = $con->getResult($query);
 								<option value="1">Approved</option>
 							</select>
 						</div>
-						<div class="col-sm-3 col-sm-top">
+						<div class="col-sm-1 col-sm-top">
 							<button type="submit" class="btn btn-info btn-sm" name="btnSearch" id="btnSearch"><i class="fa fa-search jarak-kanan"></i> Search</button>
+						</div>
+						<div class="col-sm-1 col-sm-top">
+							<a href="<?php echo $linkEx1; ?>" class="btn btn-success btn-sm" target="_blank" id="expData1">Export Data</a>
 						</div>
 					</div>
 				</form>
@@ -316,6 +322,9 @@ $cabang = $con->getResult($query);
 			});
 			$('#tableGridLength').on('change', function() {
 				$("#table-bpuj").ajaxGrid("pageLen", $(this).val());
+			});
+			$('#expData1').on('click', function() {
+				$(this).prop("href", $("#uriExp").val());
 			});
 		});
 	</script>

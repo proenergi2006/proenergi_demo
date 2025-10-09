@@ -380,7 +380,7 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 														<?php if ($rsm['poc_approved'] == 1) : ?>
 															<a class="btn btn-success jarak-kanan" href="<?php echo $link4; ?>">Jadwal Kirim</a>
 															<?php if (intval($cek_po) > 0) : ?>
-																<a class="btn btn-info jarak-kanan batal-po" href="<?php echo $linkBatalClosePo; ?>">Batal Close PO</a>
+																<!-- <a class="btn btn-info jarak-kanan batal-po" href="<?php echo $linkBatalClosePo; ?>">Batal Close PO</a> -->
 															<?php else : ?>
 																<a class="btn btn-success jarak-kanan" href="<?php echo $link5; ?>">Close PO</a>
 															<?php endif ?>
