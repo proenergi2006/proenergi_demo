@@ -320,7 +320,7 @@
 							WHERE a.id_customer ='" . $idc . "'";
 			$rowget_lcr = $con->getResult($queryget_lcr);
 
-			$query_kode = "SELECT COUNT(*) FROM pro_customer WHERE kode_pelanggan LIKE '%TEMP%' ORDER BY kode_pelanggan";
+			$query_kode = "SELECT kode_pelanggan FROM pro_customer WHERE kode_pelanggan LIKE '%TEMP%' ORDER BY kode_pelanggan DESC LIMIT 1";
 			$getkode = $con->getOne($query_kode);
 			$nomor_kode = explode("P",$getkode);
 
