@@ -287,22 +287,22 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 </div>
 <table width="100%" style="border: 1px solid black; border-collapse: collapse; border-top:none;" cellspacing="0" cellpadding="5">
     <tr>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Item Description
             </b>
         </th>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Qty
             </b>
         </th>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Unit Price
             </b>
         </th>
-        <th width="20%" align="center" class="b2 b3">
+        <th align="center" class="b2 b3">
             <b>
                 Discount
             </b>
@@ -745,7 +745,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 </td>
             </tr>
         <?php else : ?>
-            <tr>
+            <!-- <tr>
                 <td colspan="4" class="b2" align="right">
                     <b>
                         PBBKB
@@ -754,7 +754,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 <td align="right">
                     0
                 </td>
-            </tr>
+            </tr> -->
         <?php endif ?>
         <tr>
             <td colspan="4" class="b2" align="right">
@@ -784,7 +784,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 <table width="100%" style="margin-top:5px;" cellspacing="0" cellpadding="5">
     <tr>
         <td width="10%">
-            Say
+            Terbilang
         </td>
         <td align="left" class="b1 b2 b3 b4">
             <b>

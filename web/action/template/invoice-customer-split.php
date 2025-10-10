@@ -612,7 +612,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 <table width="100%" style="margin-top:5px;" cellspacing="0" cellpadding="5">
     <tr>
         <td width="10%">
-            Say
+            Terbilang
         </td>
         <td align="left" class="b1 b2 b3 b4">
             <b>

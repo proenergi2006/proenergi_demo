@@ -34,7 +34,8 @@ $ketentuan				= htmlspecialchars($_POST["next_month"], ENT_QUOTES);
 $tgl_delivered			= htmlspecialchars($_POST["tanggal"], ENT_QUOTES);
 $tgl_kirim_awal			= htmlspecialchars($_POST["tgl_kirim_awal"], ENT_QUOTES);
 $tgl_kirim_akhir		= htmlspecialchars($_POST["tgl_kirim_akhir"], ENT_QUOTES);
-$id_bank				= htmlspecialchars($_POST["id_bank"], ENT_QUOTES);
+$id_bank				= 0;
+// $id_bank				= htmlspecialchars($_POST["id_bank"], ENT_QUOTES);
 $lunas					= $_POST["lunas"];
 $is_cetakan				= $_POST["cetakan_invoice"];
 // $kode_oa				= htmlspecialchars($_POST["kode_oa"], ENT_QUOTES);
@@ -476,9 +477,9 @@ if ($act == "add") {
 		$oke  = $oke && !$con->hasError();
 	}
 
-	$sql3 = "delete from pro_invoice_admin_detail where id_invoice = '" . $res1 . "'";
-	$con->setQuery($sql3);
-	$oke  = $oke && !$con->hasError();
+	// $sql3 = "delete from pro_invoice_admin_detail where id_invoice = '" . $res1 . "'";
+	// $con->setQuery($sql3);
+	// $oke  = $oke && !$con->hasError();
 
 	$noms01 = 0;
 	if (count($_POST["id_dsd"]) > 0) {
@@ -517,8 +518,13 @@ if ($act == "add") {
 			$vol_kirim		= ($vol_kirim ? $vol_kirim : 0);
 			$discount		= ($discount ? $discount : 0);
 
-			$get_idprd = "select * FROM pro_po_ds_detail WHERE id_dsd='" . $id_dsd . "'";
-			$id_prds = $con->getRecord($get_idprd);
+			if ($jenisnya == "truck") {
+				$get_idprd = "select * FROM pro_po_ds_detail WHERE id_dsd='" . $id_dsd . "'";
+				$id_prds = $con->getRecord($get_idprd);
+			} elseif ("kapal") {
+				$get_idprd = "select * FROM pro_po_ds_kapal WHERE id_dsk='" . $id_dsd . "'";
+				$id_prds = $con->getRecord($get_idprd);
+			}
 
 			$get_id_so_accurate = "select * FROM pro_po_customer_plan WHERE id_plan='" . $id_prds['id_plan'] . "'";
 			$data_plan = $con->getRecord($get_id_so_accurate);
@@ -1278,8 +1284,13 @@ if ($act == "add") {
 			$harga_kirim	= ($harga_kirim ? $harga_kirim : 0);
 			$vol_kirim		= ($vol_kirim ? $vol_kirim : 0);
 
-			$query_ds = "SELECT * FROM pro_po_ds_detail WHERE id_dsd = '" . $id_dsd . "'";
-			$res_ds = $con->getRecord($query_ds);
+			if ($jenisnya == "truck") {
+				$query_ds = "SELECT * FROM pro_po_ds_detail WHERE id_dsd = '" . $id_dsd . "'";
+				$res_ds = $con->getRecord($query_ds);
+			} elseif ("kapal") {
+				$query_ds = "SELECT * FROM pro_po_ds_kapal WHERE id_dsk = '" . $id_dsd . "'";
+				$res_ds = $con->getRecord($query_ds);
+			}
 
 			$get_id_so_accurate = "select * FROM pro_po_customer_plan WHERE id_plan='" . $res_ds['id_plan'] . "'";
 			$data_plan = $con->getRecord($get_id_so_accurate);

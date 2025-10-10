@@ -158,6 +158,10 @@ $mpdf->setAutoTopMargin = 'stretch';
 $mpdf->setAutoBottomMargin = 'stretch';
 $mpdf->shrink_tables_to_fit = 1;
 $mpdf->WriteHTML($content);
-$filename = "SI_" . sanitize_filename($idr);
+if ($tipe == "proforma_invoice") {
+	$filename = "PI_" . sanitize_filename($idr);
+} else {
+	$filename = "SI_" . sanitize_filename($idr);
+}
 $mpdf->Output($filename . '_' . date('dmyHis') . '.pdf', 'I');
 exit;

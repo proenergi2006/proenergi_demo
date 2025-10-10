@@ -128,11 +128,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 									<div class="form-group form-group-sm">
 										<label class="control-label col-md-4">No Invoice *</label>
 										<div class="col-md-8">
-											<?php if ($seswil == '4' || $seswil == '5' || $seswil == '7') : ?>
-												<input type="text" id="no_invoice" name="no_invoice" class="form-control" <?= $action == 'add' ? '' : 'readonly' ?> value="<?= $action == 'add' ? '' : $model['no_invoice'] ?>" />
-											<?php else : ?>
-												<input type="text" id="no_invoice" name="no_invoice" class="form-control" value="<?= $model['no_invoice'] ? $model['no_invoice'] : $noms_inv ?>" readonly />
-											<?php endif ?>
+											<input type="text" id="no_invoice" name="no_invoice" class="form-control" value="<?= $model['no_invoice'] ? $model['no_invoice'] : $noms_inv ?>" readonly />
 											<?php if ($action == 'add') : ?>
 												<span><i>* No. Invoice auto generate</i></span>
 												<br>
@@ -225,18 +221,18 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 								</div>
 							</div>
 							<div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group form-group-sm">
-                                       	<label class="control-label col-md-4">Bank *</label>
-                                        <div class="col-md-6">
-                                            <select name="id_bank" id="id_bank" class="form-control select2" style="width:100%;" required >
-                                                <option></option>
-                                                <?php $con->fill_select("id_bank", "nama_bank", "pro_master_bank", $model['id_bank'], "", "id_bank", false); ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+								<div class="col-md-6">
+									<div class="form-group form-group-sm">
+										<label class="control-label col-md-4">Bank *</label>
+										<div class="col-md-6">
+											<select name="id_bank" id="id_bank" class="form-control select2" style="width:100%;" required>
+												<option></option>
+												<?php $con->fill_select("id_bank", "nama_bank", "pro_master_bank", $model['id_bank'], "", "id_bank", false); ?>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
 
 							<?php if ($action == 'update') : ?>
 								<hr>
