@@ -26,11 +26,24 @@ if ($q4 == "kirim") {
 $p = new paging;
 
 $sql = "
-		select 
-		i.kode_pelanggan, i.id_customer, i.nama_customer, k1.id_invoice, n.detail_rincian, n.pembulatan,
-		h.nomor_poc, b.volume_po as volumenya_po, b.no_spj, h.produk_poc, c.produk, h.harga_poc, IF(a.realisasi_volume=0,b.volume_po,a.realisasi_volume) AS volume_po, a.realisasi_volume as realisasi_volumenya, a.file_sj,
-		a.id_dsd, a.tanggal_delivered, DATE_FORMAT(a.tanggal_delivered, '%d/%m/%Y') AS tgl_delivered, DATE_FORMAT(d.tanggal_kirim, '%d/%m/%Y') AS tgl_kirim, 
-		'truck' as jenisnya, a.nomor_do as no_dn, k.nomor_plat as angkutan, l.nama_sopir as sopir, c.no_do_syop, c.no_do_acurate, c.nomor_lo_pr, n.refund_tawar, n.nomor_surat, IF(n.gabung_oa =1,'gabung_oa',IF(n.all_in = 1,'all_in', IF(n.gabung_pbbkb,'gabung_pbbkb',IF(n.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
+		SELECT 
+		i.kode_pelanggan, i.id_customer, i.nama_customer, k1.id_invoice,
+		n.detail_rincian, n.pembulatan, h.nomor_poc,
+		b.volume_po AS volumenya_po,
+		b.no_spj,
+		h.produk_poc, c.produk, h.harga_poc,
+		IF(a.realisasi_volume=0, b.volume_po, a.realisasi_volume) AS volume_po,
+		a.realisasi_volume AS realisasi_volumenya,
+		a.file_sj,
+		a.id_dsd,
+		a.tanggal_delivered,
+		DATE_FORMAT(a.tanggal_delivered, '%d/%m/%Y') AS tgl_delivered,
+		DATE_FORMAT(d.tanggal_kirim, '%d/%m/%Y') AS tgl_kirim,
+		'truck' AS jenisnya,
+		a.nomor_do AS no_dn, k.nomor_plat AS angkutan, l.nama_sopir AS sopir,
+		c.no_do_syop, c.no_do_acurate, c.nomor_lo_pr,
+		n.refund_tawar, n.nomor_surat,
+		IF(n.gabung_oa=1,'gabung_oa', IF(n.all_in=1,'all_in', IF(n.gabung_pbbkb,'gabung_pbbkb', IF(n.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
 		from pro_po_ds_detail a 
 		join pro_po_ds o on a.id_ds = o.id_ds 
 		join pro_po_detail b on a.id_pod = b.id_pod 
@@ -50,11 +63,24 @@ $sql = "
 			and i.id_customer = '" . $q1 . "' 
 			" . $jenis_tanggal . "
 		UNION ALL 
-		select 
-		e.kode_pelanggan, e.id_customer, e.nama_customer, k1.id_invoice, f.detail_rincian, f.pembulatan,
-		d.nomor_poc, IF(a.realisasi_volume=0,a.bl_lo_jumlah,a.realisasi_volume) AS volume_po, a.bl_lo_jumlah as volumenya_po, d.produk_poc, b.produk, d.harga_poc, a.realisasi_volume as realisasi_volumenya, NULL as file_sj, 
-		a.id_dsk as id_dsd, a.tanggal_delivered, DATE_FORMAT(a.tanggal_delivered, '%d/%m/%Y') AS tgl_delivered, DATE_FORMAT(c.tanggal_kirim, '%d/%m/%Y') AS tgl_kirim, 
-		'kapal' as jenisnya, a.nomor_dn_kapal as no_dn, a.vessel_name as angkutan, a.kapten_name as sopir, b.no_do_syop, b.no_do_acurate, b.nomor_lo_pr, f.refund_tawar, f.nomor_surat, NULL as no_spj, IF(f.gabung_oa =1,'gabung_oa',IF(f.all_in = 1,'all_in', IF(f.gabung_pbbkb,'gabung_pbbkb',IF(f.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
+		SELECT 
+		e.kode_pelanggan, e.id_customer, e.nama_customer, k1.id_invoice,
+		f.detail_rincian, f.pembulatan, d.nomor_poc,
+		a.bl_lo_jumlah AS volumenya_po,
+		NULL AS no_spj,
+		d.produk_poc, b.produk, d.harga_poc,
+		IF(a.realisasi_volume=0, a.bl_lo_jumlah, a.realisasi_volume) AS volume_po,
+		a.realisasi_volume AS realisasi_volumenya,
+		NULL AS file_sj,
+		a.id_dsk AS id_dsd,
+		a.tanggal_delivered,
+		DATE_FORMAT(a.tanggal_delivered, '%d/%m/%Y') AS tgl_delivered,
+		DATE_FORMAT(c.tanggal_kirim, '%d/%m/%Y') AS tgl_kirim,
+		'kapal' AS jenisnya,
+		a.nomor_dn_kapal AS no_dn, a.vessel_name AS angkutan, a.kapten_name AS sopir,
+		b.no_do_syop, b.no_do_acurate, b.nomor_lo_pr,
+		f.refund_tawar, f.nomor_surat,
+		IF(f.gabung_oa=1,'gabung_oa', IF(f.all_in=1,'all_in', IF(f.gabung_pbbkb,'gabung_pbbkb', IF(f.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
 		from pro_po_ds_kapal a 
 		join pro_pr_detail b on a.id_prd = b.id_prd 
 		join pro_po_customer_plan c on b.id_plan = c.id_plan 

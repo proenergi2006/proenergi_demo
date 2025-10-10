@@ -476,6 +476,12 @@ if ($tot_record <= 0) {
 			$delivery_order = $data['no_do_acurate'];
 		}
 
+		if (fmod($data['realisasi_volume'], 1) !== 0.0000) {
+			$realisasi_volume = number_format($data['realisasi_volume'], 4, ".", ",");
+		} else {
+			$realisasi_volume = number_format($data['realisasi_volume']);
+		}
+
 
 		$content .= '
 				<tr>
@@ -490,7 +496,7 @@ if ($tot_record <= 0) {
                             <p style="margin-bottom:0px"><b>' . $data['nomor_poc'] . '</b></p>
 							<p style="margin-bottom:0px">' . number_format($data['volume_kirim']) . ' Liter ' . $data['produk'] . '</p>
                             <p style="margin-bottom:0px">' . 'Tgl Kirim ' . tgl_indo($data['tanggal_kirim']) . '</p>
-							<p style="margin-bottom:0px">' . 'Realisasi ' . number_format($data['realisasi_volume']) . '</p>
+							<p style="margin-bottom:0px">' . 'Realisasi ' . $realisasi_volume . '</p>
 							<p style="margin-bottom:0px">Tera Depo : ' . $data['tera_depo'] . '</p>
 							<p style="margin-bottom:0px">Tera Site : ' . $data['tera_site'] . '</p>
                     

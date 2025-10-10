@@ -1,6 +1,6 @@
 <style>
     table {
-        font-size: 8.5pt;
+        font-size: 9pt;
     }
 
     .tabel_header td {
@@ -78,12 +78,12 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
 }
 ?>
 <htmlpagefooter name="myHTMLFooter1">
-    <!-- <p style="margin:0; text-align:right;">
+    <p style="margin:0; text-align:right;">
         <barcode code="<?php echo $barcod; ?>" type="C39" size="0.8" />
     </p>
     <p style="margin:0; text-align:right; font-size:6pt; padding-right:70px;"><?php echo $barcod; ?></p>
     <p style="margin:0; text-align:right; font-size:7pt;"><i>(This form is valid with sign by computerized system)</i></p>
-    <p style="margin:0; text-align:right; font-size:6pt;">Printed by <?php echo $printe; ?></p> -->
+    <p style="margin:0; text-align:right; font-size:6pt;">Printed by <?php echo $printe; ?></p>
 </htmlpagefooter>
 <sethtmlpagefooter name="myHTMLFooter1" page="ALL" value="on" show-this-page="1" />
 <table border="0" width="100%">
@@ -92,7 +92,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             <div style="padding:0;"><img src="<?php echo BASE_IMAGE . "/logo-kiri-penawaran.png"; ?>" width="15%" /></div>
         </td>
         <td align="right">
-            <h2>PROFORMA SALES INVOICE</h2>
+            <h2>PROFORMA INVOICE</h2>
         </td>
     </tr>
     <tr>
@@ -107,7 +107,6 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     PT PRO ENERGI
                 </b>
             </p>
-            <br>
             <p>
                 GRAHA IRAMA BUILDING LT.6 UNIT G
                 JL. HR RASUNA SAID KAV 1-2
@@ -119,7 +118,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
 <br>
 <table width="100%" border="0">
     <tr>
-        <td width="25%">
+        <td width="30%">
             <b>
                 Bill To
             </b>
@@ -138,7 +137,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         <td rowspan="2" valign="top">
             <table width="100%" border="0" cellspacing="0" cellpadding="5">
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             Invoice
                         </b>
@@ -151,7 +150,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             Invoice Date
                         </b>
@@ -164,7 +163,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             PO. NO
                         </b>
@@ -177,7 +176,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     </td>
                 </tr>
                 <tr>
-                    <td align="right" width="50%">
+                    <td align="right" width="36%">
                         <b>
                             Due Date
                         </b>
@@ -194,7 +193,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <?= strtoupper($row_poc['nama_customer']) ?>
+            <b><?= strtoupper($row_poc['nama_customer']) ?></b>
             <br>
             <?= strtoupper($row_poc['alamat_customer']) ?>
             <br>
@@ -266,11 +265,6 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         </th>
         <th align="center" class="b2 b3">
             <b>
-                Item Unit
-            </b>
-        </th>
-        <th align="center" class="b2 b3">
-            <b>
                 Qty
             </b>
         </th>
@@ -284,12 +278,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 Discount
             </b>
         </th>
-        <th align="center" class="b2 b3">
-            <b>
-                Tax
-            </b>
-        </th>
-        <th align="center" class="b2 b3">
+        <th width="25%" align="center" class="b2 b3">
             <b>
                 Amount
             </b>
@@ -327,8 +316,70 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         $sub_total = $harga_asli * $row_poc['volume_poc'];
     }
 
+    if ($row_poc['pembulatan'] == 1) {
+        if ($row_poc['all_in'] == 1) {
+            $total_ppn = $ppn * $total_vol_kirim;
+            $grand_total = $sub_total;
+        } elseif ($row_poc['gabung_pbbkb'] == 1 || $row_poc['gabung_pbbkboa'] == 1) {
+            $total_pbbkb = 0;
+            $total_ppn = $ppn * $total_vol_kirim;
+            if ($tipe == 'default') {
+                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+            } else {
+                $grand_total = $sub_total + $total_ppn;
+            }
+        } elseif ($row_poc['gabung_oa'] == 1) {
+            $total_pbbkb = $pbbkb * $total_vol_kirim;
+            $total_ppn = $ppn * $total_vol_kirim;
+            if ($tipe == 'default') {
+                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+            } else {
+                $grand_total = $sub_total + $total_ppn;
+            }
+        } else {
+            $total_pbbkb = round($harga_asli * $nilai_pbbkb / 100) * $total_vol_kirim;
+            $total_ppn = $ppn * $total_vol_kirim;
+            if ($tipe == 'default') {
+                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+            } else {
+                $grand_total = $sub_total + $total_ppn;
+            }
+        }
+    } else {
+        if ($row_poc['all_in'] == 1) {
+            $total_ppn = $ppn * $total_vol_kirim;
+            $grand_total = $sub_total;
+        } elseif ($row_poc['gabung_pbbkb'] == 1 || $row_poc['gabung_pbbkboa'] == 1) {
+            $total_pbbkb = 0;
+            $total_ppn = $ppn * $total_vol_kirim;
+            if ($tipe == 'default') {
+                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+            } else {
+                $grand_total = $sub_total + $total_ppn;
+            }
+        } elseif ($row_poc['gabung_oa'] == 1) {
+            $total_pbbkb = $pbbkb * $total_vol_kirim;
+            $total_ppn = $ppn * $total_vol_kirim;
+            if ($tipe == 'default') {
+                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+            } else {
+                $grand_total = $sub_total + $total_ppn;
+            }
+        } else {
+            $total_pbbkb = ($harga_asli * $nilai_pbbkb / 100) * $total_vol_kirim;
+            $total_ppn = $ppn * $total_vol_kirim;
+            if ($tipe == 'default') {
+                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+            } else {
+                $grand_total = $sub_total + $total_ppn;
+            }
+        }
+    }
+
     $total_ppn = $ppn * $row_poc['volume_poc'];
     $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
+
+    $sub_total_hsd = $sub_total;
 
     $grand_total = $sub_total + $total_ppn + $total_pbbkb;
     ?>
@@ -337,9 +388,6 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         <tr style="border: 1px solid black;">
             <td height="10px" valign="top" align="center">
                 <?= $row_poc['produk'] ?>
-            </td>
-            <td valign="top" align="center">
-                Ltr
             </td>
             <td valign="top" align="center">
                 <?= number_format($row_poc['volume_poc']) ?>
@@ -358,15 +406,12 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             <td valign="top" align="center">
                 0
             </td>
-            <td valign="top" align="center">
-                -
-            </td>
             <td valign="top" align="right">
                 <?= number_format($sub_total) ?>
             </td>
         </tr>
         <tr>
-            <td colspan="6" class="b1 b2" align="right">
+            <td colspan="4" class="b1 b2" align="right">
                 <b>
                     Sub Total
                 </b>
@@ -378,7 +423,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             </td>
         </tr>
         <tr>
-            <td colspan="6" class="b2" align="right">
+            <td colspan="4" class="b2" align="right">
                 <b>
                     Discount
                 </b>
@@ -388,7 +433,17 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             </td>
         </tr>
         <tr>
-            <td colspan="6" class="b2" align="right">
+            <td colspan="4" class="b2" align="right">
+                <b>
+                    DPP
+                </b>
+            </td>
+            <td align="right">
+                <?= number_format(($sub_total_hsd * 11) / 12) ?>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="b2" align="right">
                 <b>
                     PPN
                 </b>
@@ -400,8 +455,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         <?php
         if ($row_poc['biaya_ppn'] == "gabung_pbbkb" || $row_poc['biaya_ppn'] == "gabung_pbbkboa"):
         ?>
-            <tr>
-                <td colspan="6" class="b2" align="right">
+            <!-- <tr>
+                <td colspan="4" class="b2" align="right">
                     <b>
                         PBBKB
                     </b>
@@ -409,12 +464,12 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <td align="right">
                     0
                 </td>
-            </tr>
+            </tr> -->
         <?php else : ?>
             <tr>
-                <td colspan="6" class="b2" align="right">
+                <td colspan="4" class="b2" align="right">
                     <b>
-                        PBBKB <?= $nilai_pbbkb ?>%
+                        PBBKB
                     </b>
                 </td>
                 <td align="right">
@@ -423,7 +478,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             </tr>
         <?php endif ?>
         <tr>
-            <td colspan="6" class="b2" align="right">
+            <td colspan="4" class="b2" align="right">
                 <b>
                     Total Invoice
                 </b>
@@ -437,7 +492,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
 <table width="100%" style="margin-top:5px;" cellspacing="0" cellpadding="5">
     <tr>
         <td width="10%">
-            Say
+            Terbilang
         </td>
         <td align="left" class="b1 b2 b3 b4">
             <b>
