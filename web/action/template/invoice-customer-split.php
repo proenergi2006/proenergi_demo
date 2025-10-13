@@ -193,9 +193,9 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     </td>
                     <td align="right" style="max-width: 200px; word-wrap: break-word; word-break: break-word;">
                         <?php if ($res['jenis'] == 'split_oa'): ?>
-                            <?= $res['no_po_splitoa'] ?>
+                            <?= $res['no_po_splitoa'] ?  $res['no_po_splitoa'] : $res03['nomor_poc'] ?>
                         <?php elseif ($res['jenis'] == 'split_pbbkb') : ?>
-                            <?= $res['no_po_splitpbbkb'] ?>
+                            <?= $res['no_po_splitpbbkb'] ? $res['no_po_splitpbbkb'] :  $res03['nomor_poc'] ?>
                         <?php else : ?>
                             <?= $res03['nomor_poc'] ?>
                         <?php endif ?>
