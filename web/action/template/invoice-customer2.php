@@ -734,16 +734,18 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             </td>
         </tr>
         <?php if ($tipe == 'default') : ?>
-            <tr>
-                <td colspan="4" class="b2" align="right">
-                    <b>
-                        <?= $ket_pbbkb ?>
-                    </b>
-                </td>
-                <td align="right">
-                    <?= number_format($total_pbbkb) ?>
-                </td>
-            </tr>
+            <?php if ($total_pbbkb > 0) : ?>
+                <tr>
+                    <td colspan="4" class="b2" align="right">
+                        <b>
+                            <?= $ket_pbbkb ?>
+                        </b>
+                    </td>
+                    <td align="right">
+                        <?= number_format($total_pbbkb) ?>
+                    </td>
+                </tr>
+            <?php endif ?>
         <?php else : ?>
             <!-- <tr>
                 <td colspan="4" class="b2" align="right">

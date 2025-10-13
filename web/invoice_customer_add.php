@@ -1136,6 +1136,14 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 						var total_hargaDasar = hargaDasar + Math.round(((hargaDasar * ppn_nya) / 100));
 
 						row.find("input.jumlahnya_harga_dasar").val(total_hargaDasar);
+
+						var total_pbbkb = Math.round((pbbkbnya * volumeKirim) - discount)
+						row.find("input.jumlahnya_pbbkb").val(total_pbbkb);
+
+						var ongkos_angkut = Math.round((oanya * volumeKirim) - discount);
+						var total_ongkos_angkut = ongkos_angkut + Math.round(((ongkos_angkut * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_ongkos_angkut").val(total_ongkos_angkut);
 					} else {
 						if (jenis_invoicenya == "harga_dasar") {
 							var jumlahHarga = Math.round(((volumeKirim * harga_dasarnya)) - discount);
@@ -1221,6 +1229,14 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 						var total_hargaDasar = hargaDasar + Math.round(((hargaDasar * ppn_nya) / 100));
 
 						row.find("input.jumlahnya_harga_dasar").val(total_hargaDasar);
+
+						var total_pbbkb = Math.round((pbbkbnya * volumeKirim) - discount)
+						row.find("input.jumlahnya_pbbkb").val(total_pbbkb);
+
+						var ongkos_angkut = Math.round((oanya * volumeKirim) - discount);
+						var total_ongkos_angkut = ongkos_angkut + Math.round(((ongkos_angkut * ppn_nya) / 100));
+
+						row.find("input.jumlahnya_ongkos_angkut").val(total_ongkos_angkut);
 					} else {
 						if (jenis_invoicenya == "harga_dasar") {
 							var jumlahHarga = Math.round(((volumeKirim * harga_dasarnya)) - discount);
