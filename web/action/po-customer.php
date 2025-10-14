@@ -107,12 +107,12 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 
 		$sisa_credit_limit = $credit_limit - $credit_limit_used - $credit_limit_reserved;
 
-		$total_order = $harga_liter * $total_volume;
+		$total_order = $harga_liter2 * $total_volume;
 
 		if ($filePhoto != "") {
 			$upl = true;
 			$sql = "insert ignore into pro_po_customer(id_customer, id_penawaran, top_poc, nomor_poc, tanggal_poc, supply_date, harga_poc, volume_poc, produk_poc, lampiran_poc_ori, created_time, 
-						created_ip, created_by) values ('" . $customer . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter . "', 
+						created_ip, created_by) values ('" . $customer . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter2 . "', 
 						'" . $total_volume . "', '" . $produk . "', '" . sanitize_filename($filePhoto) . "', NOW(), '" . $user_ip . "', '" . $user_pic . "')";
 			$idk = $con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
