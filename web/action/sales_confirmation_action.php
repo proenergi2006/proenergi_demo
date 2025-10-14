@@ -215,7 +215,7 @@ if ($role == 10) {
 		$con->setQuery($sql2);
 		$oke  = $oke && !$con->hasError();
 
-		if ($row_sc['tgl_buat_po'] >= '2025-10-13 00:00:00') {
+		if ($row_sc['tgl_buat_po'] >= '2025-10-14 00:00:00') {
 			$history_ar_customer = "INSERT into pro_history_ar_customer(id_poc, kategori, keterangan, nominal, created_time, created_by) values ('" . $id_poc . "', '1', 'Generate PO Customer', -$total_order, NOW(), '" . $user_pic . "')";
 			$con->setQuery($history_ar_customer);
 			$oke = $oke && !$con->hasError();
