@@ -200,7 +200,7 @@ if ($role == 10) {
 	$con->clearError();
 
 	if ($approval == '1') {
-		$data_sc = "SELECT a.*, b.created_by, b.created_time as tgl_buat_po as poc_created_by FROM pro_sales_confirmation as a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id = '" . $id . "'";
+		$data_sc = "SELECT a.*, b.created_by as poc_created_by, b.created_time as tgl_buat_po FROM pro_sales_confirmation as a JOIN pro_po_customer b ON a.id_poc=b.id_poc WHERE a.id = '" . $id . "'";
 		$row_sc = $con->getRecord($data_sc);
 		$total_order = $row_sc['po_amount'];
 		$id_poc = $row_sc['id_poc'];

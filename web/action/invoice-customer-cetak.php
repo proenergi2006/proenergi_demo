@@ -118,23 +118,25 @@ $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date
 // echo json_encode($approval);
 ob_start();
 if ($tipe != "default" && $tipe != "pbbkb") {
+	$data_poc = "
+	select a.nomor_poc, a.top_poc, a.volume_poc, a.harga_poc, b.nama_customer, b.alamat_customer, b.postalcode_customer as kode_pos, c.pembulatan, c.detail_rincian, c.harga_dasar, d.nama_prov as prov_customer, e.nama_kab as kab_customer, f.merk_dagang as produk, IF(c.gabung_oa =1,'gabung_oa',IF(c.all_in = 1,'all_in', IF(c.gabung_pbbkb,'gabung_pbbkb',IF(c.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
+	from pro_po_customer a 
+	join pro_customer b on a.id_customer=b.id_customer
+	join pro_penawaran c on a.id_penawaran=c.id_penawaran
+	join pro_master_provinsi d on b.prov_customer=d.id_prov
+	join pro_master_kabupaten e on b.kab_customer=e.id_kab
+	join pro_master_produk f on a.produk_poc=f.id_master
+	where a.id_poc = '" . $idr . "'
+	group by a.id_poc";
+	$row_poc = $con->getRecord($data_poc);
 	if ($tipe == "proforma_invoice") {
-		$data_poc = "
-		select a.nomor_poc, a.top_poc, a.volume_poc, a.harga_poc, b.nama_customer, b.alamat_customer, b.postalcode_customer as kode_pos, c.pembulatan, c.detail_rincian, c.harga_dasar, d.nama_prov as prov_customer, e.nama_kab as kab_customer, f.merk_dagang as produk, IF(c.gabung_oa =1,'gabung_oa',IF(c.all_in = 1,'all_in', IF(c.gabung_pbbkb,'gabung_pbbkb',IF(c.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
-		from pro_po_customer a 
-		join pro_customer b on a.id_customer=b.id_customer
-		join pro_penawaran c on a.id_penawaran=c.id_penawaran
-		join pro_master_provinsi d on b.prov_customer=d.id_prov
-		join pro_master_kabupaten e on b.kab_customer=e.id_kab
-		join pro_master_produk f on a.produk_poc=f.id_master
-		where a.id_poc = '" . $idr . "'
-		group by a.id_poc";
-		$row_poc = $con->getRecord($data_poc);
-
-		// echo json_encode($data_poc);
-		// exit();
-
 		require_once(realpath("./template/proforma-invoice.php"));
+	} elseif ($tipe == "proforma_invoice_pbbkb") {
+		require_once(realpath("./template/proforma-invoice-pbbkb.php"));
+	} elseif ($tipe == "proforma_invoice_oa") {
+		require_once(realpath("./template/proforma-invoice-oa.php"));
+	} elseif ($tipe == "proforma_invoice_all") {
+		require_once(realpath("./template/proforma-invoice-all.php"));
 	} else {
 		require_once(realpath("./template/invoice-customer-split.php"));
 	}
