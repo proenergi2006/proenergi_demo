@@ -58,7 +58,7 @@ if (!$idnya02) {
 			select a.nomor_po, a.tanggal_inven, a.harga_tebus, a.volume_po, a.id_terminal, b.jenis_produk, b.merk_dagang, 
 			d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, 
 			a1.tgl_terima, a1.harga_tebus as harga_tebus_receive, a1.volume_bol, a1.volume_terima, a1.nama_pic, a1.no_terima,
-			a1.file_upload, a1.file_upload_ori 
+			a1.file_upload, a1.file_upload_ori,a.id_accurate, e.id_cabang
 			from new_pro_inventory_vendor_po a 
 			join new_pro_inventory_vendor_po_receive a1 on a.id_master = a1.id_po_supplier 
 			join pro_master_produk b on a.id_produk = b.id_master 
@@ -177,7 +177,7 @@ $row = $con->getRecord($sql);
 							<div class="form-group form-group-sm">
 								<label class="control-label col-md-3">Tanggal Terima *</label>
 								<div class="col-md-4">
-									<input type="text" name="tgl_terima" id="tgl_terima" class="form-control datepicker" required data-rule-dateNL="1" value="<?php echo $tgl_terima; ?> " autocomplete="off" />
+									<input type="text" name="tgl_terima" id="tgl_terima" class="form-control datepicker" required data-rule-dateNL="1" value="<?php echo $tgl_terima; ?>" autocomplete="off" />
 								</div>
 							</div>
 						</div>

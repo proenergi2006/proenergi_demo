@@ -92,9 +92,11 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
         foreach ($result_detail['d']['detailItem'] as $item) {
             if ($item["item"]["itemType"] === 'INVENTORY') {
                 $kode_item = $item["item"]["no"];
+                $name_item = $item["item"]["name"];
                 $notes_item = $item["detailNotes"];
             } else {
                 $kode_oa = $item["item"]["no"];
+                $name_oa = $item["item"]["name"];
                 $notes_item_oa = $item["detailNotes"];
             }
         }
@@ -106,27 +108,31 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             'iuran' => null,
             'oa' => null
         ];
-
         foreach ($result_detail['d']['detailExpense'] as $expense) {
+            $no = $expense["account"]["no"];
             $name = $expense["expenseName"];
             $notes = $expense["expenseNotes"];
             $amount = $expense["expenseAmount"];
             $allocate = $expense["allocateToItemCost"];
 
+          
             if ($name === 'PBBKB' && (in_array($notes, ['null', null, 'NULL', NULL]))) {
                 $biaya['pbbkb'] = [
                     'name' => $name,
+                    'no' => $no,
                     'notes' => '',
                     'allocate' => $allocate
                 ];
             } elseif (strpos($name, '22') !== false) {
                 $biaya['22'] = [
                     'name' => $name,
+                    'no' => $no,
                     'notes' => $notes,
                     'allocate' => $allocate
                 ];
             } elseif (strpos($name, 'VAT') !== false) {
                 $biaya['vat'] = [
+                    'no' => $no,
                     'name' => $name,
                     'notes' => $notes,
                     'amount' => $amount,
@@ -134,12 +140,14 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                 ];
             } elseif (stripos($notes, 'iuran') !== false || stripos($name, 'iuran') !== false) {
                 $biaya['iuran'] = [
+                    'no' => $no,
                     'name' => $name,
                     'notes' => $notes,
                     'allocate' => $allocate
                 ];
             } elseif (stripos($name, 'cost') !== false) {
                 $biaya['oa'] = [
+                    'no' => $no,
                     'name' => $name,
                     'notes' => $notes,
                     'allocate' => $allocate
@@ -159,102 +167,102 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $dt10         = "";
 }
 
-// GET KODE ITEM ACCURATE
-$query_item = http_build_query([
-    'fields' => 'id,no,name',
-    'filter.itemType.val' => [
-        'INVENTORY',
-        'NON_INVENTORY',
-        'SERVICE'
-    ],
-]);
+// // GET KODE ITEM ACCURATE
+// $query_item = http_build_query([
+//     'fields' => 'id,no,name',
+//     'filter.itemType.val' => [
+//         'INVENTORY',
+//         'NON_INVENTORY',
+//         'SERVICE'
+//     ],
+// ]);
 
-$urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
+// $urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
 
-$result = curl_get($urlnya);
+// $result = curl_get($urlnya);
 
-if ($result['s'] == true) {
-    $data_item_get = http_build_query([
-        'fields' => 'id,no,name',
-        'sp.pageSize' => $result['sp']['rowCount'],
-    ]);
+// if ($result['s'] == true) {
+//     $data_item_get = http_build_query([
+//         'fields' => 'id,no,name',
+//         'sp.pageSize' => $result['sp']['rowCount'],
+//     ]);
 
-    // Get the total number of pages
-    $pageCountItem = $result['sp']['pageCount'];
+//     // Get the total number of pages
+//     $pageCountItem = $result['sp']['pageCount'];
 
-    // Initialize the array to hold the accounts' details
-    $item_details = [];
+//     // Initialize the array to hold the accounts' details
+//     $item_details = [];
 
-    // Loop through each page to fetch account details
-    for ($i = 1; $i <= $pageCountItem; $i++) {
-        // Update pagination for the current page
-        $data_item_get_paginated = $data_item_get . '&sp.page=' . $i;
+//     // Loop through each page to fetch account details
+//     for ($i = 1; $i <= $pageCountItem; $i++) {
+//         // Update pagination for the current page
+//         $data_item_get_paginated = $data_item_get . '&sp.page=' . $i;
 
-        // Make the request for the current page
-        $url_item = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $data_item_get_paginated;
-        $result_item = curl_get($url_item);
+//         // Make the request for the current page
+//         $url_item = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $data_item_get_paginated;
+//         $result_item = curl_get($url_item);
 
-        // If the request was successful, process the data
-        if ($result_item['s'] == true) {
-            foreach ($result_item['d'] as $key) {
-                $item_details[] = [
-                    'id' => $key['id'],
-                    'kode_barang' => $key['no'],
-                    'name' => $key['name']
-                ];
-            }
-        }
-    }
-} else {
-    $item_details = [];
-}
+//         // If the request was successful, process the data
+//         if ($result_item['s'] == true) {
+//             foreach ($result_item['d'] as $key) {
+//                 $item_details[] = [
+//                     'id' => $key['id'],
+//                     'kode_barang' => $key['no'],
+//                     'name' => $key['name']
+//                 ];
+//             }
+//         }
+//     }
+// } else {
+//     $item_details = [];
+// }
 
-//GET KODE AKUN ACCURATE
-$url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
+// //GET KODE AKUN ACCURATE
+// $url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
 
-// Fetch initial data to get page count
-$result_getrow = curl_get($url_getrow);
+// // Fetch initial data to get page count
+// $result_getrow = curl_get($url_getrow);
 
-if ($result_getrow['sp'] == true) {
-    // Prepare data for pagination
-    $data_akun_get = http_build_query([
-        'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent,name',
-        'sp.pageSize' => $result_getrow['sp']['rowCount'],
-    ]);
+// if ($result_getrow['sp'] == true) {
+//     // Prepare data for pagination
+//     $data_akun_get = http_build_query([
+//         'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent,name',
+//         'sp.pageSize' => $result_getrow['sp']['rowCount'],
+//     ]);
 
-    // Get the total number of pages
-    $pageCount = $result_getrow['sp']['pageCount'];
+//     // Get the total number of pages
+//     $pageCount = $result_getrow['sp']['pageCount'];
 
-    // Initialize the array to hold the accounts' details
-    $akun_details = [];
+//     // Initialize the array to hold the accounts' details
+//     $akun_details = [];
 
-    // Loop through each page to fetch account details
-    for ($i = 1; $i <= $pageCount; $i++) {
-        // Update pagination for the current page
-        $data_akun_get_paginated = $data_akun_get . '&sp.page=' . $i;
+//     // Loop through each page to fetch account details
+//     for ($i = 1; $i <= $pageCount; $i++) {
+//         // Update pagination for the current page
+//         $data_akun_get_paginated = $data_akun_get . '&sp.page=' . $i;
 
-        // Make the request for the current page
-        $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get_paginated;
-        $result_akun = curl_get($url_akun);
+//         // Make the request for the current page
+//         $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get_paginated;
+//         $result_akun = curl_get($url_akun);
 
-        // If the request was successful, process the data
-        if ($result_akun['s'] == true) {
-            foreach ($result_akun['d'] as $key) {
-                $akun_details[] = [
-                    'id' => $key['id'],
-                    'no' => $key['no'],
-                    'name' => $key['name'],
-                    'accountTypeName' => $key['accountTypeName'],
-                    'nameWithIndent' => $key['nameWithIndent'],
-                    'noWithIndent' => $key['noWithIndent']
-                ];
-            }
-        }
-    }
+//         // If the request was successful, process the data
+//         if ($result_akun['s'] == true) {
+//             foreach ($result_akun['d'] as $key) {
+//                 $akun_details[] = [
+//                     'id' => $key['id'],
+//                     'no' => $key['no'],
+//                     'name' => $key['name'],
+//                     'accountTypeName' => $key['accountTypeName'],
+//                     'nameWithIndent' => $key['nameWithIndent'],
+//                     'noWithIndent' => $key['noWithIndent']
+//                 ];
+//             }
+//         }
+//     }
 
-    // Optionally, output or return the accumulated account details
-    // echo json_encode($akun_details);
-}
+//     // Optionally, output or return the accumulated account details
+//     // echo json_encode($akun_details);
+// }
 
 ?>
 
@@ -333,11 +341,7 @@ if ($result_getrow['sp'] == true) {
                                         <label class="control-label col-md-3">Kode Item Accurate *</label>
                                         <div class="col-md-5">
                                             <select name="kode_item" id="kode_item" class="form-control select2" style="width:100%;" required>
-                                                <option value=""></option>
-                                                <?php foreach ($item_details as $key) :
-                                                ?>
-                                                    <option value="<?= $key['kode_barang'] ?>" <?= $kode_item == $key['kode_barang'] ? 'selected' : '' ?>><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
-                                                <?php endforeach ?>
+                                            
                                             </select>
                                         </div>
                                         <div class="col-md-4">
@@ -484,10 +488,10 @@ if ($result_getrow['sp'] == true) {
                                         <label class="control-label col-md-3">Kode OA Accurate *</label>
                                         <div class="col-md-5">
                                             <select name="kode_item2" id="kode_item2" class="form-control select2" style="width:100%;">
-                                                <option value=""></option>
-                                                <?php foreach ($item_details as $key) : ?>
+                                                <!-- <option value=""></option> -->
+                                                <!-- <?php foreach ($item_details as $key) : ?>
                                                     <option value="<?= $key['kode_barang'] ?>" <?= $kode_oa == $key['kode_barang'] ? 'selected' : '' ?>><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
-                                                <?php endforeach ?>
+                                                <?php endforeach ?> -->
                                             </select>
                                         </div>
                                         <div class="col-md-4">
@@ -538,12 +542,6 @@ if ($result_getrow['sp'] == true) {
                                         <!-- Select -->
                                         <div class="col-md-3">
                                             <select name="biaya_oa" id="biaya_oa" class="form-control select2" style="width:100%;">
-                                                <option value=""></option>
-                                                <?php foreach ($akun_details as $key) : ?>
-                                                    <option value="<?= $key['no'] ?>" <?= $biaya['oa']['name'] == $key['name'] ? 'selected' : '' ?>>
-                                                        <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
-                                                    </option>
-                                                <?php endforeach ?>
                                             </select>
                                         </div>
 
@@ -569,12 +567,12 @@ if ($result_getrow['sp'] == true) {
                                         <!-- Select -->
                                         <div class="col-md-3">
                                             <select name="biaya_lain" id="biaya_lain" class="form-control select2" style="width:100%;">
-                                                <option value=""></option>
-                                                <?php foreach ($akun_details as $key) : ?>
+                                                <!-- <option value=""></option> -->
+                                                <!-- <?php foreach ($akun_details as $key) : ?>
                                                     <option value="<?= $key['no'] ?>" <?= $biaya['vat']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
-                                                <?php endforeach ?>
+                                                <?php endforeach ?> -->
                                             </select>
                                         </div>
 
@@ -665,12 +663,12 @@ if ($result_getrow['sp'] == true) {
                                         <label class="control-label col-md-2">Akun PPH22 Accurate *</label>
                                         <div class="col-md-3">
                                             <select name="kode_item3" id="kode_item3" class="form-control select2" style="width:100%;" <?php echo ($rsm && $rsm['kd_tax'] == 'E' ? 'disabled' : ''); ?>>
-                                                <option value=""></option>
+                                                <!-- <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
                                                     <option value="<?= $key['no'] ?>" <?= $biaya['22']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
-                                                <?php endforeach ?>
+                                                <?php endforeach ?> -->
                                             </select>
                                         </div>
                                         <div class="col-md-3">
@@ -719,12 +717,12 @@ if ($result_getrow['sp'] == true) {
                                         <label class="control-label col-md-2">Akun PBBKB Accurate *</label>
                                         <div class="col-md-3">
                                             <select name="kode_biaya1" id="kode_biaya1" class="form-control select2" style="width:100%;" required>
-                                                <option value=""></option>
+                                                <!-- <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
                                                     <option value="<?= $key['no'] ?>" <?= $biaya['pbbkb']['name'] == $key['name'] && $biaya['pbbkb']['notes'] == "null" ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
-                                                <?php endforeach ?>
+                                                <?php endforeach ?> -->
                                             </select>
                                         </div>
                                         <div class="col-md-3">
@@ -775,19 +773,13 @@ if ($result_getrow['sp'] == true) {
                                         <label class="control-label col-md-2">Akun Migas Accurate *</label>
                                         <div class="col-md-3">
                                             <select name="kode_biaya2" id="kode_biaya2" class="form-control select2" style="width:100%;">
-                                                <option value=""></option>
+                                                <!-- <option value=""></option>
                                                 <?php foreach ($akun_details as $key) : ?>
                                                     <option value="<?= $key['no'] ?>" <?= $biaya['iuran']['name'] == $key['name'] ? 'selected' : '' ?>>
                                                         <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                     </option>
-                                                <?php endforeach ?>
+                                                <?php endforeach ?> -->
                                             </select>
-                                            <!-- <select name="kode_item4" id="kode_item4" class="form-control select2" style="width:100%;" disabled>
-                                                <option value=""></option>
-                                                <?php foreach ($item_details as $key) : ?>
-                                                    <option value="<?= $key['kode_barang'] ?>"><?= $key['name'] ?></option>
-                                                <?php endforeach ?>
-                                            </select> -->
                                         </div>
                                         <div class="col-md-3">
                                             <input type="text" id="keterangan_biaya5" name="keterangan_biaya5" class="form-control" placeholder="Keterangan" value="<?php echo $biaya['iuran']['notes'] ?>" />
@@ -1760,6 +1752,261 @@ if ($result_getrow['sp'] == true) {
                 $('#ppn12').val(ppn12.toFixed(4)); // Menampilkan dengan 2 angka desimal
             })
 
+            $('#kode_item').select2({
+                placeholder: 'Pilih kode item',
+                ajax: {
+                    url: base_url + '/web/list-product-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true,
+                },
+            });
+            $('#kode_item2').select2({
+                placeholder: 'Pilih kode item',
+                ajax: {
+                    url: base_url + '/web/list-product-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true,
+                },
+            });
+            $('#kode_item3').select2({
+                placeholder: 'Pilih kode item',
+                ajax: {
+                    url: base_url + '/web/list-product-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true,
+                },
+            });
+            $('#biaya_oa').select2({
+                placeholder: 'Pilih akun biaya',
+                ajax: {
+                    url: base_url + '/web/list-account-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                     data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true
+                }
+            });
+            $('#biaya_lain').select2({
+                placeholder: 'Pilih akun biaya',
+                ajax: {
+                    url: base_url + '/web/list-account-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                     data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true
+                }
+            });
+            $('#kode_biaya1').select2({
+                placeholder: 'Pilih akun biaya',
+                ajax: {
+                    url: base_url + '/web/list-account-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                     data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true
+                }
+            });
+            $('#kode_biaya2').select2({
+                placeholder: 'Pilih akun biaya',
+                ajax: {
+                    url: base_url + '/web/list-account-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                     data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true
+                }
+            });
+            var kodeAccurate = {
+                kode_item: <?= json_encode($kode_item) ?>,
+                name_item: <?= json_encode($name_item) ?>,
+                kode_oa: <?= json_encode($kode_oa) ?>,
+                name_oa: <?= json_encode($name_oa) ?>,
+                biaya_oa: <?= json_encode($biaya['oa']['no']) ?>,
+                biaya_oa_name: <?= json_encode($biaya['oa']['name']) ?>,
+                biaya_pbbkb: <?= json_encode($biaya['pbbkb']['no']) ?>,
+                biaya_pbbkb_name: <?= json_encode($biaya['pbbkb']['name']) ?>,
+                biaya_pph22: <?= json_encode($biaya['22']['no']) ?>,
+                biaya_pph22_name: <?= json_encode($biaya['22']['name']) ?>,
+                biaya_vat: <?= json_encode($biaya['vat']['no']) ?>,
+                biaya_vat_name: <?= json_encode($biaya['vat']['name']) ?>,
+                biaya_iuran: <?= json_encode($biaya['iuran']['no']) ?>,
+                biaya_iuran_name: <?= json_encode($biaya['iuran']['name']) ?>,
+            };
+
+            if (kodeAccurate.kode_item) {
+                var option = new Option(kodeAccurate.kode_item+' ('+kodeAccurate.name_item+')',kodeAccurate.kode_item, true, true);
+                 $('#kode_item').append(option).trigger('change');
+            }
+            if (kodeAccurate.kode_oa) {
+                var option = new Option(kodeAccurate.kode_oa+' ('+kodeAccurate.name_oa+')',kodeAccurate.kode_oa, true, true);
+                 $('#kode_item2').append(option).trigger('change');
+            }
+            if (kodeAccurate.biaya_oa) {
+                var option = new Option(kodeAccurate.biaya_oa+' '+kodeAccurate.biaya_oa_name,kodeAccurate.biaya_oa, true, true);
+                 $('#biaya_oa').append(option).trigger('change');
+            }
+            if (kodeAccurate.biaya_vat) {
+                var option = new Option(kodeAccurate.biaya_vat+' '+kodeAccurate.biaya_vat_name,kodeAccurate.biaya_vat, true, true);
+                 $('#biaya_lain').append(option).trigger('change');
+            }
+            if (kodeAccurate.biaya_pbbkb) {
+                var option = new Option(kodeAccurate.biaya_pbbkb+' '+kodeAccurate.biaya_pbbkb_name,kodeAccurate.biaya_pbbkb, true, true);
+                 $('#kode_biaya1').append(option).trigger('change');
+            }
+            if (kodeAccurate.biaya_iuran) {
+                var option = new Option(kodeAccurate.biaya_iuran+' '+kodeAccurate.biaya_iuran_name,kodeAccurate.biaya_iuran, true, true);
+                 $('#kode_biaya2').append(option).trigger('change');
+            }
+            if (kodeAccurate.biaya_pph22) {
+                var option = new Option(kodeAccurate.biaya_pph22+' '+kodeAccurate.biaya_pph22_name,kodeAccurate.biaya_pph22, true, true);
+                 $('#kode_item3').append(option).trigger('change');
+            }
         });
     </script>
 </body>

@@ -23,6 +23,7 @@ $adj_inven            = htmlspecialchars(str_replace(array(".", ","), array("", 
 $adj_inven             = ($adj_inven ? $adj_inven : 0);
 
 //Tambahan fields untuk accurate
+$nomor_penyesuaian   = htmlspecialchars($_POST["nomor_penyesuaian"], ENT_QUOTES);
 $kode_vendor         = htmlspecialchars($_POST["kode_vendor"], ENT_QUOTES);
 $kode_ri            = htmlspecialchars($_POST["receive_number"], ENT_QUOTES);
 $array_id           = explode(',', $kode_ri);
@@ -202,6 +203,7 @@ if ($act == 'add') {
             }
 
             $data = array(
+                'number'                => $nomor_penyesuaian,
                 'adjustmentAccountNo'   => $akun_penyesuaian,
                 'transDate'             => $tgl,
                 'description'           => $keterangan,
@@ -236,6 +238,7 @@ if ($act == 'add') {
 
             // Data yang akan dikirim dalam format JSON
             $data = array(
+                'number'                => $nomor_penyesuaian,
                 'adjustmentAccountNo'   => $akun_penyesuaian,
                 'transDate'             => $tgl,
                 'description'           => $keterangan,
@@ -260,6 +263,7 @@ if ($act == 'add') {
                 $nama_gudang2 = $con->getRecord($get_gudang2);
 
                 $data2 = array(
+                    'number'                => $nomor_penyesuaian,
                     'adjustmentAccountNo'   => $akun_penyesuaian,
                     'transDate'             => $tgl_penerimaan,
                     'description'           => $keterangan,
