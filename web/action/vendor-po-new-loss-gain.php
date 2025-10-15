@@ -123,7 +123,7 @@ if ($act == 'update') {
 				$id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 				$ambil_alamat = "SELECT a.*,b.inisial_cabang,b.nama_cabang FROM pro_master_terminal a
 						JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
-						WHERE a.id_master = '" . $dt6 . "'";
+						WHERE a.id_master = '" . $rowget['id_terminal']  . "'";
 				$alamat = $con->getRecord($ambil_alamat);
 				// $ambil_alamat = "SELECT * FROM pro_master_terminal WHERE id_master = '" . $dt6 . "'";
 
@@ -192,10 +192,10 @@ if ($act == 'update') {
 
 							$result_detail = curl_get($urlnya_detail);
 							
-							if($rowget['terms'] == 'net'){
+							if($rowget['terms'] == 'NET'){
 								$payment= $rowget['terms'] . ' ' . $rowget['terms_day'];
 							}else{
-								$payment=$rowget['terms'];
+								$payment="C.O.D";
 							}
 
 							if ($result_detail['s'] == true) {
