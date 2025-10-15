@@ -16,7 +16,7 @@ $idnya02 	= ($enk["idnya02"] ? htmlspecialchars($enk["idnya02"], ENT_QUOTES) : '
 
 if (!$idnya02) {
 	$sql = "
-			select a.*, b.jenis_produk, b.merk_dagang, d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal 
+			select a.*, b.jenis_produk, b.merk_dagang, d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, e.id_cabang
 			from new_pro_inventory_vendor_po a 
 			join pro_master_produk b on a.id_produk = b.id_master 
 			join pro_master_vendor d on a.id_vendor = d.id_master 

@@ -1815,7 +1815,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             $('#kode_item3').select2({
                 placeholder: 'Pilih kode item',
                 ajax: {
-                    url: base_url + '/web/list-product-accurate.php',
+                    url: base_url + '/web/list-account-accurate.php',
                     type: 'POST',
                     dataType: 'json',
                     delay: 250,

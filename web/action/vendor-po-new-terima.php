@@ -100,6 +100,11 @@ if ($act == 'cek') {
 			$get_po_supplier = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $idnya01 . "'";
 			$res_po = $con->getRecord($get_po_supplier);
 
+			$ambil_alamat = "SELECT a.*,b.inisial_cabang,b.nama_cabang FROM pro_master_terminal a
+					JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
+					WHERE a.id_master = '" . $res_po['id_terminal']  . "'";
+			$alamat = $con->getRecord($ambil_alamat);
+
 			$id_accurate_po = $res_po['id_accurate'];
 			$data_po = http_build_query([
 				'id' => $id_accurate_po,
@@ -128,7 +133,8 @@ if ($act == 'cek') {
 						'quantity'     => $volume_terima,
 						'unitPrice'    => paramDecrypt($unit_price),
 						'purchaseOrderNumber' => paramDecrypt($nomor_po),
-						"warehouseName" => paramDecrypt($gudang),
+						'warehouseName' => paramDecrypt($gudang),
+						'departmentName'=> $alamat['nama_cabang']
 					])
 				);
 
@@ -269,6 +275,11 @@ if ($act == 'cek') {
 				$get_po_supplier = "SELECT * FROM new_pro_inventory_vendor_po WHERE id_master = '" . $rowget['id_po_supplier'] . "'";
 				$res_po = $con->getRecord($get_po_supplier);
 
+				$ambil_alamat = "SELECT a.*,b.inisial_cabang,b.nama_cabang FROM pro_master_terminal a
+						JOIN pro_master_cabang b ON a.id_cabang = b.id_master 
+						WHERE a.id_master = '" . $res_po['id_terminal']  . "'";
+				$alamat = $con->getRecord($ambil_alamat);
+
 				$id_accurate_po = $res_po['id_accurate'];
 				$data_po = http_build_query([
 					'id' => $id_accurate_po,
@@ -297,6 +308,7 @@ if ($act == 'cek') {
 							'unitPrice'    => paramDecrypt($unit_price),
 							'purchaseOrderNumber' => paramDecrypt($nomor_po),
 							"warehouseName" => paramDecrypt($gudang),
+							'departmentName'=> $alamat['nama_cabang']
 						])
 					);
 
