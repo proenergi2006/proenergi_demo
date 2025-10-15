@@ -37,45 +37,45 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
 $sql3 = "SELECT * FROM pro_master_gudang_accurate";
 $res_gudang = $con->getResult($sql3);
 
-$urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
+// $urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
 
-$result = curl_get($urlnya);
+// $result = curl_get($urlnya);
 
-if ($result['s'] == true) {
-    $data_item_get = http_build_query([
-        'fields' => 'id,no,name',
-        'sp.pageSize' => $result['sp']['rowCount'],
-    ]);
+// if ($result['s'] == true) {
+//     $data_item_get = http_build_query([
+//         'fields' => 'id,no,name',
+//         'sp.pageSize' => $result['sp']['rowCount'],
+//     ]);
 
-    // Get the total number of pages
-    $pageCountItem = $result['sp']['pageCount'];
+//     // Get the total number of pages
+//     $pageCountItem = $result['sp']['pageCount'];
 
-    // Initialize the array to hold the accounts' details
-    $item_details = [];
+//     // Initialize the array to hold the accounts' details
+//     $item_details = [];
 
-    // Loop through each page to fetch account details
-    for ($i = 1; $i <= $pageCountItem; $i++) {
-        // Update pagination for the current page
-        $data_item_get_paginated = $data_item_get . '&sp.page=' . $i;
+//     // Loop through each page to fetch account details
+//     for ($i = 1; $i <= $pageCountItem; $i++) {
+//         // Update pagination for the current page
+//         $data_item_get_paginated = $data_item_get . '&sp.page=' . $i;
 
-        // Make the request for the current page
-        $url_item = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $data_item_get_paginated;
-        $result_item = curl_get($url_item);
+//         // Make the request for the current page
+//         $url_item = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $data_item_get_paginated;
+//         $result_item = curl_get($url_item);
 
-        // If the request was successful, process the data
-        if ($result_item['s'] == true) {
-            foreach ($result_item['d'] as $key) {
-                $item_details[] = [
-                    'id' => $key['id'],
-                    'kode_barang' => $key['no'],
-                    'name' => $key['name']
-                ];
-            }
-        }
-    }
-} else {
-    $item_details = [];
-}
+//         // If the request was successful, process the data
+//         if ($result_item['s'] == true) {
+//             foreach ($result_item['d'] as $key) {
+//                 $item_details[] = [
+//                     'id' => $key['id'],
+//                     'kode_barang' => $key['no'],
+//                     'name' => $key['name']
+//                 ];
+//             }
+//         }
+//     }
+// } else {
+//     $item_details = [];
+// }
 
 //get vendor accurate
 $urlget_vendor = 'https://zeus.accurate.id/accurate/api/vendor/list.do';
@@ -112,52 +112,52 @@ if ($result_getcount['sp'] == true) {
     }
 }
 
-//GET KODE AKUN ACCURATE
-$url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
+// //GET KODE AKUN ACCURATE
+// $url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
 
-// Fetch initial data to get page count
-$result_getrow = curl_get($url_getrow);
+// // Fetch initial data to get page count
+// $result_getrow = curl_get($url_getrow);
 
-if ($result_getrow['sp'] == true) {
-    // Prepare data for pagination
-    $data_akun_get = http_build_query([
-        'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent,name',
-        'sp.pageSize' => $result_getrow['sp']['rowCount'],
-    ]);
+// if ($result_getrow['sp'] == true) {
+//     // Prepare data for pagination
+//     $data_akun_get = http_build_query([
+//         'fields' => 'id,no,nameWithIndent,accountTypeName,noWithIndent,name',
+//         'sp.pageSize' => $result_getrow['sp']['rowCount'],
+//     ]);
 
-    // Get the total number of pages
-    $pageCount = $result_getrow['sp']['pageCount'];
+//     // Get the total number of pages
+//     $pageCount = $result_getrow['sp']['pageCount'];
 
-    // Initialize the array to hold the accounts' details
-    $akun_details = [];
+//     // Initialize the array to hold the accounts' details
+//     $akun_details = [];
 
-    // Loop through each page to fetch account details
-    for ($i = 1; $i <= $pageCount; $i++) {
-        // Update pagination for the current page
-        $data_akun_get_paginated = $data_akun_get . '&sp.page=' . $i;
+//     // Loop through each page to fetch account details
+//     for ($i = 1; $i <= $pageCount; $i++) {
+//         // Update pagination for the current page
+//         $data_akun_get_paginated = $data_akun_get . '&sp.page=' . $i;
 
-        // Make the request for the current page
-        $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get_paginated;
-        $result_akun = curl_get($url_akun);
+//         // Make the request for the current page
+//         $url_akun = 'https://zeus.accurate.id/accurate/api/glaccount/list.do?' . $data_akun_get_paginated;
+//         $result_akun = curl_get($url_akun);
 
-        // If the request was successful, process the data
-        if ($result_akun['s'] == true) {
-            foreach ($result_akun['d'] as $key) {
-                $akun_details[] = [
-                    'id' => $key['id'],
-                    'no' => $key['no'],
-                    'name' => $key['name'],
-                    'accountTypeName' => $key['accountTypeName'],
-                    'nameWithIndent' => $key['nameWithIndent'],
-                    'noWithIndent' => $key['noWithIndent']
-                ];
-            }
-        }
-    }
+//         // If the request was successful, process the data
+//         if ($result_akun['s'] == true) {
+//             foreach ($result_akun['d'] as $key) {
+//                 $akun_details[] = [
+//                     'id' => $key['id'],
+//                     'no' => $key['no'],
+//                     'name' => $key['name'],
+//                     'accountTypeName' => $key['accountTypeName'],
+//                     'nameWithIndent' => $key['nameWithIndent'],
+//                     'noWithIndent' => $key['noWithIndent']
+//                 ];
+//             }
+//         }
+//     }
 
-    // Optionally, output or return the accumulated account details
-    // echo json_encode($akun_details);
-}
+//     // Optionally, output or return the accumulated account details
+//     // echo json_encode($akun_details);
+// }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -220,10 +220,10 @@ if ($result_getrow['sp'] == true) {
                                             <label class="control-label col-md-3 label-kode">Kode Item Accurate *</label>
                                             <div class="col-md-5">
                                                 <select id="kode_item" name="kode_item" class="form-control select2" style="width:100%;" required>
-                                                    <option value=""></option>
+                                                    <!-- <option value=""></option>
                                                     <?php foreach ($item_details as $key) : ?>
                                                         <option value="<?= $key['kode_barang'] ?>"><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
-                                                    <?php endforeach ?>
+                                                    <?php endforeach ?> -->
                                                 </select>
                                             </div>
                                         </div>
@@ -235,12 +235,12 @@ if ($result_getrow['sp'] == true) {
                                             <label class="control-label col-md-3">Akun Accurate *</label>
                                             <div class="col-md-5">
                                                 <select name="akun_penyesuaian" id="akun_penyesuaian" class="form-control select2" style="width:100%;" required>
-                                                    <option value=""></option>
+                                                    <!-- <option value=""></option>
                                                     <?php foreach ($akun_details as $key) : ?>
                                                         <option value="<?= $key['no'] ?>">
                                                             <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                         </option>
-                                                    <?php endforeach ?>
+                                                    <?php endforeach ?> -->
                                                 </select>
                                             </div>
                                         </div>
@@ -258,6 +258,17 @@ if ($result_getrow['sp'] == true) {
                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                                 <input type="text" id="tgl" name="tgl" class="form-control <?php echo $class1; ?>" required data-rule-dateNL="1" <?php echo $tglinv; ?> />
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group form-group-sm">
+                                        <label class="control-label col-md-3">Nomor Penyesuaian </label>
+                                        <div class="col-md-4">
+                                            <input type="text" id="nomor_penyesuaian" name="nomor_penyesuaian" class="form-control" required />
                                         </div>
                                     </div>
                                 </div>
@@ -594,10 +605,10 @@ if ($result_getrow['sp'] == true) {
                                             <label class="control-label col-md-3">Kode Item Accurate *</label>
                                             <div class="col-md-5">
                                                 <select id="kode_item_terima" name="kode_item_terima" class="form-control select2" style="width:100%;" required>
-                                                    <option value=""></option>
+                                                    <!-- <option value=""></option>
                                                     <?php foreach ($item_details as $key) : ?>
                                                         <option value="<?= $key['kode_barang'] ?>"><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
-                                                    <?php endforeach ?>
+                                                    <?php endforeach ?> -->
                                                 </select>
                                             </div>
                                         </div>
@@ -1292,6 +1303,96 @@ if ($result_getrow['sp'] == true) {
                 }
             });
 
+            $('#kode_item').select2({
+                placeholder: 'Pilih kode item',
+                ajax: {
+                    url: base_url + '/web/list-product-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true,
+                },
+            });
+            $('#kode_item_terima').select2({
+                placeholder: 'Pilih kode item',
+                ajax: {
+                    url: base_url + '/web/list-product-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true,
+                },
+            });
+            $('#akun_penyesuaian').select2({
+                placeholder: 'Pilih akun biaya',
+                ajax: {
+                    url: base_url + '/web/list-account-accurate.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                     data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                    },
+                    processResults: function (data, params) {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data.items,
+                        pagination: {
+                        more: (params.page * data.pageSize) < data.total_count
+                        }
+                    };
+                    },
+                    cache: true
+                }
+            });
             /*$(".tbl_add_vendor").on("click", "a.addRow", function(){
             	var tabel 	= $(".tbl_add_vendor");
             	var rwTbl	= tabel.find('tbody > tr:last');

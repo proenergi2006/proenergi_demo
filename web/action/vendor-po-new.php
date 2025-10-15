@@ -492,9 +492,9 @@ if ($act == 'cek') {
 					$resubmit = ", resubmission_date = NOW(), is_resubmission = 1, resubmission_count= $count_resubmit ";
 
 					$sql = "
-					insert into new_pro_inventory_vendor_po_history(id_po_supplier, id_vendor, id_produk, id_terminal, nomor_po, tanggal_inven, volume_po, harga_tebus, kategori_oa, ongkos_angkut, kategori_plat, iuran_migas, nominal_migas, kd_tax, subtotal, ppn_11, dpp_11_12, ppn_12, pph_22, nilai_pbbkb, pbbkb, total_order, terms, terms_day, keterangan, created_time, created_ip, created_by, disposisi_po,is_resubmission,resubmission_count,keterangan_resubmission)
+					insert into new_pro_inventory_vendor_po_history(id_po_supplier, id_vendor, id_produk, id_terminal, nomor_po, tanggal_inven, volume_po, harga_tebus, kategori_oa, ongkos_angkut, kategori_plat, iuran_migas, nominal_migas, kd_tax, subtotal, ppn_11, dpp_11_12, ppn_12, pph_22, nilai_pbbkb, pbbkb, total_order, terms, terms_day, is_biaya,keterangan, created_time, created_ip, created_by, disposisi_po,is_resubmission,resubmission_count,keterangan_resubmission)
 					values  ('" . $rowget['id_master'] . "', '" . $rowget['id_vendor'] . "', '" . $rowget['id_produk'] . "', '" . $rowget['id_terminal'] . "', '" . $rowget['nomor_po'] . "', '" . $rowget['tanggal_inven'] . "', '" . $rowget['volume_po'] . "', '" . $rowget['harga_tebus'] . "', '" . $rowget['kategori_oa'] . "', '" . $rowget['ongkos_angkut'] . "', '" . $rowget['kategori_plat'] . "', '" . $rowget['iuran_migas'] . "', '" . $rowget['nominal_migas'] . "', '" . $rowget['kd_tax'] . "', 
-					'" . $rowget['subtotal'] . "', '" . $rowget['ppn_11'] . "', '" . $rowget['dpp_11_12'] . "', '" . $rowget['ppn_12'] . "', '" . $rowget['pph_22'] . "', '" . $rowget['nilai_pbbkb'] . "', '" . $rowget['pbbkb'] . "', '" . $rowget['total_order'] . "', '" . $rowget['terms'] . "', '" . $rowget['terms_day'] . "', '" . $rowget['keterangan'] . "', '" . $rowget['created_time'] . "', '" . $rowget['created_ip'] . "', '" . $rowget['created_by'] . "', '" . $rowget['disposisi_po'] . "','" . $rowget['is_resubmission'] . "','" . $rowget['resubmission_count'] . "','" . $keterangan_resubmission . "')";
+					'" . $rowget['subtotal'] . "', '" . $rowget['ppn_11'] . "', '" . $rowget['dpp_11_12'] . "', '" . $rowget['ppn_12'] . "', '" . $rowget['pph_22'] . "', '" . $rowget['nilai_pbbkb'] . "', '" . $rowget['pbbkb'] . "', '" . $rowget['total_order'] . "', '" . $rowget['terms'] . "', '" . $rowget['terms_day'] . "', '" . $rowget['is_biaya'] . "', '" . $rowget['keterangan'] . "', '" . $rowget['created_time'] . "', '" . $rowget['created_ip'] . "', '" . $rowget['created_by'] . "', '" . $rowget['disposisi_po'] . "','" . $rowget['is_resubmission'] . "','" . $rowget['resubmission_count'] . "','" . $keterangan_resubmission . "')";
 					$con->setQuery($sql);
 					$oke  = $oke && !$con->hasError();
 				}
@@ -503,7 +503,7 @@ if ($act == 'cek') {
 			$msg = "GAGAL_UBAH";
 			$sql = "
 					update new_pro_inventory_vendor_po set harga_tebus = '" . $dt8 . "', tanggal_inven = '" .   tgl_db($dt1) . "', disposisi_po = 1, cfo_result = 0, ceo_result = 0, revert_cfo = 0, revert_ceo = 0, volume_po = '" . $dt10 . "', kategori_oa = '" . $kategori_oa . "', ongkos_angkut = '" . $ongkos_angkut . "', kategori_plat = '" . $kategori_plat . "', iuran_migas = '" . $iuran . "', nominal_migas = '" . $nominal_iuran . "', kd_tax = '" . $kd_tax . "', subtotal = '" . $subTotal . "',  subtotal = '" . $subTotal . "', ppn_11 = '" . $ppn_11 . "', dpp_11_12 = '" . $dpp11_12 . "', ppn_12 = '" . $ppn_12 . "', pph_22 = '" . $pph_22 . "', nilai_pbbkb = '" . $pbbkb_tawar . "', pbbkb = '" . $pbbkb . "', total_order = '" . $totalOrder . "',
-					terms = '" . $terms . "', terms_day = '" . $terms_day . "', keterangan =  '" . $ket . "',
+					terms = '" . $terms . "', terms_day = '" . $terms_day . "', keterangan =  '" . $ket . "', is_biaya = '" . $jenis_oa . "',
 					lastupdate_time = NOW(), lastupdate_ip = '" . $_SERVER['REMOTE_ADDR'] . "', lastupdate_by = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "' " . $resubmit . "
 					where id_master = '" . $idr . "'
 				";
@@ -545,6 +545,7 @@ if ($act == 'cek') {
 						$payment='C.O.D';
 					}
 
+					// $result_po_accurate['s'] = true;
 					if ($result_po_accurate['s'] == true) {
 						$queryget = "SELECT * FROM pro_master_vendor WHERE id_master = '" . $rowget['id_vendor'] . "'";
 						$rowgetvendor = $con->getRecord($queryget);
@@ -609,6 +610,8 @@ if ($act == 'cek') {
 								];
 							}
 
+							// var_dump($data['detailExpense']);
+							// exit;
 							// Mengonversi data menjadi format JSON
 							$jsonData = json_encode($data);
 							$result = curl_post($urlnya, $jsonData);
