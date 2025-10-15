@@ -305,109 +305,95 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         }
     }
 
-    if ($row_poc['biaya_ppn'] == "gabung_oa") {
+    if ($res03['all_in'] == 1) {
         $harga_asli = $harga_dasar + $ongkos_angkut;
-        $sub_total = $harga_asli * $row_poc['volume_poc'];
-    } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
-        $harga_asli = $harga_dasar + $pbbkb;
-        $sub_total = $harga_asli * $row_poc['volume_poc'];
-    } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
-        $harga_asli = $harga_dasar + $pbbkb + $ongkos_angkut;
-        $sub_total = $harga_asli * $row_poc['volume_poc'];
-    }
-
-    if ($row_poc['pembulatan'] == 1) {
-        if ($row_poc['all_in'] == 1) {
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            $grand_total = $sub_total;
-        } elseif ($row_poc['gabung_pbbkb'] == 1 || $row_poc['gabung_pbbkboa'] == 1) {
-            $total_pbbkb = 0;
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } elseif ($row_poc['gabung_oa'] == 1) {
-            $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } else {
-            $total_pbbkb = round($harga_asli * $nilai_pbbkb / 100) * $row_poc['volume_poc'];
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        }
+        $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+        $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
     } else {
-        if ($row_poc['all_in'] == 1) {
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            $grand_total = $sub_total;
-        } elseif ($row_poc['gabung_pbbkb'] == 1 || $row_poc['gabung_pbbkboa'] == 1) {
-            $total_pbbkb = 0;
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } elseif ($row_poc['gabung_oa'] == 1) {
-            $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
+        if ($row_poc['biaya_ppn'] == "gabung_oa") {
+            $harga_asli = $harga_dasar + $ongkos_angkut;
+            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+
+            $harga_asli_pbbkb = $pbbkb;
+            $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
+        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
+            $harga_asli = $harga_dasar + $pbbkb;
+            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+
+            $harga_asli_oa = $ongkos_angkut;
+            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+
+            $harga_asli_pbbkb = 0;
+            $sub_total_pbbkb = 0;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
+            $harga_asli = $harga_dasar + $pbbkb;
+            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+
+            $harga_asli_oa = $ongkos_angkut;
+            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+
+            $harga_asli_pbbkb = 0;
+            $sub_total_pbbkb = 0;
         } else {
-            $total_pbbkb = ($harga_asli * $nilai_pbbkb / 100) * $row_poc['volume_poc'];
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
+            $harga_asli = $harga_dasar;
+            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+
+            $harga_asli_oa = $ongkos_angkut;
+            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+
+            $harga_asli_pbbkb = $pbbkb;
+            $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
         }
     }
 
-    $total_ppn = $ppn * $row_poc['volume_poc'];
-    $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
-
-    $sub_total_hsd = $sub_total;
-
-    $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+    $sub_total = $sub_total_hsd + $sub_total_pbbkb;
+    $total_ppn = round(($sub_total_hsd * $nilai_ppn) / 100);
+    $grand_total = $sub_total + $total_ppn;
     ?>
 
     <tbody>
         <tr style="border: 1px solid black;">
             <td height="10px" valign="top" align="center">
                 <?= $row_poc['produk'] ?>
+                <br>
+                <br>
+                PBBKB
             </td>
             <td valign="top" align="center">
                 <?= number_format($row_poc['volume_poc']) ?>
+                <br>
+                <br>
+                <?= number_format($row_poc['volume_poc']) ?>
             </td>
             <td valign="top" align="center">
-                <?php
-                if ($row_poc['pembulatan'] == 0) {
-                    echo number_format($harga_asli, 2);
-                } elseif ($row_poc['pembulatan'] == 1) {
-                    echo number_format($harga_asli, 0);
-                } elseif ($row_poc['pembulatan'] == 2) {
-                    echo number_format($harga_asli, 4);
-                }
-                ?>
+                <?php if ($row_poc['pembulatan'] == 2) : ?>
+                    <?= number_format($harga_asli, 4) ?>
+                <?php elseif ($row_poc['pembulatan'] == 0) : ?>
+                    <?= number_format($harga_asli, 2) ?>
+                <?php else : ?>
+                    <?= (fmod($harga_asli, 1) !== 0.0000) ? number_format($harga_asli, 4, ".", ",") : number_format($harga_asli, 0) ?>
+                <?php endif ?>
+                <br>
+                <br>
+                <?php if ($row_poc['pembulatan'] == 2) : ?>
+                    <?= number_format($harga_asli_pbbkb, 4) ?>
+                <?php elseif ($row_poc['pembulatan'] == 0) : ?>
+                    <?= number_format($harga_asli_pbbkb, 2) ?>
+                <?php else : ?>
+                    <?= (fmod($harga_asli_pbbkb, 1) !== 0.0000) ? number_format($harga_asli_pbbkb, 4, ".", ",") : number_format($harga_asli_pbbkb, 0) ?>
+                <?php endif ?>
             </td>
             <td valign="top" align="center">
                 0
+                <br>
+                <br>
+                0
             </td>
             <td valign="top" align="right">
-                <?= number_format($sub_total) ?>
+                <?= number_format($sub_total_hsd) ?>
+                <br>
+                <br>
+                <?= number_format($sub_total_pbbkb) ?>
             </td>
         </tr>
         <tr>
@@ -452,31 +438,6 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 <?= number_format($total_ppn) ?>
             </td>
         </tr>
-        <?php
-        if ($row_poc['biaya_ppn'] == "gabung_pbbkb" || $row_poc['biaya_ppn'] == "gabung_pbbkboa"):
-        ?>
-            <!-- <tr>
-                <td colspan="4" class="b2" align="right">
-                    <b>
-                        PBBKB
-                    </b>
-                </td>
-                <td align="right">
-                    0
-                </td>
-            </tr> -->
-        <?php else : ?>
-            <tr>
-                <td colspan="4" class="b2" align="right">
-                    <b>
-                        PBBKB
-                    </b>
-                </td>
-                <td align="right">
-                    <?= number_format($total_pbbkb) ?>
-                </td>
-            </tr>
-        <?php endif ?>
         <tr>
             <td colspan="4" class="b2" align="right">
                 <b>

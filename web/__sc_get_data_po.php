@@ -33,7 +33,10 @@ if ($rsm['perhitungan'] == 1) {
 $pathPt = $public_base_directory . '/files/uploaded_user/lampiran/' . $rsm['lampiran_poc'];
 $lampPt = $rsm['lampiran_poc_ori'];
 
-$linkCetak = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $row['id_poc'] . '&tipe=proforma_invoice')
+$linkCetak = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $row['id_poc'] . '&tipe=proforma_invoice');
+$linkCetak_pbbkb = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $row['id_poc'] . '&tipe=proforma_invoice_pbbkb');
+$linkCetak_oa = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $row['id_poc'] . '&tipe=proforma_invoice_oa');
+$linkCetak_all = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $row['id_poc'] . '&tipe=proforma_invoice_all');
 
 // $arr_payment = array("COD" => "COD (Cash On Delivery)", "CBD" => "CBD (Cash Before Delivery)");
 ?>
@@ -132,7 +135,33 @@ $linkCetak = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=
                     </table>
                 </div>
                 <?php if ($role == 10) : ?>
-                    <a href="<?= $linkCetak ?>" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> CETAK PROFORMA INVOICE</a>
+                    <!-- <a href="<?= $linkCetak ?>" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> CETAK PROFORMA INVOICE</a> -->
+                    <div class="btn-group">
+                        <button type="button"
+                            class="btn btn-primary btn-sm dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                            CETAK PROFORMA INVOICE
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header"><b>Pilih format cetakan</b></li>
+                            <li>
+                                <a target="_blank" href="<?= $linkCetak ?>">Default</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="<?= $linkCetak_pbbkb ?>">Breakdown PBBKB</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="<?= $linkCetak_oa ?>">Breakdown OA</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="<?= $linkCetak_all ?>">Breakdown ALL</a>
+                            </li>
+                        </ul>
+                    </div>
                 <?php endif ?>
             </div>
         </div>

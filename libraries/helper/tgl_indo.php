@@ -43,6 +43,8 @@ function terbilang($x)
 		return terbilang($x / 1000) . " Ribu " . terbilang($x % 1000);
 	else if ($x < 1000000000)
 		return terbilang($x / 1000000) . " Juta " . terbilang($x % 1000000);
+	else if ($x < 1000000000000)
+		return terbilang($x / 1000000000) . " Milyar " . terbilang($x % 1000000000);
 }
 
 function terbilang_inggris($x)
