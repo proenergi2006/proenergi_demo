@@ -42,6 +42,12 @@ $flash	= new FlashAlerts;
 								<option value="2">Ditolak</option>
 							</select>
 						</div>
+						<div class="col-sm-2">
+							<select id="q3" name="q3" class="form-control">
+								<option></option>
+								<?php $con->fill_select("id_master", "nama_cabang", "pro_master_cabang", "", "where is_active=1 and id_master <> 1", "", false); ?>
+							</select>
+						</div>
 						<div class="col-sm-4">
 							<button type="submit" class="btn btn-sm btn-info" name="btnSearch" id="btnSearch">Cari</button>
 						</div>
@@ -114,18 +120,24 @@ $flash	= new FlashAlerts;
 				placeholder: "Persetujuan",
 				allowClear: true
 			});
+			$("select#q3").select2({
+				placeholder: "Cabang",
+				allowClear: true
+			});
 			$("#table-grid").ajaxGrid({
 				url: "./datatable/po-customer.php",
 				data: {
 					q1: $("#q1").val(),
-					q2: $("#q2").val()
+					q2: $("#q2").val(),
+					q3: $("#q3").val()
 				},
 			});
 			$('#btnSearch').on('click', function() {
 				$("#table-grid").ajaxGrid("draw", {
 					data: {
 						q1: $("#q1").val(),
-						q2: $("#q2").val()
+						q2: $("#q2").val(),
+						q3: $("#q3").val()
 					}
 				});
 				return false;

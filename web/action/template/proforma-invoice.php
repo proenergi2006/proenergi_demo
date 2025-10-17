@@ -193,13 +193,23 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <b><?= strtoupper($row_poc['nama_customer']) ?></b>
-            <br>
-            <?= strtoupper($row_poc['alamat_customer']) ?>
-            <br>
-            <?= strtoupper($row_poc['prov_customer']) ?>
-            <?= strtoupper($row_poc['kab_customer']) ?>
-            <?= $row_poc['kode_pos'] ?>
+            <?php if ($res_poc['alamat_billing'] == NULL || $res_poc['alamat_billing'] == "") : ?>
+                <b><?= strtoupper($row_poc['nama_customer']) ?></b>
+                <br>
+                <?= strtoupper($row_poc['alamat_customer']) ?>
+                <br>
+                <?= strtoupper($row_poc['prov_customer']) ?>
+                <?= strtoupper($row_poc['kab_customer']) ?>
+                <?= $row_poc['kode_pos'] ?>
+            <?php else : ?>
+                <b><?= strtoupper($row_poc['nama_customer']) ?></b>
+                <br>
+                <?= strtoupper($row_poc['alamat_billing']) ?>
+                <br>
+                <?= strtoupper($row_poc['nama_prov_billing']) ?>
+                <?= strtoupper($row_poc['nama_kab_billing']) ?>
+                <?= $row_poc['postalcode_billing'] ?>
+            <?php endif ?>
         </td>
         <td></td>
         <td valign="top">
@@ -314,74 +324,57 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
         $harga_asli = $harga_dasar + $pbbkb + $ongkos_angkut;
         $sub_total = $harga_asli * $row_poc['volume_poc'];
+    } else {
+        $harga_asli = $harga_dasar + $ongkos_angkut;
+        $sub_total = $harga_asli * $row_poc['volume_poc'];
     }
 
     if ($row_poc['pembulatan'] == 1) {
-        if ($row_poc['all_in'] == 1) {
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            $grand_total = $sub_total;
-        } elseif ($row_poc['gabung_pbbkb'] == 1 || $row_poc['gabung_pbbkboa'] == 1) {
-            $total_pbbkb = 0;
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } elseif ($row_poc['gabung_oa'] == 1) {
+        if ($row_poc['biaya_ppn'] == "all_in") {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } else {
-            $total_pbbkb = round($harga_asli * $nilai_pbbkb / 100) * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
+            $total_pbbkb = 0;
             $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
+            $grand_total = $sub_total + $total_ppn;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_oa") {
+            $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
+            $total_ppn = $ppn * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
+            $total_pbbkb = 0;
+            $total_ppn = $ppn * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn;
+        } else {
+            $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
+            $total_ppn = $ppn * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         }
     } else {
-        if ($row_poc['all_in'] == 1) {
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            $grand_total = $sub_total;
-        } elseif ($row_poc['gabung_pbbkb'] == 1 || $row_poc['gabung_pbbkboa'] == 1) {
-            $total_pbbkb = 0;
-            $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } elseif ($row_poc['gabung_oa'] == 1) {
+        if ($row_poc['biaya_ppn'] == "all_in") {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
-        } else {
-            $total_pbbkb = ($harga_asli * $nilai_pbbkb / 100) * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
+            $total_pbbkb = 0;
             $total_ppn = $ppn * $row_poc['volume_poc'];
-            if ($tipe == 'default') {
-                $grand_total = $sub_total + $total_ppn + $total_pbbkb;
-            } else {
-                $grand_total = $sub_total + $total_ppn;
-            }
+            $grand_total = $sub_total + $total_ppn;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_oa") {
+            $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
+            $total_ppn = $ppn * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
+            $total_pbbkb = 0;
+            $total_ppn = $ppn * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn;
+        } else {
+            $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
+            $total_ppn = $ppn * $row_poc['volume_poc'];
+            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         }
     }
-
-    $total_ppn = $ppn * $row_poc['volume_poc'];
-    $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
-
-    $sub_total_hsd = $sub_total;
-
-    $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+    $sub_total_hsd = $harga_dasar * $row_poc['volume_poc'];
     ?>
 
     <tbody>

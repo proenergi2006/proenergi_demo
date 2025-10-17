@@ -107,7 +107,19 @@ $cabang = $con->getResult($query);
 									</div>
 								</div>
 							</div>
-							<div class="box-body table-responsive">
+							<style>
+								.table-responsive.dd-fix {
+									overflow-y: visible;
+									/* biar dropdown gak kepotong vertikal */
+									/* overflow-x tetap auto dari bootstrap */
+								}
+
+								.table-responsive.dd-fix .dropdown-menu {
+									z-index: 1050;
+									/* naikkan di atas table/header */
+								}
+							</style>
+							<div class="box-body table-responsive dd-fix">
 								<table class="table table-bordered" id="table-grid">
 									<thead>
 										<tr>

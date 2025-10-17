@@ -22,12 +22,14 @@ $arrPosisi 	= array(1 => "Adm Finance", 2 => "BM", 3 => "OM", 4 => "MGR Finance"
 
 $q1	= isset($_POST["q1"]) ? htmlspecialchars($_POST["q1"], ENT_QUOTES) : '';
 $q2	= isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
+$q3	= isset($_POST["q3"]) ? htmlspecialchars($_POST["q3"], ENT_QUOTES) : '';
 
 $p = new paging;
 $sql = "SELECT a.*,
     b.nama_customer, 
     b.alamat_customer,
     b.kode_pelanggan, 
+	b.id_wilayah as wilayah_customer,
     c.nama_kab, 
     d.nama_prov, 
     e.fullname, 
@@ -71,6 +73,8 @@ if ($q1 != "")
 	$sql .= " and (upper(b.nama_customer) like '%" . strtoupper($q1) . "%' or b.kode_pelanggan = '" . $q1 . "' or a.nomor_poc = '" . $q1 . "' or a.tanggal_poc = '" . tgl_db($q1) . "')";
 if ($q2 != "")
 	$sql .= " and a.poc_approved = '" . $q2 . "' and sm_result = 1";
+if ($q3 != "")
+	$sql .= " and b.id_wilayah = '" . $q3 . "'";
 
 $tot_record = $con->num_rows($sql);
 $tot_page 	= ceil($tot_record / $length);
@@ -219,7 +223,7 @@ if ($tot_record <= 0) {
 					<td class="text-center action">
 						<a class="margin-sm btn btn-action btn-info" title="Detail" href="' . $linkDetail . '">
 							<i class="fa fa-info-circle"></i>
-						</a>' . ($data['poc_approved'] && $data['poc_approved'] == 1 ? '<a class="margin-sm btn btn-action btn-primary" title="Plan" href="' . $linkPlan . '"><i class="fa fa-file-alt"></i></a>' : '<a class="margin-sm btn btn-action btn-danger" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>') . '
+						</a>' . ($data['poc_approved'] && $data['poc_approved'] == 1 ? '<a class="margin-sm btn btn-action btn-primary" target="_blank" title="Plan" href="' . $linkPlan . '"><i class="fa fa-file-alt"></i></a>' : '<a class="margin-sm btn btn-action btn-danger" data-param-idx="' . $linkHapus . '" data-action="deleteGrid"><i class="fa fa-trash"></i></a>') . '
             		</td>
 				</tr>';
 	}

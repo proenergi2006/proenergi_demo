@@ -14,7 +14,7 @@ $tipe 	= isset($enk["tipe"]) ? htmlspecialchars($enk["tipe"], ENT_QUOTES) : '';
 $sess_wil = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
 $sql = "
-	select a.*, b.nama_customer as nm_customer, c.nama_cabang, c.id_master as id_cabang, d.fullname as marketing, b.alamat_customer, e.nama_prov, f.nama_kab, b.postalcode_customer as kode_pos, g.nama_bank, g.nama_cabang, g.nomor_rekening
+	select a.*, b.nama_customer as nm_customer, c.nama_cabang, c.id_master as id_cabang, d.fullname as marketing, b.alamat_customer, e.nama_prov, f.nama_kab, b.postalcode_customer as kode_pos, g.nama_bank, g.nama_cabang as nama_cabang_bank, g.nomor_rekening, h.email_billing, h.alamat_billing, i.nama_prov as nama_prov_billing, j.nama_kab as nama_kab_billing, h.postalcode_billing
 	from pro_invoice_admin a 
 	join pro_customer b on a.id_customer = b.id_customer 
 	join pro_master_cabang c on b.id_wilayah = c.id_master
@@ -22,6 +22,9 @@ $sql = "
 	join pro_master_provinsi e on e.id_prov=b.prov_customer
 	join pro_master_kabupaten f on f.id_kab=b.kab_customer
 	left join pro_master_bank g on a.id_bank=g.id_bank
+	left join pro_customer_payment h on b.id_customer=h.id_customer
+	join pro_master_provinsi i on i.id_prov=h.prov_billing
+	join pro_master_kabupaten j on j.id_kab=h.kab_billing
 	where 1=1 and a.id_invoice = '" . $idr . "'
 ";
 $res = $con->getRecord($sql);
@@ -119,13 +122,16 @@ $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date
 ob_start();
 if ($tipe != "default" && $tipe != "pbbkb") {
 	$data_poc = "
-	select a.nomor_poc, a.top_poc, a.volume_poc, a.harga_poc, b.nama_customer, b.alamat_customer, b.postalcode_customer as kode_pos, c.pembulatan, c.detail_rincian, c.harga_dasar, d.nama_prov as prov_customer, e.nama_kab as kab_customer, f.merk_dagang as produk, IF(c.gabung_oa =1,'gabung_oa',IF(c.all_in = 1,'all_in', IF(c.gabung_pbbkb,'gabung_pbbkb',IF(c.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
+	select a.nomor_poc, a.top_poc, a.volume_poc, a.harga_poc, b.nama_customer, b.alamat_customer, b.postalcode_customer as kode_pos, c.pembulatan, c.detail_rincian, c.harga_dasar, d.nama_prov as prov_customer, e.nama_kab as kab_customer, h.email_billing, h.alamat_billing, i.nama_prov as nama_prov_billing, j.nama_kab as nama_kab_billing, h.postalcode_billing, f.merk_dagang as produk, IF(c.gabung_oa =1,'gabung_oa',IF(c.all_in = 1,'all_in', IF(c.gabung_pbbkb,'gabung_pbbkb',IF(c.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
 	from pro_po_customer a 
 	join pro_customer b on a.id_customer=b.id_customer
 	join pro_penawaran c on a.id_penawaran=c.id_penawaran
 	join pro_master_provinsi d on b.prov_customer=d.id_prov
 	join pro_master_kabupaten e on b.kab_customer=e.id_kab
 	join pro_master_produk f on a.produk_poc=f.id_master
+	left join pro_customer_payment h on b.id_customer=h.id_customer
+	join pro_master_provinsi i on i.id_prov=h.prov_billing
+	join pro_master_kabupaten j on j.id_kab=h.kab_billing
 	where a.id_poc = '" . $idr . "'
 	group by a.id_poc";
 	$row_poc = $con->getRecord($data_poc);
@@ -137,6 +143,10 @@ if ($tipe != "default" && $tipe != "pbbkb") {
 		require_once(realpath("./template/proforma-invoice-oa.php"));
 	} elseif ($tipe == "proforma_invoice_all") {
 		require_once(realpath("./template/proforma-invoice-all.php"));
+	} elseif ($tipe == "breakdown_oa") {
+		require_once(realpath("./template/invoice-customer2-oa.php"));
+	} elseif ($tipe == "breakdown_all") {
+		require_once(realpath("./template/invoice-customer2-all.php"));
 	} else {
 		require_once(realpath("./template/invoice-customer-split.php"));
 	}

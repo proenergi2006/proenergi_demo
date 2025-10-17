@@ -218,13 +218,23 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <b> <?= strtoupper($res['nm_customer']) ?></b>
-            <br>
-            <?= strtoupper($res['alamat_customer']) ?>
-            <br>
-            <?= strtoupper($res['nama_prov']) ?>
-            <?= strtoupper($res['nama_kab']) ?>
-            <?= $res['kode_pos'] ?>
+            <?php if ($res['alamat_billing'] == NULL || $res['alamat_billing'] == "") : ?>
+                <b> <?= strtoupper($res['nm_customer']) ?></b>
+                <br>
+                <?= strtoupper($res['alamat_customer']) ?>
+                <br>
+                <?= strtoupper($res['nama_prov']) ?>
+                <?= strtoupper($res['nama_kab']) ?>
+                <?= $res['kode_pos'] ?>
+            <?php else : ?>
+                <b> <?= strtoupper($res['nm_customer']) ?></b>
+                <br>
+                <?= strtoupper($res['alamat_billing']) ?>
+                <br>
+                <?= strtoupper($res['nama_prov_billing']) ?>
+                <?= strtoupper($res['nama_kab_billing']) ?>
+                <?= $res['postalcode_billing'] ?>
+            <?php endif ?>
         </td>
         <td></td>
         <td valign="top">
@@ -870,7 +880,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                             :
                         </td>
                         <td>
-                            <?= $res['nama_cabang'] ?>
+                            <?= $res['nama_cabang_bank'] ?>
                         </td>
                     <?php endif ?>
                 </tr>

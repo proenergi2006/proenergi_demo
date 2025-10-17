@@ -75,6 +75,8 @@ if ($tot_record == 0) {
 					d.pembulatan, 
 					d.refund_tawar, 
 					d.id_penawaran,
+					d.gabung_pbbkb,
+					d.gabung_pbbkboa,
 					'truck' AS jenisnya
 				FROM 
 					pro_invoice_admin_detail a
@@ -98,6 +100,8 @@ if ($tot_record == 0) {
 					d.pembulatan, 
 					d.refund_tawar, 
 					d.id_penawaran,
+					d.gabung_pbbkb,
+					d.gabung_pbbkboa,
 					'kapal' AS jenisnya
 				FROM 
 					pro_invoice_admin_detail a
@@ -167,11 +171,10 @@ if ($tot_record == 0) {
 		// echo json_encode($pbbkb_penawaran);
 		// exit();
 
-		if( $arrTermPayment[$data['jenis_payment']] == "CBD"){
-			$top_pembayaran ="-";
-		}else{
+		if ($arrTermPayment[$data['jenis_payment']] == "CBD") {
+			$top_pembayaran = "-";
+		} else {
 			$top_pembayaran = $data['top_payment'];
-
 		}
 
 		foreach ($decode as $arr1) {
@@ -423,24 +426,42 @@ if ($tot_record == 0) {
 		} else {
 			$linkCetak = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $data['id_invoice'] . '&tipe=default');
 			$linkCetak_pbbkb = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $data['id_invoice'] . '&tipe=pbbkb');
+			$linkCetak_oa = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $data['id_invoice'] . '&tipe=breakdown_oa');
+			$linkCetak_all = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('idr=' . $data['id_invoice'] . '&tipe=breakdown_all');
 		}
 
 		if ($data['jenis'] == "all_in") {
-			$btnCetak = '<div class="btn-group text-left">
-			<button type="button" class="btn btn-primary btn-sm"><i class="fas fa-print"></i></button>
-			<button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-				<span class="caret"></span>
-				<span class="sr-only">Toggle Dropdown</span>
-			</button>
-			<ul class="dropdown-menu" role="menu">
-				<li>
-					<a target="_blank" href="' . $linkCetak . '">Default</a>
-				</li>
-				<li>
-					<a target="_blank" href="' . $linkCetak_pbbkb . '">Pisah PBBKB</a>
-				</li>
-			</ul>
-		</div>';
+			if ($result02['gabung_pbbkb'] == 0) {
+				$btnCetak = '<div class="btn-group">
+				<a class="btn btn-primary btn-sm" href="#">
+					<i class="fa fa-print"></i>
+				</a>
+				<button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="caret"></span>
+					<span class="sr-only">Toggle Dropdown</span>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-right">
+					<li><a target="_blank" href="' . $linkCetak . '">Default</a></li>
+					<li><a target="_blank" href="' . $linkCetak_oa . '">Breakdown OA</a></li>
+					<li><a target="_blank" href="' . $linkCetak_pbbkb . '">Breakdown PBBKB</a></li>
+					<li><a target="_blank" href="' . $linkCetak_all . '">Breakdown ALL</a></li>
+				</ul>
+				</div>';
+			} else {
+				$btnCetak = '<div class="btn-group">
+				<a class="btn btn-primary btn-sm" href="#">
+					<i class="fa fa-print"></i>
+				</a>
+				<button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="caret"></span>
+					<span class="sr-only">Toggle Dropdown</span>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-right">
+					<li><a target="_blank" href="' . $linkCetak . '">Default</a></li>
+					<li><a target="_blank" href="' . $linkCetak_oa . '">Breakdown OA</a></li>
+				</ul>
+				</div>';
+			}
 		} else {
 			$btnCetak = '<a target="_blank" class="btn btn-primary btn-sm" href="' . $linkCetak . '">Cetak</a>';
 		}
@@ -459,7 +480,7 @@ if ($tot_record == 0) {
 					<br><br>
 					<p>Payment : ' . $arrTermPayment[$data['jenis_payment']] . '</p>
 					<p>TOP : ' . $top_pembayaran . '</p>
-					<p>' .($arrTermPayment[$data['jenis_payment']] == "CBD" ? '-' : $due_date). '</p>
+					<p>' . ($arrTermPayment[$data['jenis_payment']] == "CBD" ? '-' : $due_date) . '</p>
 				</td>
 				<td class="text-center">
 					' . tgl_indo($tgl_invoice_dikirim) . '
