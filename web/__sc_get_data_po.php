@@ -1,6 +1,6 @@
 <?php
 $sql2 = "
-		select a.*, b.nama_customer, b.id_wilayah, c.nomor_surat, c.perhitungan, c.harga_dasar, c.detail_formula, c.volume_tawar, c.jenis_payment, c.jangka_waktu, e.jenis_produk, e.merk_dagang, f.pembulatan
+		select a.*, b.nama_customer, b.id_wilayah, c.nomor_surat, c.perhitungan, c.harga_dasar, c.detail_formula, c.volume_tawar, c.jenis_payment, c.jangka_waktu, e.jenis_produk, e.merk_dagang, f.pembulatan, f.gabung_pbbkb, f.gabung_pbbkboa
 		from pro_po_customer a 
 		join pro_customer b on a.id_customer = b.id_customer 
 		join pro_penawaran c on a.id_penawaran = c.id_penawaran 
@@ -152,14 +152,16 @@ $linkCetak_all = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('
                                 <a target="_blank" href="<?= $linkCetak ?>">Default</a>
                             </li>
                             <li>
-                                <a target="_blank" href="<?= $linkCetak_pbbkb ?>">Breakdown PBBKB</a>
-                            </li>
-                            <li>
                                 <a target="_blank" href="<?= $linkCetak_oa ?>">Breakdown OA</a>
                             </li>
-                            <li>
-                                <a target="_blank" href="<?= $linkCetak_all ?>">Breakdown ALL</a>
-                            </li>
+                            <?php if ($rsm['gabung_pbbkb'] == 0) : ?>
+                                <li>
+                                    <a target="_blank" href="<?= $linkCetak_pbbkb ?>">Breakdown PBBKB</a>
+                                </li>
+                                <li>
+                                    <a target="_blank" href="<?= $linkCetak_all ?>">Breakdown ALL</a>
+                                </li>
+                            <?php endif ?>
                         </ul>
                     </div>
                 <?php endif ?>

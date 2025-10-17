@@ -62,7 +62,7 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 3) {
 }
 
 $sql .= "
-		a.id_customer, a.id_penawaran, a.nomor_surat, a.volume_tawar, a.flag_approval, a.tgl_approval, a.flag_disposisi, a.harga_dasar, a.detail_rincian, a.created_time, a.is_edited, a.lastupdate_by,
+		a.id_customer, a.id_penawaran, a.nomor_surat, a.volume_tawar, a.flag_approval, a.tgl_approval, a.flag_disposisi, a.harga_dasar, a.detail_rincian, a.created_time, a.is_edited, a.lastupdate_by, a.pembulatan,
 		b.nama_customer, b.kode_pelanggan, c.id_wilayah, c.fullname, d.nama_cabang, d.id_group_cabang, e.nama_area,
 		if(a.flag_approval = 0 && a.flag_disposisi > 0, 1, 0) as position,
 		CASE 
@@ -161,7 +161,37 @@ if ($tot_record ==  0) {
 			} else {
 				$nilai = "";
 			}
-			$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya']) . "</p>";
+			if ($data['pembulatan'] == 1) {
+				$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya']) . "</p>";
+			} elseif ($data['pembulatan'] == 0) {
+				if (fmod($arr1['biaya'], 1) !== 0.0000) {
+					$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya'], 2) . "</p>";
+				} else {
+					$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya']) . "</p>";
+				}
+			} else {
+				if (fmod($arr1['biaya'], 1) !== 0.0000) {
+					$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya'], 4) . "</p>";
+				} else {
+					$jenis .= "<p>" . $arr1['rincian'] . " " . $nilai . " : " . number_format($arr1['biaya']) . "</p>";
+				}
+			}
+		}
+
+		if ($data['pembulatan'] == 1) {
+			$harga_dasarnya = number_format($data['harga_dasar']);
+		} elseif ($data['pembulatan'] == 0) {
+			if (fmod($data['harga_dasar'], 1) !== 0.0000) {
+				$harga_dasarnya = number_format($data['harga_dasar'], 2);
+			} else {
+				$harga_dasarnya = number_format($data['harga_dasar']);
+			}
+		} else {
+			if (fmod($data['harga_dasar'], 1) !== 0.0000) {
+				$harga_dasarnya = number_format($data['harga_dasar'], 4);
+			} else {
+				$harga_dasarnya = number_format($data['harga_dasar']);
+			}
 		}
 
 		if ($data['is_edited'] == 1) {
@@ -187,7 +217,7 @@ if ($tot_record ==  0) {
 					<td>' . $data['nama_cabang'] . '</td>
 					<td>' . $data['nama_area'] . '</td>
 					<td>
-					<b>' . number_format($data['harga_dasar'], 0) . '</b>
+					<b>' . $harga_dasarnya . '</b>
 					' . $jenis . '
 					</td>
 					<td>

@@ -193,13 +193,23 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
     </tr>
     <tr>
         <td valign="top">
-            <b><?= strtoupper($row_poc['nama_customer']) ?></b>
-            <br>
-            <?= strtoupper($row_poc['alamat_customer']) ?>
-            <br>
-            <?= strtoupper($row_poc['prov_customer']) ?>
-            <?= strtoupper($row_poc['kab_customer']) ?>
-            <?= $row_poc['kode_pos'] ?>
+            <?php if ($res_poc['alamat_billing'] == NULL || $res_poc['alamat_billing'] == "") : ?>
+                <b><?= strtoupper($row_poc['nama_customer']) ?></b>
+                <br>
+                <?= strtoupper($row_poc['alamat_customer']) ?>
+                <br>
+                <?= strtoupper($row_poc['prov_customer']) ?>
+                <?= strtoupper($row_poc['kab_customer']) ?>
+                <?= $row_poc['kode_pos'] ?>
+            <?php else : ?>
+                <b><?= strtoupper($row_poc['nama_customer']) ?></b>
+                <br>
+                <?= strtoupper($row_poc['alamat_billing']) ?>
+                <br>
+                <?= strtoupper($row_poc['nama_prov_billing']) ?>
+                <?= strtoupper($row_poc['nama_kab_billing']) ?>
+                <?= $row_poc['postalcode_billing'] ?>
+            <?php endif ?>
         </td>
         <td></td>
         <td valign="top">
@@ -305,49 +315,58 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         }
     }
 
-    if ($res03['all_in'] == 1) {
-        $harga_asli = $harga_dasar + $ongkos_angkut;
-        $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
-        $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
-    } else {
-        if ($row_poc['biaya_ppn'] == "gabung_oa") {
-            $harga_asli = $harga_dasar;
-            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+    // if ($res03['all_in'] == 1) {
+    //     $harga_asli = $harga_dasar + $ongkos_angkut;
+    //     $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+    //     $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
+    // } else {
+    //     if ($row_poc['biaya_ppn'] == "gabung_oa") {
+    //         $harga_asli = $harga_dasar;
+    //         $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
 
-            $harga_asli_oa = $ongkos_angkut;
-            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+    //         $harga_asli_oa = $ongkos_angkut;
+    //         $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
 
-            $harga_asli_pbbkb = $pbbkb;
-            $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
-        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
-            $harga_asli = $harga_dasar + $ongkos_angkut;
-            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+    //         $harga_asli_pbbkb = $pbbkb;
+    //         $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
+    //     } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
+    //         $harga_asli = $harga_dasar + $ongkos_angkut;
+    //         $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
 
-            $harga_asli_oa = $ongkos_angkut;
-            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+    //         $harga_asli_oa = $ongkos_angkut;
+    //         $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
 
-            $harga_asli_pbbkb = 0;
-            $sub_total_pbbkb = 0;
-        } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
-            $harga_asli = $harga_dasar + $ongkos_angkut;
-            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+    //         $harga_asli_pbbkb = 0;
+    //         $sub_total_pbbkb = 0;
+    //     } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
+    //         $harga_asli = $harga_dasar + $ongkos_angkut;
+    //         $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
 
-            $harga_asli_oa = $ongkos_angkut;
-            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+    //         $harga_asli_oa = $ongkos_angkut;
+    //         $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
 
-            $harga_asli_pbbkb = 0;
-            $sub_total_pbbkb = 0;
-        } else {
-            $harga_asli = $harga_dasar;
-            $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+    //         $harga_asli_pbbkb = 0;
+    //         $sub_total_pbbkb = 0;
+    //     } else {
+    //         $harga_asli = $harga_dasar;
+    //         $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
 
-            $harga_asli_oa = $ongkos_angkut;
-            $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+    //         $harga_asli_oa = $ongkos_angkut;
+    //         $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
 
-            $harga_asli_pbbkb = $pbbkb;
-            $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
-        }
-    }
+    //         $harga_asli_pbbkb = $pbbkb;
+    //         $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
+    //     }
+    // }
+
+    $harga_asli = $harga_dasar;
+    $sub_total_hsd = $harga_asli * $row_poc['volume_poc'];
+
+    $harga_asli_oa = $ongkos_angkut;
+    $sub_total_oa = $harga_asli_oa * $row_poc['volume_poc'];
+
+    $harga_asli_pbbkb = $pbbkb;
+    $sub_total_pbbkb = $harga_asli_pbbkb * $row_poc['volume_poc'];
 
     $sub_total_hsd_oa = $sub_total_hsd + $sub_total_oa;
     $total_ppn = round(($sub_total_hsd_oa * $nilai_ppn) / 100);
@@ -377,27 +396,27 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
             </td>
             <td valign="top" align="center">
                 <?php if ($row_poc['pembulatan'] == 2) : ?>
-                    <?= number_format($harga_asli, 4) ?>
+                    <?= (fmod($harga_asli, 1) !== 0.0000) ? number_format($harga_asli, 4, ".", ",") : number_format($harga_asli, 0) ?>
                 <?php elseif ($row_poc['pembulatan'] == 0) : ?>
-                    <?= number_format($harga_asli, 2) ?>
+                    <?= (fmod($harga_asli, 1) !== 0.0000) ? number_format($harga_asli, 2, ".", ",") : number_format($harga_asli, 0) ?>
                 <?php else : ?>
                     <?= (fmod($harga_asli, 1) !== 0.0000) ? number_format($harga_asli, 4, ".", ",") : number_format($harga_asli, 0) ?>
                 <?php endif ?>
                 <br>
                 <br>
                 <?php if ($row_poc['pembulatan'] == 2) : ?>
-                    <?= number_format($harga_asli_oa, 4) ?>
+                    <?= (fmod($harga_asli_oa, 1) !== 0.0000) ? number_format($harga_asli_oa, 4, ".", ",") : number_format($harga_asli_oa, 0) ?>
                 <?php elseif ($row_poc['pembulatan'] == 0) : ?>
-                    <?= number_format($harga_asli_oa, 2) ?>
+                    <?= (fmod($harga_asli_oa, 1) !== 0.0000) ? number_format($harga_asli_oa, 2, ".", ",") : number_format($harga_asli_oa, 0) ?>
                 <?php else : ?>
-                    <?= (fmod($harga_asli_oa, 1) !== 0.0000) ? number_format($harga_asli_oa, 4, ".", ",") : number_format($harga_asli_pbbkb, 0) ?>
+                    <?= (fmod($harga_asli_oa, 1) !== 0.0000) ? number_format($harga_asli_oa, 4, ".", ",") : number_format($harga_asli_oa, 0) ?>
                 <?php endif ?>
                 <br>
                 <br>
                 <?php if ($row_poc['pembulatan'] == 2) : ?>
-                    <?= number_format($harga_asli_pbbkb, 4) ?>
+                    <?= (fmod($harga_asli_pbbkb, 1) !== 0.0000) ? number_format($harga_asli_pbbkb, 4, ".", ",") : number_format($harga_asli_pbbkb, 0) ?>
                 <?php elseif ($row_poc['pembulatan'] == 0) : ?>
-                    <?= number_format($harga_asli_pbbkb, 2) ?>
+                    <?= (fmod($harga_asli_pbbkb, 1) !== 0.0000) ? number_format($harga_asli_pbbkb, 2, ".", ",") : number_format($harga_asli_pbbkb, 0) ?>
                 <?php else : ?>
                     <?= (fmod($harga_asli_pbbkb, 1) !== 0.0000) ? number_format($harga_asli_pbbkb, 4, ".", ",") : number_format($harga_asli_pbbkb, 0) ?>
                 <?php endif ?>

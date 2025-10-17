@@ -763,7 +763,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													$jumlah = (((float)$ongkos_angkut_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
 													$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
 												} else {
-													if ($result02['biaya_ppn'] == 'gabung_pbbkb' || $result02['biaya_ppn'] == 'gabung_pbbkboa') {
+													if ($result02['biaya_ppn'] == 'gabung_pbbkb') {
 														$jumlah = (((float)$harga_dasar_penawaran + (float)$ongkos_angkut_penawaran + (float)$pbbkb_penawaran) * (float)$data1['vol_kirim']) - $data1['discount'];
 														$jumlah_harga = $jumlah + (($jumlah * $nilai_ppn) / 100);
 													} else {
@@ -1542,7 +1542,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													} else {
 														total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
 
-														if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+														if (biaya_ppn == "gabung_pbbkb") {
 															total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
 															total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
 
@@ -1565,7 +1565,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												if (act == "update") {
 													jumlahnya = row.volume_po * parseFloat(total_penawaran);
 												} else {
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+													if (biaya_ppn == "gabung_pbbkb") {
 														jumlahnya = ((row.volume_po * parseFloat(total_penawaran)) * nilai_ppn / 100) + (row.volume_po * parseFloat(total_penawaran));
 													} else if (biaya_ppn == "all_in") {
 														jumlahnya = row.volume_po * parseFloat(total_penawaran);
@@ -1586,7 +1586,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
 													jumlah_harga_dasar_oa = ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+													if (biaya_ppn == "gabung_pbbkb") {
 														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 													} else {
 														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
@@ -1599,7 +1599,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 													jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
 													jumlah_harga_dasar_oa = (parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + (parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+													if (biaya_ppn == "gabung_pbbkb") {
 														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
 													} else {
 														jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
@@ -2005,7 +2005,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												} else {
 													total_penawaran_luar = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb) + parseFloat(ppn);
 
-													if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+													if (biaya_ppn == "gabung_pbbkb") {
 														total_penawaran = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(pbbkb);
 														total_penawaran_2 = parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + parseFloat(ppn) + parseFloat(pbbkb);
 
@@ -2028,7 +2028,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 											if (act == "update") {
 												jumlahnya = row.volume_po * parseFloat(total_penawaran);
 											} else {
-												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+												if (biaya_ppn == "gabung_pbbkb") {
 													jumlahnya = ((row.volume_po * parseFloat(total_penawaran)) * nilai_ppn / 100) + (row.volume_po * parseFloat(total_penawaran));
 												} else if (biaya_ppn == "all_in") {
 													jumlahnya = row.volume_po * parseFloat(total_penawaran);
@@ -2049,7 +2049,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
 												jumlah_harga_dasar_oa = ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
-												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+												if (biaya_ppn == "gabung_pbbkb") {
 													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 												} else {
 													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
@@ -2062,7 +2062,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
 												jumlah_ppn = Math.round(parseFloat(ppn) * row.volume_po);
 												jumlah_harga_dasar_oa = (parseFloat(harga_dasar) + parseFloat(ongkos_angkut) + (parseFloat(harga_dasar) + parseFloat(ongkos_angkut)) * parseFloat(nilai_ppn) / 100) * row.volume_po;
 
-												if (biaya_ppn == "gabung_pbbkb" || biaya_ppn == "gabung_pbbkboa") {
+												if (biaya_ppn == "gabung_pbbkb") {
 													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar) + parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar) + parseFloat(pbbkb))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
 												} else {
 													jumlah_harga_dasar_pbbkb = ((parseFloat(harga_dasar)) * row.volume_po) + ((parseFloat(pbbkb)) * row.volume_po) + ((parseFloat(harga_dasar))) * parseFloat(nilai_ppn) / 100 * row.volume_po;
