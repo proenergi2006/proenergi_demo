@@ -9,6 +9,7 @@
                         <th class="text-center" rowspan="2" width="200">Area/ Alamat Kirim/ Wilayah OA</th>
                         <th class="text-center" rowspan="2" width="150">PO Customer</th>
                         <th class="text-center" rowspan="2" width="150">No DO SYOP</th>
+                        <th class="text-center" rowspan="2" width="150">No SO</th>
                         <th class="text-center" rowspan="2" width="150">No PO Supplier</th>
                         <th class="text-center" rowspan="2" width="100">Volume</th>
                         <th class="text-center" rowspan="2" width="100">Volume Potongan</th>
@@ -40,7 +41,7 @@
                             q.volume as volume_potong, q.nomor_po_supplier as nomor_potong,
 						    pt.nama_terminal AS terminal_potong,pt.tanki_terminal AS tanki_potong, pt.lokasi_terminal AS lokasi_potong,
                             r.nama_terminal, r.tanki_terminal, r.lokasi_terminal,
-                            s.is_loaded, s.is_delivered, s.is_cancel, s.tanggal_loaded, s.jam_loaded, s.tanggal_cancel
+                            s.is_loaded, s.is_delivered, s.is_cancel, s.tanggal_loaded, s.jam_loaded, s.tanggal_cancel, c.no_so
                             from pro_pr_detail a 
 							join pro_pr b on a.id_pr = b.id_pr 
 							join pro_po_customer_plan c on a.id_plan = c.id_plan 
@@ -219,6 +220,7 @@
                                         <p style="margin-bottom:0px"><?php echo $attach; ?></p>
                                     </td>
                                     <td><?php echo $data['no_do_syop']; ?></td>
+                                    <td><?php echo $data['no_so']; ?></td>
                                     <td>
                                         <p style="margin-bottom:0px"><?php echo $data['nomor_po_supplier']; ?></p>
                                         <p style="margin-bottom:0px"><?php echo $data['nomor_potong']; ?></p>

@@ -78,41 +78,41 @@ $res_gudang = $con->getResult($sql3);
 // }
 
 //get vendor accurate
-$urlget_vendor = 'https://zeus.accurate.id/accurate/api/vendor/list.do';
+// $urlget_vendor = 'https://zeus.accurate.id/accurate/api/vendor/list.do';
 
-$result_getcount = curl_get($urlget_vendor);
+// $result_getcount = curl_get($urlget_vendor);
 
-if ($result_getcount['sp'] == true) {
-    $query_vendor = http_build_query([
-        'fields' => 'id,vendorNo,name',
-        'sp.pageSize' => $result_getcount['sp']['rowCount']
-    ]);
-    $pageCount = $result_getcount['sp']['pageCount'];
+// if ($result_getcount['sp'] == true) {
+//     $query_vendor = http_build_query([
+//         'fields' => 'id,vendorNo,name',
+//         'sp.pageSize' => $result_getcount['sp']['rowCount']
+//     ]);
+//     $pageCount = $result_getcount['sp']['pageCount'];
 
-    $vendor_kode = [];
+//     $vendor_kode = [];
 
-    for ($i = 1; $i <= $pageCount; $i++) {
-        // Update pagination for the current page
-        $data_akun_get_paginated = $query_vendor . '&sp.page=' . $i;
+//     for ($i = 1; $i <= $pageCount; $i++) {
+//         // Update pagination for the current page
+//         $data_akun_get_paginated = $query_vendor . '&sp.page=' . $i;
 
-        // Make the request for the current page
-        $url_akun = 'https://zeus.accurate.id/accurate/api/vendor/list.do?' . $data_akun_get_paginated;
-        $result_akun = curl_get($url_akun);
+//         // Make the request for the current page
+//         $url_akun = 'https://zeus.accurate.id/accurate/api/vendor/list.do?' . $data_akun_get_paginated;
+//         $result_akun = curl_get($url_akun);
 
-        // If the request was successful, process the data
-        if ($result_akun['s'] == true) {
-            foreach ($result_akun['d'] as $key) {
-                $vendor_kode[] = [
-                    'id' => $key['id'],
-                    'vendorNo' => $key['vendorNo'],
-                    'name' => $key['name']
-                ];
-            }
-        }
-    }
-}
+//         // If the request was successful, process the data
+//         if ($result_akun['s'] == true) {
+//             foreach ($result_akun['d'] as $key) {
+//                 $vendor_kode[] = [
+//                     'id' => $key['id'],
+//                     'vendorNo' => $key['vendorNo'],
+//                     'name' => $key['name']
+//                 ];
+//             }
+//         }
+//     }
+// }
 
-// //GET KODE AKUN ACCURATE
+//GET KODE AKUN ACCURATE
 // $url_getrow = 'https://zeus.accurate.id/accurate/api/glaccount/list.do';
 
 // // Fetch initial data to get page count
@@ -158,7 +158,7 @@ if ($result_getcount['sp'] == true) {
 //     // Optionally, output or return the accumulated account details
 //     // echo json_encode($akun_details);
 // }
-?>
+// ?>
 <!DOCTYPE html>
 <html lang="en">
 <?php load_headHtml(BASE_PATH_CSS, BASE_PATH_JS, array("js" => array("myGrid", "formatNumber", "jqueryUI"), "css" => array("jqueryUI"))); ?>
@@ -220,10 +220,10 @@ if ($result_getcount['sp'] == true) {
                                             <label class="control-label col-md-3 label-kode">Kode Item Accurate *</label>
                                             <div class="col-md-5">
                                                 <select id="kode_item" name="kode_item" class="form-control select2" style="width:100%;" required>
-                                                    <!-- <option value=""></option>
+                                                    <option value=""></option>
                                                     <?php foreach ($item_details as $key) : ?>
                                                         <option value="<?= $key['kode_barang'] ?>"><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
-                                                    <?php endforeach ?> -->
+                                                    <?php endforeach ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -235,12 +235,12 @@ if ($result_getcount['sp'] == true) {
                                             <label class="control-label col-md-3">Akun Accurate *</label>
                                             <div class="col-md-5">
                                                 <select name="akun_penyesuaian" id="akun_penyesuaian" class="form-control select2" style="width:100%;" required>
-                                                    <!-- <option value=""></option>
+                                                    <option value=""></option>
                                                     <?php foreach ($akun_details as $key) : ?>
                                                         <option value="<?= $key['no'] ?>">
                                                             <?= $key['noWithIndent'] ?> <?= $key['nameWithIndent'] ?>
                                                         </option>
-                                                    <?php endforeach ?> -->
+                                                    <?php endforeach ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -262,13 +262,12 @@ if ($result_getcount['sp'] == true) {
                                     </div>
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group form-group-sm">
-                                        <label class="control-label col-md-3">Nomor Penyesuaian </label>
+                                        <label class="control-label col-md-3">Nomor Penyesuaian *</label>
                                         <div class="col-md-4">
-                                            <input type="text" id="nomor_penyesuaian" name="nomor_penyesuaian" class="form-control" required />
+                                            <input type="text" name="nomor_penyesuaian" id="nomor_penyesuaian" class="form-control" required />
                                         </div>
                                     </div>
                                 </div>
@@ -466,10 +465,10 @@ if ($result_getcount['sp'] == true) {
                                             <label class="control-label col-md-3">Vendor *</label>
                                             <div class="col-md-5">
                                                 <select id="kode_vendor" name="kode_vendor" class="form-control select2" style="width:100%;" required>
-                                                    <option value=""></option>
+                                                    <!-- <option value=""></option>
                                                     <?php foreach ($vendor_kode as $key) : ?>
                                                         <option value="<?= $key['vendorNo'] ?>"><?= $key['name']  . " ( " . $key['vendorNo'] . " ) " ?></option>
-                                                    <?php endforeach ?>
+                                                    <?php endforeach ?> -->
                                                 </select>
                                             </div>
                                         </div>
@@ -523,7 +522,7 @@ if ($result_getcount['sp'] == true) {
                             </div>
 
                             <!-- tambahan field -->
-                           <div id="group_detail_ri" style="display:none;">
+                            <div id="group_detail_ri" style="display:none;">
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="form-group form-group-sm">
@@ -552,7 +551,7 @@ if ($result_getcount['sp'] == true) {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div id="group_trans_tanki_satu" style="display:none;">
                                 <div class="row">
                                     <div class="col-md-8">
@@ -598,6 +597,16 @@ if ($result_getcount['sp'] == true) {
 
                                 <hr style="border-top:4px double #ddd;">
 
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-group-sm">
+                                            <label class="control-label col-md-3">Nomor Penyesuaian Terima*</label>
+                                            <div class="col-md-4">
+                                                <input type="text" name="nomor_penyesuaian_terima" id="nomor_penyesuaian_terima" class="form-control" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <!-- Kode untuk ke Accurate -->
                                 <div class="row">
                                     <div class="col-md-8">
@@ -605,10 +614,10 @@ if ($result_getcount['sp'] == true) {
                                             <label class="control-label col-md-3">Kode Item Accurate *</label>
                                             <div class="col-md-5">
                                                 <select id="kode_item_terima" name="kode_item_terima" class="form-control select2" style="width:100%;" required>
-                                                    <!-- <option value=""></option>
+                                                    <option value=""></option>
                                                     <?php foreach ($item_details as $key) : ?>
                                                         <option value="<?= $key['kode_barang'] ?>"><?= $key['kode_barang'] . " ( " . $key['name'] . " ) " ?></option>
-                                                    <?php endforeach ?> -->
+                                                    <?php endforeach ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -627,7 +636,7 @@ if ($result_getcount['sp'] == true) {
                                     </div>
                                 </div>
 
-                                 <div class="row">
+                                <div class="row">
                                     <div class="col-md-8">
                                         <div class="form-group form-group-sm">
                                             <label class="control-label col-md-3">Tanggal Penerimaan*</label>
@@ -640,7 +649,7 @@ if ($result_getcount['sp'] == true) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="form-group form-group-sm">
@@ -648,7 +657,7 @@ if ($result_getcount['sp'] == true) {
                                             <div class="col-md-4">
                                                 <div class="input-group">
                                                     <span class="input-group-addon" style="font-size:12px;">Rp.</span>
-                                                    <input type="text" id="harga_transfer" name="harga_transfer" class="form-control koma" autocomplete="off" required />
+                                                    <input type="text" id="harga_transfer" name="harga_transfer" class="form-control koma_transfer" autocomplete="off" required />
                                                 </div>
                                             </div>
                                         </div>
@@ -758,6 +767,7 @@ if ($result_getcount['sp'] == true) {
         $(document).ready(function() {
             $(".hitung").number(true, 0, ".", ",");
             $(".koma").number(true, 2, ".", ",");
+            $(".koma_transfer").number(true, 6, ".", ",");
 
             //add validasi 
             $('#btnSbmt').on('click', function(e) {
@@ -882,6 +892,7 @@ if ($result_getcount['sp'] == true) {
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
                         $("#harga_transfer").val("").trigger("change");
                     });
+                    $("#group_detail_ri").hide("400", "swing");
                 } else if (nilai == 4) {
                     //4 transfer stock
                     $("#group_depot").hide(400, "swing", function() {
@@ -898,18 +909,18 @@ if ($result_getcount['sp'] == true) {
                         $("#adj_inven_sign").val("+").trigger("change");
                         $("#adj_inven").val("");
                     });
-                    
+
                     // tambahan
                     $("#group_kode").show("400", "swing");
 
                     $(".label-kode").html("Kode Item Accurate (dari terminal)*");
 
-                   $("#group_return").hide("400", "swing");
+                    $("#group_return").hide("400", "swing");
                     $("#group_trans_tanki_satu").show("400", "swing", function() {
                         $("#transfer_tanki_satu_dari").val("").trigger("change");
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
                     });
-                    
+                     $("#group_detail_ri").hide("400", "swing");
                 } else if (nilai == '5') {
                     //5 purchase return
                     $("#group_depot").hide(400, "swing", function() {
@@ -961,7 +972,7 @@ if ($result_getcount['sp'] == true) {
                         $("#transfer_tanki_satu_ke").val("").trigger("change");
                         $("#harga_transfer").val("").trigger("change");
                     });
-                    
+
                 }
             });
 
@@ -1188,45 +1199,45 @@ if ($result_getcount['sp'] == true) {
                 allowClear: true
             });
 
-              $("#kode_vendor").on("change", function() {
-                if ($(this).val()) {
-                    $("#receive_number").select2({
-                        placeholder: "Pilih salah satu",
-                        allowClear: true
-                    });
-                } else {
-                    $('#receive_number').empty()
-                    // $("#receive_number").val("").trigger('change');
-                    $("#receive_number").select2({
-                        placeholder: "Pilih vendor terlebih dahulu",
-                        allowClear: true
-                    });
-                }
+            // $("#kode_vendor").on("change", function() {
+            //     if ($(this).val()) {
+            //         $("#receive_number").select2({
+            //             placeholder: "Pilih salah satu",
+            //             allowClear: true
+            //         });
+            //     } else {
+            //         $('#receive_number').empty()
+            //         // $("#receive_number").val("").trigger('change');
+            //         $("#receive_number").select2({
+            //             placeholder: "Pilih vendor terlebih dahulu",
+            //             allowClear: true
+            //         });
+            //     }
 
-                $.ajax({
-                    type: "POST",
-                    url: base_url + "/web/vendor-inven-terminal-new-list-receive-accurate.php",
-                    data: {
-                        "kode_vendor": $(this).val()
-                    },
-                    dataType: "json",
-                    cache: false,
-                    success: function(response) {
-                        if (response.status == true) {
-                            var data = response.data
-                            var optnya = '<option value=""></option>';
-                            $.each(data, function(index, value) {
-                                optnya += '<option value="' + value.id + ',' + value.number + '">' + value.number + ' (' + value.shipDateView + ')' + '</option>';
-                            });
+            //     $.ajax({
+            //         type: "POST",
+            //         url: base_url + "/web/vendor-inven-terminal-new-list-receive-accurate.php",
+            //         data: {
+            //             "kode_vendor": $(this).val()
+            //         },
+            //         dataType: "json",
+            //         cache: false,
+            //         success: function(response) {
+            //             if (response.status == true) {
+            //                 var data = response.data
+            //                 var optnya = '<option value=""></option>';
+            //                 $.each(data, function(index, value) {
+            //                     optnya += '<option value="' + value.id + ',' + value.number + '">' + value.number + ' (' + value.shipDateView + ')' + '</option>';
+            //                 });
 
-                            $("#receive_number").html(optnya);
-                        }
-                    }
-                });
+            //                 $("#receive_number").html(optnya);
+            //             }
+            //         }
+            //     });
 
-            })
+            // })
 
-              $("#receive_number").on("change", function() {
+            $("#receive_number").on("change", function() {
                 if (!$(this).val()) {
                     $("#group_detail_ri").hide("400", "swing");
                 } else {
@@ -1304,95 +1315,191 @@ if ($result_getcount['sp'] == true) {
             });
 
             $('#kode_item').select2({
-                placeholder: 'Pilih kode item',
+                placeholder:'pilih kode item',
                 ajax: {
-                    url: base_url + '/web/list-product-accurate.php',
+                    url : base_url + '/web/list-product-accurate.php',
                     type: 'POST',
-                    dataType: 'json',
-                    delay: 250,
+                    dataType:'json',
+                    delay:250,
                     data: function (params) {
-                    return {
-                        q: params.term, // search term
-                        page: params.page
-                    };
-                    },
-                    processResults: function (data, params) {
-                    // parse the results into the format expected by Select2
-                    // since we are using custom formatting functions we do not need to
-                    // alter the remote JSON data, except to indicate that infinite
-                    // scrolling can be used
-                    params.page = params.page || 1;
-
-                    return {
-                        results: data.items,
-                        pagination: {
-                        more: (params.page * data.pageSize) < data.total_count
+                        return {
+                            q:params.term,
+                            page: params.page
                         }
-                    };
+                        
                     },
-                    cache: true,
-                },
-            });
-            $('#kode_item_terima').select2({
-                placeholder: 'Pilih kode item',
-                ajax: {
-                    url: base_url + '/web/list-product-accurate.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                    return {
-                        q: params.term, // search term
-                        page: params.page
-                    };
-                    },
-                    processResults: function (data, params) {
-                    // parse the results into the format expected by Select2
-                    // since we are using custom formatting functions we do not need to
-                    // alter the remote JSON data, except to indicate that infinite
-                    // scrolling can be used
-                    params.page = params.page || 1;
+                    processResults:function (data,params){
+                        params.page = params.page || 1
 
-                    return {
-                        results: data.items,
-                        pagination: {
-                        more: (params.page * data.pageSize) < data.total_count
+                        return {
+                            results : data.items,
+                            pagination:{
+                                more: (params.page*data.pageSize) < data.total_count
+                            }
                         }
-                    };
                     },
-                    cache: true,
-                },
-            });
-            $('#akun_penyesuaian').select2({
-                placeholder: 'Pilih akun biaya',
-                ajax: {
-                    url: base_url + '/web/list-account-accurate.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    delay: 250,
-                     data: function (params) {
-                    return {
-                        q: params.term, // search term
-                        page: params.page
-                    };
-                    },
-                    processResults: function (data, params) {
-                    // parse the results into the format expected by Select2
-                    // since we are using custom formatting functions we do not need to
-                    // alter the remote JSON data, except to indicate that infinite
-                    // scrolling can be used
-                    params.page = params.page || 1;
-
-                    return {
-                        results: data.items,
-                        pagination: {
-                        more: (params.page * data.pageSize) < data.total_count
-                        }
-                    };
-                    },
-                    cache: true
+                    cache:true
                 }
-            });
+            })
+            
+            $('#kode_item_terima').select2({
+                placeholder:'pilih kode item',
+                ajax: {
+                    url : base_url + '/web/list-product-accurate.php',
+                    type: 'POST',
+                    dataType:'json',
+                    delay:250,
+                    data: function (params) {
+                        return {
+                            q:params.term,
+                            page: params.page
+                        }
+                        
+                    },
+                    processResults:function (data,params){
+                        params.page = params.page || 1
+
+                        return {
+                            results : data.items,
+                            pagination:{
+                                more: (params.page*data.pageSize) < data.total_count
+                            }
+                        }
+                    },
+                    cache:true
+                }
+            })
+            $('#akun_penyesuaian').select2({
+                placeholder:'pilih kode item',
+                ajax: {
+                    url : base_url + '/web/list-account-accurate.php',
+                    type: 'POST',
+                    dataType:'json',
+                    delay:250,
+                    data: function (params) {
+                        return {
+                            q:params.term,
+                            page: params.page
+                        }
+                        
+                    },
+                    processResults:function (data,params){
+                        params.page = params.page || 1
+
+                        return {
+                            results : data.items,
+                            pagination:{
+                                more: (params.page*data.pageSize) < data.total_count
+                            }
+                        }
+                    },
+                    cache:true
+                }
+            })
+            $('#kode_vendor').select2({
+                placeholder:'pilih kode item',
+                ajax: {
+                    url : base_url + '/web/list-vendor-accurate.php',
+                    type: 'POST',
+                    dataType:'json',
+                    delay:250,
+                    data: function (params) {
+                         console.log(params)
+                        return {
+                            q:params.term,
+                            page: params.page
+                        }
+                        
+                    },
+                    processResults:function (data,params){
+                       
+                        params.page = params.page || 1
+
+                        return {
+                            results : data.items,
+                            pagination:{
+                                more: (params.page*data.pageSize) < data.total_count
+                            }
+                        }
+                    },
+                    cache:true
+                }
+            })
+
+
+            // Inisialisasi select2 untuk kode_vendor dengan AJAX
+$('#kode_vendor').select2({
+    placeholder: 'Pilih kode vendor',
+    ajax: {
+        url: base_url + '/web/list-vendor-accurate.php',
+        type: 'POST',
+        dataType: 'json',
+        delay: 250,
+        data: function(params) {
+            return {
+                q: params.term,
+                page: params.page
+            };
+        },
+        processResults: function(data, params) {
+            params.page = params.page || 1;
+
+            return {
+                results: data.items,
+                pagination: {
+                    more: (params.page * data.pageSize) < data.total_count
+                }
+            };
+        },
+        cache: true
+    }
+});
+
+        // Event onchange saat vendor dipilih
+        $('#kode_vendor').on('change', function() {
+            var vendorVal = $(this).val();
+            console.log(vendorVal)
+            if (vendorVal) {
+                // Aktifkan select2 pada receive_number
+                $("#receive_number").select2({
+                    placeholder: "Pilih salah satu",
+                    allowClear: true
+                });
+
+                // Ambil data dari server berdasarkan kode_vendor yang dipilih
+                $.ajax({
+                    type: "POST",
+                    url: base_url + "/web/vendor-inven-terminal-new-list-receive-accurate.php",
+                    data: {
+                        "kode_vendor": vendorVal
+                    },
+                    dataType: "json",
+                    cache: false,
+                    success: function(response) {
+                        if (response.status == true) {
+                            var data = response.data;
+                            var optnya = '<option value=""></option>';
+
+                            $.each(data, function(index, value) {
+                                optnya += '<option value="' + value.id + ',' + value.number + '">' + value.number + ' (' + value.shipDateView + ')</option>';
+                            });
+
+                            $("#receive_number").html(optnya).trigger('change');
+                        }
+                    }
+                });
+            } else {
+                // Kalau tidak ada vendor terpilih
+                $('#receive_number').empty().trigger('change');
+
+                $("#receive_number").select2({
+                    placeholder: "Pilih vendor terlebih dahulu",
+                    allowClear: true
+                });
+            }
+        });
+
+
             /*$(".tbl_add_vendor").on("click", "a.addRow", function(){
             	var tabel 	= $(".tbl_add_vendor");
             	var rwTbl	= tabel.find('tbody > tr:last');

@@ -368,6 +368,9 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 			$con->setQuery($sql3);
 			$oke  = $oke && !$con->hasError();
 
+			$get_idpo = "SELECT id_accurate FROM pro_pr_detail a JOIN new_pro_inventory_vendor_po b on a.id_po_supplier=b.id_master where a.id_pr ='" . $idr . "'";
+			$id_po_acc = $con->getRecord($get_idpo);
+
 			$url  = BASE_URL_CLIENT . "/purchase-request.php";
 		} else {
 
@@ -522,7 +525,8 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 							'itemNo' => 'PBBKB',
 							'unitPrice' => $pbbkb,
 							'quantity' => $dt10,
-							'salesmanListNumber' => $kode_user['kode_accurate']
+							'salesmanListNumber' => $kode_user['kode_accurate'],
+							'departmentName'=> $row_inisial['nama_cabang']
 						];
 						$harga_dasar = $hd + $oa;
 					} else if ($jenis_penawaran == 'gabung_pbbkb') {
@@ -530,7 +534,8 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 							'itemNo' => 'NS-001',
 							'unitPrice' => $oa,
 							'quantity' => $dt10,
-							'salesmanListNumber' => $kode_user['kode_accurate']
+							'salesmanListNumber' => $kode_user['kode_accurate'],
+							'departmentName'=> $row_inisial['nama_cabang']
 						];
 						$harga_dasar = ($hd) + ($pbbkb);
 					} else if ($jenis_penawaran == 'break_all') {
@@ -539,13 +544,15 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 								'itemNo' => 'PBBKB',
 								'unitPrice' => $pbbkb,
 								'quantity' => $dt10,
-								'salesmanListNumber' => $kode_user['kode_accurate']
+								'salesmanListNumber' => $kode_user['kode_accurate'],
+								'departmentName'=> $row_inisial['nama_cabang']
 							],
 							[
 								'itemNo' => 'NS-001',
 								'unitPrice' => $oa,
 								'quantity' => $dt10,
-								'salesmanListNumber' => $kode_user['kode_accurate']
+								'salesmanListNumber' => $kode_user['kode_accurate'],
+								'departmentName'=> $row_inisial['nama_cabang']
 							]
 						];
 						$harga_dasar = $hd;
@@ -560,7 +567,8 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 9) {
 								'quantity'     => $dt10,
 								'unitPrice'    => $harga_dasar,
 								'warehouseName' => $row_inisial['inisial_cabang'],
-								'salesmanListNumber' => $kode_user['kode_accurate']
+								'salesmanListNumber' => $kode_user['kode_accurate'],
+								'departmentName'=> $row_inisial['nama_cabang']
 							];
 							// array_unshift($kode_customer_array[$kode_customer][$idplans]["items"], [
 							// 	'itemNo'       => $items['item']['no'],
@@ -861,35 +869,36 @@ $pesn .= "<p>" . BASE_SERVER . "</p>";
 
 
 if ($oke) {
-	// if ($ems1) {
-	// 	$rms1 = $con->getResult($ems1);
-	// 	$mail = new PHPMailer;
-	// 	$mail->isSMTP();
-	// 	$mail->Host = 'smtp.gmail.com';
-	// 	$mail->Port = 465;
-	// 	$mail->SMTPSecure = 'ssl';
-	// 	$mail->SMTPAuth = true;
-	// 	$mail->SMTPKeepAlive = true;
-	// 	$mail->Username = USR_EMAIL_PROENERGI202389;
-	// 	$mail->Password = PWD_EMAIL_PROENERGI202389;
+	if ($ems1) {
+		$rms1 = $con->getResult($ems1);
+		$mail = new PHPMailer;
+		$mail->isSMTP();
+		$mail->Host = 'smtp.gmail.com';
+		$mail->Port = 465;
+		$mail->SMTPSecure = 'ssl';
+		$mail->SMTPAuth = true;
+		$mail->SMTPKeepAlive = true;
+		$mail->Username = USR_EMAIL_PROENERGI202389;
+		$mail->Password = PWD_EMAIL_PROENERGI202389;
 
-	// 	$mail->setFrom(USR_EMAIL_PROENERGI202389, 'Pro-Energi');
-	// 	foreach ($rms1 as $datms) {
-	// 		$mail->addAddress($datms['email_user']);
-	// 	}
-	// 	$mail->Subject = $sbjk;
-	// 	$mail->msgHTML($pesn);
-	// 	$mail->send();
-	// }
+		$mail->setFrom(USR_EMAIL_PROENERGI202389, 'Pro-Energi');
+		foreach ($rms1 as $datms) {
+			$mail->addAddress($datms['email_user']);
+		}
+		$mail->Subject = $sbjk;
+		$mail->msgHTML($pesn);
+		$mail->send();
+	}
 
 	if ($id_po_acc['id_accurate'] != NULL || $id_po_acc['id_accurate'] != "") {
 		if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 5) {
 			if ($revisi_dr == 1) {
 				$sqlacc = 'select id_do_accurate,id_plan from pro_pr_detail where id_pr = "' . $idr . '"';
 				$id_accurate = $con->getResult($sqlacc);
-
+		
+				$oke=true;
 				foreach ($id_accurate as $res) {
-					if ($res['id_do_accurate'] != null) {
+					if ($res['id_do_accurate'] != null || $res['id_do_accurate'] != '') {
 						// Data yang akan dikirim dalam format JSON
 						$data = array(
 							'id' => $res['id_do_accurate'],
@@ -917,6 +926,11 @@ if ($oke) {
 								$update02 = 'update pro_po_customer_plan set id_accurate = NULL where id_plan = "' . $res['id_plan'] . '"';
 								$con->setQuery($update02);
 								$oke  = $oke && !$con->hasError();
+								
+								// $con->commit();
+								// $con->close();
+								// header("location: " . $url);
+								// exit();
 							} else {
 								$con->rollBack();
 								$con->clearError();
@@ -933,7 +947,7 @@ if ($oke) {
 				}
 
 
-				// if ($delete_accurate['s'] == true) {
+				// if ($oke) {
 				// 	$con->commit();
 				// 	$con->close();
 				// 	header("location: " . $url);
@@ -1061,7 +1075,7 @@ if ($oke) {
 										'itemNo'       => $item2['itemNo'],
 										'quantity'     => $item2['quantity'],
 										'salesOrderNumber' => $rowget_po['no_so'],
-
+										'departmentName'=> $item2['departmentName']
 									];
 
 									// Jika ada 'warehouseName', tambahkan ke data

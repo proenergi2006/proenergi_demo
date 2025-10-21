@@ -15,7 +15,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $section     = "PO Suplier";
     $idr = isset($enk["idr"]) ? htmlspecialchars($enk["idr"], ENT_QUOTES) : '';
     $sql = "
-			select a.*, a1.id_po_supplier, b.jenis_produk, b.merk_dagang, d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, f.keterangan_resubmission
+			select a.*, a1.id_po_supplier, b.jenis_produk, b.merk_dagang, d.nama_vendor, e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, f.keterangan_resubmission, a1.volume_terima 
 			from new_pro_inventory_vendor_po a 
 			join pro_master_produk b on a.id_produk = b.id_master 
 			join pro_master_vendor d on a.id_vendor = d.id_master 
@@ -438,7 +438,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                         <label class="control-label col-md-3">Volume PO *</label>
                                         <div class="col-md-5">
                                             <div class="input-group">
-                                                <input type="text" id="dt10" name="dt10" class="form-control hitung1" value="<?php echo $dt10; ?>" required />
+                                                <input type="text" id="dt10" name="dt10" class="form-control hitung1" value="<?php echo $dt10; ?>" required <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> />
                                                 <span class="input-group-addon" style="font-size:12px;">Liter</span>
                                             </div>
                                         </div>
@@ -453,11 +453,11 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                         <div class="col-md-5">
                                             <div class="input-group">
                                                 <span class="input-group-addon" style="font-size:12px;">Rp.</span>
-                                                <input type="text" id="dt8" name="dt8" class="form-control hitung" required value="<?php echo $dt8; ?>" />
+                                                <input type="text" id="dt8" name="dt8" class="form-control hitung" required value="<?php echo $dt8; ?>" <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> />
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <select name="kategori_oa" id="kategori_oa" class="form-control">
+                                            <select name="kategori_oa" id="kategori_oa" class="form-control" <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> >
                                                 <option <?php echo $kategori_oa == 1 ? "selected" : "" ?> value="1">Tanpa OA</option>
                                                 <option <?php echo $kategori_oa == 2 ? "selected" : "" ?> value="2">Dengan OA</option>
                                             </select>
@@ -473,7 +473,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Jenis OA *</label>
                                         <div class="col-md-5">
-                                            <select name="jenis_oa" id="jenis_oa" class="form-control select2" style="width:100%;" value="<?php echo $is_biaya; ?>" required>
+                                            <select name="jenis_oa" id="jenis_oa" class="form-control select2" style="width:100%;" value="<?php echo $is_biaya; ?>" <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?>  required>
                                                 <option value=""></option>
                                                 <option <?php echo $is_biaya == 1 ? "selected" : "" ?> value="1">Sebagai Biaya</option>
                                                 <option <?php echo $is_biaya == 0 ? "selected" : "" ?> value="0">Sebagai Kode Item</option>
@@ -521,7 +521,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Kategori Plat *</label>
                                         <div class="col-md-4">
-                                            <select name="kategori_plat" id="kategori_plat" class="form-control select2" style="width:100%;">
+                                            <select name="kategori_plat" id="kategori_plat" class="form-control select2" style="width:100%;" <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> >
                                                 <option></option>
                                                 <option value="Hitam" <?= $kategori_plat == "Hitam" ? 'selected' : '' ?>>Hitam</option>
                                                 <option value="Kuning" <?= $kategori_plat == "Kuning" ? 'selected' : '' ?>>Kuning</option>
@@ -701,7 +701,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-4">PBBKB *</label>
                                         <div class="col-md-6">
-                                            <select name="pbbkb_tawar" id="pbbkb_tawar" class="form-control select2" required>
+                                            <select name="pbbkb_tawar" id="pbbkb_tawar" class="form-control select2" required <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> >
                                                 <option></option>
                                                 <?php $con->fill_select("nilai_pbbkb", "concat(nilai_pbbkb, ' %')", "pro_master_pbbkb", $rsm['nilai_pbbkb'], "", "", false); ?>
                                             </select>
@@ -812,7 +812,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                                     <div class="form-group form-group-sm">
                                         <label class="control-label col-md-3">Catatan PO*</label>
                                         <div class="col-md-8">
-                                            <textarea id="ket" name="ket" class="form-control" required><?php echo $ket; ?></textarea>
+                                            <textarea id="ket" name="ket" class="form-control" required <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> ><?php echo $ket; ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -820,16 +820,17 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
 
                             <!-- Catatan apabila Pengajuan Ulang setelah verifikasi CEO -->
                             <?php if ($rsm['ceo_result'] == 1 && $rsm['revert_ceo'] == 0) { ?>
-
+                                
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <div class="form-group form-group-sm">
+                                        <div class="form-group form-group-sm ">
                                             <label class="control-label col-md-3">Catatan Pengajuan Ulang PO *</label>
                                             <div class="col-md-8">
-                                                <textarea id="ket_resubmission" name="ket_resubmission" class="form-control" required></textarea>
+                                                <textarea id="ket_resubmission" name="ket_resubmission" class="form-control" <?= ($rsm['volume_terima'] != 0) ? 'disabled' : '' ?> required></textarea>
                                             </div>
                                         </div>
                                     </div>
+                                   
                                     <div class="col-md-4">
                                         <div class="form-group form-group-sm">
                                             <label><u>Keterangan Pengajuan Ulang Terakhir:</u></label>
@@ -902,9 +903,13 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
                             <div style="margin-bottom:15px;">
                                 <input type="hidden" name="act" value="<?php echo $action; ?>" />
                                 <input type="hidden" name="idr" value="<?php echo $idr; ?>" />
+                              
+                                 <?php if ($rsm['volume_terima'] == 0) { ?>
                                 <button type="submit" class="btn btn-primary jarak-kanan <?= ($is_ceo == '1' && $revert == '0') ? 'hide' : '' ?>" name="btnSbmt" id="btnSbmt" style="min-width:90px;">
                                     <i class="fa fa-save jarak-kanan"></i> Simpan</button>
+                                <?php } ?>
 
+                                   
                                 <a href="<?php echo BASE_URL_CLIENT . '/vendor-po-new.php'; ?>" class="btn btn-default" style="min-width:90px;">
                                     <i class="fa fa-reply jarak-kanan"></i> Kembali</a>
                             </div>
@@ -2001,7 +2006,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             }
             if (kodeAccurate.biaya_iuran) {
                 var option = new Option(kodeAccurate.biaya_iuran+' '+kodeAccurate.biaya_iuran_name,kodeAccurate.biaya_iuran, true, true);
-                 $('#kode_biaya2').append(option).trigger('change');
+                 $f('#kode_biaya2').append(option).trigger('change');
             }
             if (kodeAccurate.biaya_pph22) {
                 var option = new Option(kodeAccurate.biaya_pph22+' '+kodeAccurate.biaya_pph22_name,kodeAccurate.biaya_pph22, true, true);
