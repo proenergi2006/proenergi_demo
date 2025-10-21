@@ -203,6 +203,9 @@ if ($tot_record <= 0) {
 
 
             if ($data['ceo_result'] == 1 && $data['revert_ceo'] == 0) {
+                if ($data['vol_terima'] != 0) {
+                    $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-search-plus"></i></a>';
+                }
                 $content .= '
 				<div class="btn-group jarak-kanan">
 				<button type="button" class="margin-sm btn btn-action btn-success"><i class="fa fa-print"></i></button>

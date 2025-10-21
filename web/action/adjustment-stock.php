@@ -24,6 +24,7 @@ $adj_inven             = ($adj_inven ? $adj_inven : 0);
 
 //Tambahan fields untuk accurate
 $nomor_penyesuaian   = htmlspecialchars($_POST["nomor_penyesuaian"], ENT_QUOTES);
+$nomor_penyesuaian_terima   = htmlspecialchars($_POST["nomor_penyesuaian_terima"], ENT_QUOTES);
 $kode_vendor         = htmlspecialchars($_POST["kode_vendor"], ENT_QUOTES);
 $kode_ri            = htmlspecialchars($_POST["receive_number"], ENT_QUOTES);
 $array_id           = explode(',', $kode_ri);
@@ -191,14 +192,16 @@ if ($act == 'add') {
                     'itemNo'             => $kode_item,
                     'quantity'           => $adj_inven,
                     'unitCost'           => $harga_liter,
-                    'warehouseName'      => $nama_gudang['inisial_cabang']
+                    'warehouseName'      => $nama_gudang['inisial_cabang'],
+                    'departmentName'     => $nama_gudang['nama_cabang']
                 );
             } else {
                 $detailItem = array(
                     'itemAdjustmentType' => "ADJUSTMENT_OUT",
                     'itemNo'             => $kode_item,
                     'quantity'           => $adj_inven,
-                    'warehouseName'      => $nama_gudang['inisial_cabang']
+                    'warehouseName'      => $nama_gudang['inisial_cabang'],
+                    'departmentName'     => $nama_gudang['nama_cabang']
                 );
             }
 
@@ -247,7 +250,8 @@ if ($act == 'add') {
                     'itemAdjustmentType' => "ADJUSTMENT_OUT",
                     'itemNo'             => $kode_item,
                     'quantity'           => $tank_satu_total,
-                    'warehouseName'      => $nama_gudang['inisial_cabang']
+                    'warehouseName'      => $nama_gudang['inisial_cabang'],
+                    'departmentName'     => $nama_gudang['nama_cabang']
                 ]),
             );
             // Mengonversi data menjadi format JSON
@@ -263,7 +267,7 @@ if ($act == 'add') {
                 $nama_gudang2 = $con->getRecord($get_gudang2);
 
                 $data2 = array(
-                    'number'                => $nomor_penyesuaian,
+                    'number'                => $nomor_penyesuaian_terima,
                     'adjustmentAccountNo'   => $akun_penyesuaian,
                     'transDate'             => $tgl_penerimaan,
                     'description'           => $keterangan,
@@ -273,7 +277,8 @@ if ($act == 'add') {
                         'itemNo'             => $kode_item_terima,
                         'quantity'           => $tank_satu_total,
                         'unitCost'           => $harga_transfer,
-                        'warehouseName'      => $nama_gudang2['inisial_cabang']
+                        'warehouseName'      => $nama_gudang2['inisial_cabang'],
+                        'departmentName'     => $nama_gudang['nama_cabang']
                     ]),
                 );
                 // Mengonversi data menjadi format JSON
@@ -314,6 +319,7 @@ if ($act == 'add') {
             if ($result_item['s'] == true) {
                 $url_retur = 'https://zeus.accurate.id/accurate/api/purchase-return/save.do';
                 $data = array(
+                    'number'            => $nomor_penyesuaian,
                     'receiveItemNumber' => $receive_number,
                     'returnType'        => 'RECEIVE',
                     'transDate'         => $tgl,
@@ -322,7 +328,8 @@ if ($act == 'add') {
                     'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
                     'detailItem'        => array([
                         'itemNo'       => strval($result_item['d']['detailItem'][0]['item']['no']),
-                        'quantity'     => $adj_inven_return
+                        'quantity'     => $adj_inven_return,
+                        'departmentName'=> $nama_gudang['nama_cabang']
                     ]),
                 );
 
