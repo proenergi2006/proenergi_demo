@@ -290,9 +290,7 @@ $row = $con->getRecord($cek);
             $("#modal_list_title").text(isPenawaran ? "Daftar Penawaran" : "Daftar PO");
             $("#modal_list_table_wrap").empty();
             $("#modal_list_loading").show();
-            $("#modal_list").modal({
-                backdrop: "static"
-            });
+            $("#modal_list").modal({});
 
             $.ajax({
                     method: "POST",
@@ -327,7 +325,7 @@ $row = $con->getRecord($cek);
                             html += "</tr>";
                         }
                     } else {
-                        html += "<tr><td align='center' colspan='2'> Data tidak ditemukan </td></tr>";
+                        html += "<tr><td align='center' colspan='3'> Data tidak ditemukan </td></tr>";
                     }
                     $("#listResult").html(html);
                 })

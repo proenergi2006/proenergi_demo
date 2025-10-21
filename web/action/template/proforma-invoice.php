@@ -333,48 +333,57 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
         if ($row_poc['biaya_ppn'] == "all_in") {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
             $total_pbbkb = 0;
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut + $pbbkb) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn;
         } elseif ($row_poc['biaya_ppn'] == "gabung_oa") {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
             $total_pbbkb = 0;
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut + $pbbkb) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn;
         } else {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         }
     } else {
         if ($row_poc['biaya_ppn'] == "all_in") {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkb") {
             $total_pbbkb = 0;
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut + $pbbkb) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn;
         } elseif ($row_poc['biaya_ppn'] == "gabung_oa") {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         } elseif ($row_poc['biaya_ppn'] == "gabung_pbbkboa") {
             $total_pbbkb = 0;
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut + $pbbkb) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn;
         } else {
             $total_pbbkb = $pbbkb * $row_poc['volume_poc'];
             $total_ppn = $ppn * $row_poc['volume_poc'];
+            $dppnya = ($harga_dasar + $ongkos_angkut) * $row_poc['volume_poc'];
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
         }
     }
-    $sub_total_hsd = $harga_dasar * $row_poc['volume_poc'];
     ?>
 
     <tbody>
@@ -432,7 +441,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 </b>
             </td>
             <td align="right">
-                <?= number_format(($sub_total_hsd * 11) / 12) ?>
+                <?= number_format(($dppnya * 11) / 12) ?>
             </td>
         </tr>
         <tr>
