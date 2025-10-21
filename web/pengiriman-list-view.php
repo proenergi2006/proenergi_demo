@@ -21,7 +21,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
     $flash->add("warning", "Akses ditolak.", BASE_URL_CLIENT . "/home.php");
     // exit();
 }
-
+$linkEx1 = BASE_URL_CLIENT . '/report/pengiriman-view-truck-exp.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,10 +56,7 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control input-sm" name="q1" id="q1" placeholder="Keywords..." />
                                 </div>
-
-
                                 <div class="col-sm-3 col-sm-top">
-
                                     <select id="q2" name="q2" class="form-control">
                                         <option></option>
                                         <option value="1">Tanggal PO Customer</option>
@@ -67,28 +64,19 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
                                         <option value="3">Tanggal ETL</option>
                                         <option value="4">Tanggal ETA</option>
                                     </select>
-
-
                                 </div>
                                 <div class="col-sm-3 col-sm-top">
-
                                     <div class="input-group">
                                         <span class="input-group-addon">Periode</span>
                                         <input type="text" name="q3" id="q3" class="form-control input-sm datepicker" autocomplete="off" />
                                     </div>
-
-
-
                                 </div>
-
                                 <div class="col-sm-3 col-sm-top">
                                     <div class="input-group">
                                         <span class="input-group-addon">S/D</span>
                                         <input type="text" name="q4" id="q4" class="form-control input-sm datepicker" autocomplete="off" />
                                     </div>
-
                                 </div>
-
                             </div>
                             <div class="form-group row">
                                 <?php
@@ -117,8 +105,11 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
                                         <option value="4">Cancel</option>
                                     </select>
                                 </div>
-                                <div class="col-sm-3 col-sm-top">
+                                <div class="col-sm-1 col-sm-top">
                                     <button type="submit" class="btn btn-info btn-sm" name="btnSearch1" id="btnSearch1" style="width:80px;">Cari</button>
+                                </div>
+                                <div class="col-sm-1 col-sm-top">
+                                    <a href="<?php echo $linkEx1; ?>" class="btn btn-success btn-sm" target="_blank" id="expData1">Export Data</a>
                                 </div>
                             </div>
                         </form>
@@ -564,6 +555,9 @@ if (!in_array(paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']), $require
             });
             $('#tableGridLength2').on('change', function() {
                 $("#data-kapal-table").ajaxGrid("pageLen", $(this).val());
+            });
+            $('#expData1').on('click', function() {
+                $(this).prop("href", $("#uriExp").val());
             });
         });
     </script>

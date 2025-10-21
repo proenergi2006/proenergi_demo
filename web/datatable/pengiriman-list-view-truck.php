@@ -21,6 +21,8 @@ $q5	= isset($_POST["q5"]) ? htmlspecialchars($_POST["q5"], ENT_QUOTES) : '';
 $q6	= isset($_POST["q6"]) ? htmlspecialchars($_POST["q6"], ENT_QUOTES) : '';
 $q7	= isset($_POST["q7"]) ? htmlspecialchars($_POST["q7"], ENT_QUOTES) : '';
 
+$linkExport = BASE_URL_CLIENT . '/report/pengiriman-view-truck-exp.php?' . paramEncrypt('q1=' . $q1 . '&q2=' . $q2 . '&q3=' . $q3 . '&q4=' . $q4 . '&q5=' . $q5);
+
 $p = new paging;
 $sql = "select a.*, c.pr_pelanggan, c.no_do_syop, i.nama_customer, i.id_wilayah, i.id_group, e.alamat_survey, f.nama_prov, g.nama_kab, j.fullname, n.nama_transportir, n.nama_suplier, b.no_spj, k.nomor_plat, k.link_gps,
 			l.nama_sopir, b.volume_po, h.produk_poc, p.id_area, c.pr_vendor, r.nama_terminal, r.tanki_terminal, r.lokasi_terminal, s.wilayah_angkut, m.nomor_po, m.tanggal_po, 
@@ -93,7 +95,7 @@ $sql .= "  order by a.tanggal_loading desc, a.jam_loading, a.nomor_urut_ds, a.id
 $content = "";
 $count = 0;
 if ($tot_record <= 0) {
-	$content .= '<tr><td colspan="7" style="text-align:center">Data tidak ditemukan </td></tr>';
+	$content .= '<tr><td colspan="7" style="text-align:center"><input type="hidden" id="uriExp" value="' . $linkExport . '" />Data tidak ditemukan </td></tr>';
 } else {
 	$count 		= $position;
 	$tot_page 	= ceil($tot_record / $length);
@@ -303,16 +305,14 @@ if ($tot_record <= 0) {
 					<td class="text-left">
 						<p style="margin-bottom:0px"><b>Delivery Order : </b>' . $data['no_do_syop'] . '</b></p>
 						<p style="margin-bottom:0px"><b>Loading Order : </b>' . ($data['nomor_lo_pr'] ? $data['nomor_lo_pr'] : 'N/A') . '</p>
-	
 					</td>
-					
 					<td class="text-left">
 						<p style="margin-bottom:0px"><b>' . $terminal . '</b></p>
 						<p style="margin-bottom:0px">' . $nomor_segel . '</p>
 						<p style="margin-bottom:0px">ETL : ' . tgl_indo($data['tanggal_loading'], 'short') . ' ' . date("H:i", strtotime($data['jam_loading'])) . '</p>
 						<p style="margin-bottom:0px">ETA : ' . tgl_indo($data['tgl_eta_po'], 'short') . ' ' . date("H:i", strtotime($data['jam_eta_po'])) . '</p>
 					</td>
-					<td class="text-left">' . $status . '<hr>' . $status_loaded . '</td>
+					<td class="text-left">' . $status . '<hr>' . $status_loaded . '<input type="hidden" id="uriExp" value="' . $linkExport . '" /></td>
 					<td class="text-center action">
 						<a class="' . $classLink . ' margin-sm btn btn-action btn-info" title="' . $titleLink . '" data-param="' . $linkList . '"><i class="fa fa-info-circle"></i></a>
 						' . $btnHistoryTrack . '

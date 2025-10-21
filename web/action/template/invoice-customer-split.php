@@ -554,16 +554,18 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 0
             </td>
         </tr>
-        <tr>
-            <td colspan="4" class="b2" align="right">
-                <b>
-                    DPP
-                </b>
-            </td>
-            <td align="right">
-                <?= number_format(($sub_total * 11) / 12) ?>
-            </td>
-        </tr>
+        <?php if ($tipe != "split_pbbkb") : ?>
+            <tr>
+                <td colspan="4" class="b2" align="right">
+                    <b>
+                        DPP
+                    </b>
+                </td>
+                <td align="right">
+                    <?= number_format(($sub_total * 11) / 12) ?>
+                </td>
+            </tr>
+        <?php endif ?>
         <tr>
             <td colspan="4" class="b2" align="right">
                 <b>

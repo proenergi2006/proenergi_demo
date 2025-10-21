@@ -440,7 +440,7 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                 </b>
             </td>
             <td align="right">
-                <?= number_format(($sub_total_hsd * 11) / 12) ?>
+                <?= number_format(($sub_total * 11) / 12) ?>
             </td>
         </tr>
         <tr>
