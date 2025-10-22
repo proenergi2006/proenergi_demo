@@ -382,7 +382,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             }
 
             $sub_total = $total_harga + $total_harga_oa;
-            $sub_total_hsd = $harga_asli * $total_vol_kirim;
+            $sub_total_hsd = ($harga_asli + $ongkos_angkut) * $total_vol_kirim;
             $total_ppn = round($ppn * $total_vol_kirim);
             $grand_total = $sub_total + $total_ppn + $total_harga_pbbkb;
             ?>
@@ -672,7 +672,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             <b>
                 <i>
                     Keterlambatan atas pembayaran yang telah jatuh tempo dikenakan denda
-                    keterlambatan sebesar 0,05% per hari
+                    keterlambatan sebesar 0,03% per hari
                 </i>
             </b>
         </td>

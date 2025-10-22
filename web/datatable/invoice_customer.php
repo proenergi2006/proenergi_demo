@@ -431,7 +431,7 @@ if ($tot_record == 0) {
 		}
 
 		if ($data['jenis'] == "all_in") {
-			if ($result02['gabung_pbbkb'] == 0) {
+			if ($result02['gabung_pbbkb'] == 0 && $result02['gabung_pbbkboa'] == 0) {
 				$btnCetak = '<div class="btn-group">
 				<a class="btn btn-primary btn-sm" href="#">
 					<i class="fa fa-print"></i>

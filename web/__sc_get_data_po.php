@@ -154,7 +154,7 @@ $linkCetak_all = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('
                             <li>
                                 <a target="_blank" href="<?= $linkCetak_oa ?>">Breakdown OA</a>
                             </li>
-                            <?php if ($rsm['gabung_pbbkb'] == 0) : ?>
+                            <?php if ($rsm['gabung_pbbkb'] == 0 && $rsm['gabung_pbbkboa'] == 0) : ?>
                                 <li>
                                     <a target="_blank" href="<?= $linkCetak_pbbkb ?>">Breakdown PBBKB</a>
                                 </li>
