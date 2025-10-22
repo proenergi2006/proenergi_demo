@@ -933,7 +933,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             <b>
                 <i>
                     Keterlambatan atas pembayaran yang telah jatuh tempo dikenakan denda
-                    keterlambatan sebesar 0,05% per hari
+                    keterlambatan sebesar 0,03% per hari
                 </i>
             </b>
         </td>

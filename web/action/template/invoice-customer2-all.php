@@ -488,7 +488,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 </b>
             </td>
             <td align="right">
-                <?= number_format(($sub_total_hsd * 11) / 12) ?>
+                <?= number_format((($sub_total_hsd + $sub_total_oa) * 11) / 12) ?>
             </td>
         </tr>
         <tr>
@@ -695,7 +695,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             <b>
                 <i>
                     Keterlambatan atas pembayaran yang telah jatuh tempo dikenakan denda
-                    keterlambatan sebesar 0,05% per hari
+                    keterlambatan sebesar 0,03% per hari
                 </i>
             </b>
         </td>

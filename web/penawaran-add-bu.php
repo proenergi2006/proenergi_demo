@@ -651,74 +651,29 @@ if ($idk != "") {
                             </div>
                         </div>
 
-                        <style>
-                            /* bikin lebar full & teks bisa turun baris */
-                            .input-group {
-                                width: 100%;
-                            }
-
-                            .form-control.as-label {
-                                height: auto;
-                                /* biar nambah tinggi saat teks panjang */
-                                min-height: 34px;
-                                /* setara tinggi control kecil */
-                                white-space: normal;
-                                /* boleh wrapping */
-                                word-break: break-word;
-                                /* paksa patah kalau ada kata panjang */
-                            }
-
-                            .input-group-addon.chk {
-                                position: relative;
-                                /* jadi kontainer posisi */
-                                width: 40px;
-                                /* opsional: bikin kotaknya konsisten */
-                                background: #fff;
-                                /* biar sama seperti sebelumnya */
-                            }
-
-                            .input-group-addon.chk input {
-                                position: absolute;
-                                top: 50%;
-                                left: 50%;
-                                transform: translate(-50%, -50%);
-                                /* center horizontal + vertical */
-                                margin: 0;
-                            }
-                        </style>
-
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="form-group form-group-sm">
                                     <div class="col-md-12">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-addon chk">
-                                                <input type="checkbox"
-                                                    name="gabung_oa" id="gabung_oa" value="1"
-                                                    <?= ($rsm['gabung_oa'] == 1) ? 'checked' : '' ?>
-                                                    <?= $seswil == 4 ? 'disabled' : '' ?>>
+                                            <span class="input-group-addon" style="background-color:#fff;">
+                                                <input type="checkbox" name="gabung_oa" id="gabung_oa" value="1" <?php echo ($rsm['gabung_oa'] == 1) ? 'checked' : ''; ?> <?= $seswil == 4 ? 'disabled' : '' ?> />
                                             </span>
-                                            <label for="gabung_oa"
-                                                class="form-control as-label"
-                                                data-disabled="<?= $seswil == 4 ? '1' : '0' ?>">
-                                                Harga Dasar Termasuk Ongkos Angkut ?
-                                                <i>(Beri Tanda check jika memang digabung) (PBBKB tidak kena PPN)</i>
-                                            </label>
+                                            <div class="form-control" style="min-height:34px;">Harga Dasar Termasuk Ongkos Angkut ? <i>(Beri Tanda check jika memang digabung)</i></div>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="col-md-4">
                                 <div class="form-group form-group-sm">
                                     <div class="col-md-12">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-addon chk">
-                                                <input type="checkbox"
-                                                    name="all_in" id="all_in" value="1"
-                                                    <?= ($rsm['all_in'] == 1) ? 'checked' : '' ?>>
+                                            <span class="input-group-addon" style="background-color:#fff;">
+                                                <input type="checkbox" name="all_in" id="all_in" value="1" <?php echo ($rsm['all_in'] == 1) ? 'checked' : ''; ?> />
                                             </span>
-                                            <label for="all_in" class="form-control as-label">All In</label>
+                                            <div class="form-control" style="min-height:34px;">All In </i></div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -730,34 +685,34 @@ if ($idk != "") {
                                 <div class="form-group form-group-sm">
                                     <div class="col-md-12">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-addon chk">
-                                                <input type="checkbox" name="gabung_pbbkb" id="gabung_pbbkb"
-                                                    value="1" <?= ($rsm['gabung_pbbkb'] == 1) ? 'checked' : '' ?>>
+                                            <span class="input-group-addon" style="background-color:#fff;">
+                                                <input type="checkbox" name="gabung_pbbkb" id="gabung_pbbkb" value="1" <?php echo ($rsm['gabung_pbbkb'] == 1) ? 'checked' : ''; ?> />
                                             </span>
-                                            <label for="gabung_pbbkb" class="form-control as-label">
-                                                Harga Dasar Termasuk PBBKB ? <i>(Beri Tanda check jika memang digabung) (PBBKB Kena PPN)</i>
-                                            </label>
+                                            <div class="form-control" style="min-height:34px;">Harga Dasar Termasuk PBBKB ? <i>(Beri Tanda check jika memang digabung)</i></div>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
+
                             <div class="col-md-6">
                                 <div class="form-group form-group-sm">
                                     <div class="col-md-12">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-addon chk">
-                                                <input type="checkbox" name="gabung_pbbkboa" id="gabung_pbbkboa"
-                                                    value="1" <?= ($rsm['gabung_pbbkboa'] == 1) ? 'checked' : '' ?>>
+                                            <span class="input-group-addon" style="background-color:#fff;">
+                                                <input type="checkbox" name="gabung_pbbkboa" id="gabung_pbbkboa" value="1" <?php echo ($rsm['gabung_pbbkboa'] == 1) ? 'checked' : ''; ?> />
                                             </span>
-                                            <label for="gabung_pbbkboa" class="form-control as-label">
-                                                Harga Dasar Termasuk PBBKB + OA ? <i>(Beri Tanda check jika memang digabung) (PBBKB tidak kena PPN)</i>
-                                            </label>
+                                            <div class="form-control" style="min-height:34px;">Harga Dasar Termasuk PBBKB + OA ? <i>(Beri Tanda check jika memang digabung)</i></div>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
+
+
 
                         <div class="table-responsive">
                             <table class="table table-bordered tblHarga">
@@ -1398,9 +1353,6 @@ if ($idk != "") {
             $("#gabung_pbbkb").on("ifChanged", function(e) {
                 hitungTotal();
             });
-            $("#gabung_pbbkboa").on("ifChanged", function(e) {
-                hitungTotal();
-            });
 
             function hitungTotal() {
                 var pendapatan = 0,
@@ -1423,7 +1375,7 @@ if ($idk != "") {
                             t3 = (t1 + t2 + t4) * (($("#clcHarga3").val() * 1) / 100);
                         } else if (gabung_pbbkboa) {
                             t4 = t1 * (($("#clcHarga4").val() * 1) / 100);
-                            t3 = (t1 + t2) * (($("#clcHarga3").val() * 1) / 100);
+                            t3 = (t1 + t2 + t4) * (($("#clcHarga3").val() * 1) / 100);
                         } else {
                             t3 = (t1 + t2) * (($("#clcHarga3").val() * 1) / 100);
                         }
