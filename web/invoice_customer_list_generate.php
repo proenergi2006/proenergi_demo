@@ -43,7 +43,7 @@ $sql = "
 		a.nomor_do AS no_dn, k.nomor_plat AS angkutan, l.nama_sopir AS sopir,
 		c.no_do_syop, c.no_do_acurate, c.nomor_lo_pr,
 		n.refund_tawar, n.nomor_surat,
-		IF(n.gabung_oa=1,'gabung_oa', IF(n.all_in=1,'all_in', IF(n.gabung_pbbkb,'gabung_pbbkb', IF(n.gabung_pbbkboa=1,'gabung_pbbkboa','all_in')))) AS biaya_ppn
+		IF(n.gabung_oa=1,'gabung_oa', IF(n.all_in=1,'all_in', IF(n.gabung_pbbkb,'gabung_pbbkb', IF(n.gabung_pbbkboa=1,'gabung_pbbkboa','break_all')))) AS biaya_ppn
 		from pro_po_ds_detail a 
 		join pro_po_ds o on a.id_ds = o.id_ds 
 		join pro_po_detail b on a.id_pod = b.id_pod 
