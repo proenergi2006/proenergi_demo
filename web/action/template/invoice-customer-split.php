@@ -494,7 +494,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     $total_ppn = $hitung_ppn * $total_vol_kirim;
                 }
                 $produk = $res03['produk'];
-                $sub_total = $total_harga;
+                $sub_total = $total_harga + $total_pbbkb;
                 // if ($key['pembulatan'] == 1) {
                 //     $hitung_ppn = round(($harga_kirim * $nilai_ppn) / 100);
                 // } else {

@@ -658,6 +658,17 @@ if ($idr != "" && $idk != "") {
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group form-group-sm">
+										<label class="control-label col-md-4">Catatan</label>
+										<div class="col-md-6">
+											<textarea class="form-control" name="keterangan" id="keterangan"></textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group form-group-sm">
 										<label class="control-label col-md-4">Total Order</label>
 										<div class="col-md-6">
 											<?php

@@ -108,9 +108,11 @@ $linkEx1 = BASE_URL_CLIENT . '/report/pengiriman-view-truck-exp.php';
                                 <div class="col-sm-1 col-sm-top">
                                     <button type="submit" class="btn btn-info btn-sm" name="btnSearch1" id="btnSearch1" style="width:80px;">Cari</button>
                                 </div>
-                                <div class="col-sm-1 col-sm-top">
-                                    <a href="<?php echo $linkEx1; ?>" class="btn btn-success btn-sm" target="_blank" id="expData1">Export Data</a>
-                                </div>
+                                <?php if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) == "11" || paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) == "4") : ?>
+                                    <div class="col-sm-1 col-sm-top">
+                                        <a href="<?php echo $linkEx1; ?>" class="btn btn-success btn-sm" target="_blank" id="expData1">Export Data</a>
+                                    </div>
+                                <?php endif ?>
                             </div>
                         </form>
 
