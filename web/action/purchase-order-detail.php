@@ -23,6 +23,7 @@ if ($tombol == 1) {
 	$arrDepo 	= array();
 	$ada_oa 	= 0;
 	$jum_po 	= 0;
+	$kode_accurate_array = [];
 
 	foreach ($_POST["dt1"] as $idx => $val) {
 		$no_urut_po 	= htmlspecialchars($_POST['dt1'][$idx], ENT_QUOTES);
@@ -40,10 +41,25 @@ if ($tombol == 1) {
 		$multidrop_po 	= htmlspecialchars($_POST['dt12'][$idx], ENT_QUOTES);
 		$ket_po 		= htmlspecialchars($_POST['dt13'][$idx], ENT_QUOTES);
 		$tgl_kirim_po 	= htmlspecialchars($_POST['dt14'][$idx], ENT_QUOTES);
+		$id_do_acc 		= htmlspecialchars($_POST['doAcc'][$idx], ENT_QUOTES);
 		$volume_po 		= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dt15'][$idx]), ENT_QUOTES);
 		$ongkos_po_real = htmlspecialchars(str_replace(array(","), array(""), $_POST['dt16'][$idx]), ENT_QUOTES);
 		$ongkos_po_real = ($ongkos_po_real ? $ongkos_po_real : '0');
 
+		$kode_accurate_array[$no_urut_po]['id_pod'] = $idx;
+		$kode_accurate_array[$no_urut_po]['tgl'] =$tgl_etl_po ;
+		$kode_accurate_array[$no_urut_po]['id_do_accurate'] =$id_do_acc;
+		
+
+		$get_mobil = "SELECT no_proyek FROM pro_master_transportir_mobil WHERE id_master = '".$mobil_po."' and id_transportir in (1,2,3,4,5,28,63,105,180,99)";
+		$row_mobil = $con->getOne($get_mobil);
+		
+		if($row_mobil){
+			$kode_accurate_array[$no_urut_po]['mobil_po']=$row_mobil;
+		}else{
+			$kode_accurate_array[$no_urut_po]['mobil_po']= 'NULL';
+		}
+	
 
 		if ($ongkos_po_real > $ongkos_po) {
 			$con->rollBack();
@@ -177,11 +193,144 @@ if ($tombol == 1) {
 			$mail->msgHTML(paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . " meminta anda untuk melakukan verifikasi PO<p>" . BASE_SERVER . "</p>");
 			//$mail->send();
 		}
+		
+  		$allSuccess = true;
+		
+		foreach ($kode_accurate_array as $i => $subData) {
+			if($subData['id_do_accurate']!=null || $subData['id_do_accurate']!=''){
+				
+				$cekidacc = "SELECT b.id_accurate, b.no_so, a.id_do_accurate, a.no_do_syop, d.kode_pelanggan,e.nama_cabang
+                FROM pro_po_detail pod 
+                JOIN pro_pr_detail a ON pod.id_plan=a.id_plan
+                JOIN pro_po_customer_plan b ON a.id_plan = b.id_plan
+                JOIN pro_po_customer c ON b.id_poc = c.id_poc
+                JOIN pro_penawaran p ON p.id_penawaran = c.id_penawaran
+                JOIN pro_customer d ON c.id_customer = d.id_customer
+                JOIN pro_master_cabang e ON p.id_cabang = e.id_master
+		        WHERE pod.id_pod='" . $subData['id_pod'] . "'";
+        		$getidacc = $con->getRecord($cekidacc);
 
-		$con->commit();
-		$con->close();
-		header("location: " . $url);
-		exit();
+				$query = http_build_query([
+					'id' => $getidacc['id_accurate'],
+				]);
+
+				$urlnya = 'https://zeus.accurate.id/accurate/api/sales-order/detail.do?' . $query;
+
+				$result_detail = curl_get($urlnya);
+
+				$dataItem = [];
+				$dataItemDO = [];
+				foreach ($result_detail['d']['detailItem'] as $item) {
+					$detail = [
+						'id'     		=> $item['id'],
+						'itemNo'     	=> $item['item']['no'],
+						'quantity'   	=> $item['quantity'],
+						'unitPrice'  	=> $item['unitPrice'],
+						'departmentName'=> $item['department']['name'],
+					];
+
+					if ($subData['mobil_po'] !== 'NULL') {
+						$detail['projectNo'] = $subData['mobil_po'];
+					}
+
+					$dataItem['detailItem'][] = $detail;
+				}
+				$urlnya_so = 'https://zeus.accurate.id/accurate/api/sales-order/save.do';
+				// Data yang akan dikirim dalam format JSON
+				$data_so = array(
+					"id"                => $getidacc['id_accurate'],
+					"customerNo"        => $getidacc['kode_pelanggan'],
+					"number"            => $getidacc['no_so'],
+					"transDate"         => $result_detail['d']['transDate'],
+					"branchName"        => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
+					"detailItem"       	=> $dataItem['detailItem']
+				);
+				$jsonData_so = json_encode($data_so);
+				
+				$result_so = curl_post($urlnya_so, $jsonData_so);
+				// var_dump($result_so);
+				// exit;
+
+				if ($result_so['s'] == true) {
+					
+						$query_do = http_build_query([
+							'id' => $subData['id_do_accurate'],
+						]);
+
+						$urlnya_do = 'https://zeus.accurate.id/accurate/api/delivery-order/detail.do?' . $query_do;
+
+						$result_detail_do = curl_get($urlnya_do);
+						
+						foreach ($result_detail_do['d']['detailItem'] as $itemDO) {
+							$detail = [
+								'id'     		=> $itemDO['id'],
+								'itemNo'     	=> $itemDO['item']['no'],
+								'quantity'   	=> $itemDO['quantity'],
+								'unitPrice'  	=> $itemDO['unitPrice'],
+								'departmentName'=> $itemDO['department']['name'],
+							];
+							if ($subData['mobil_po'] !== 'NULL') {
+								$detail['projectNo'] = $subData['mobil_po'];
+							}
+
+							$dataItemDO['detailItem'][] = $detail;
+						}
+
+						$urlnya2 = 'https://zeus.accurate.id/accurate/api/delivery-order/save.do';
+						// Data yang akan dikirim dalam format JSON
+						$data2 = array(
+							"id"                => $subData['id_do_accurate'],
+							"customerNo"        => $getidacc['kode_pelanggan'],
+							"number"            => $getidacc['no_do_syop'],
+							"transDate"         =>	$subData['tgl'],
+							"branchName"        => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
+							"detailItem"       	=> $dataItemDO['detailItem']
+						);
+						$jsonData2 = json_encode($data2);
+						// var_dump($jsonData2);
+						// exit;
+					
+						$result_do = curl_post($urlnya2, $jsonData2);
+					
+						
+						if ($result_do['s'] != true) {
+							// $con->commit();
+							// $con->close();
+							// $flash->add("success", "Data berhasil disimpan", $url);
+							// header("location: " . $url);
+							// exit();
+						// } else {
+							$allSuccess = false;
+							$con->rollBack();
+							$con->clearError();
+							$con->close();
+							$flash->add("error", $result_do['d'][0] . " - Response dari Accurate DO", BASE_REFERER);
+						}
+				} else {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result_so['d'][0] . " - Response dari Accurate SO", BASE_REFERER);
+				}
+			
+			}
+	
+		}
+		if ($allSuccess) {
+			$con->commit();
+			$con->close();
+			header("location: " . $url);
+			exit();
+		} else {
+			$con->rollBack();
+			$con->clearError();
+			$con->close();
+			$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
+		}
+		// $con->commit();
+		// $con->close();
+		// header("location: " . $url);
+		// exit();
 	} else {
 		$con->rollBack();
 		$con->clearError();
@@ -307,6 +456,7 @@ if ($tombol == 1) {
 	$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MTE1OSwiTmFtZSI6InByb2VuZXJnaSIsIlJvbGUiOiJhZG1fcHJvZW5lcmdpIiwiQ29tcGFueSI6NjA2LCJVc2VyUG9kSWQiOjAsImlzcyI6Ik9TTE9HIDUgQVBJIn0.H-ljfy7I0zVzpvXsar3FddpUT2RHChNaEP8uw50kmV8';
 	$logFilePath = realpath(__DIR__ . '/../../post-data-api-oslog.log.txt');
 
+	$kode_accurate_array = [];
 	if (count($_POST["dt4"]) > 0) {
 		foreach ($_POST["dt4"] as $idx => $val) {
 			$ongkos_po 		= htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dt3'][$idx]), ENT_QUOTES);
@@ -315,6 +465,19 @@ if ($tombol == 1) {
 			$tgl_eta_po 	= htmlspecialchars($_POST['dt6'][$idx], ENT_QUOTES);
 			$ongkos_po_real = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dt16'][$idx]), ENT_QUOTES);
 			$ongkos_po_real = ($ongkos_po_real ? $ongkos_po_real : '0');
+			$id_do_acc 		= htmlspecialchars($_POST['doAcc'][$idx], ENT_QUOTES);
+			$kode_accurate_array[$val]['id_pod'] = $idx;
+			$kode_accurate_array[$val]['id_do_accurate'] =$id_do_acc;
+
+			$get_mobil = "SELECT no_proyek FROM pro_master_transportir_mobil WHERE id_master = '".$mobil_po."' and id_transportir in (1,2,3,4,5,28,63,105,180,99)";
+			$row_mobil = $con->getOne($get_mobil);
+			
+			if($row_mobil){
+				$kode_accurate_array[$val]['mobil_po']=$row_mobil;
+			}else{
+				$kode_accurate_array[$val]['mobil_po']= '';
+			}
+		
 
 			if ($ongkos_po_real > $ongkos_po) {
 				$con->rollBack();
@@ -485,10 +648,145 @@ if ($tombol == 1) {
 	}
 
 	if ($oke && $con !== null) {
-		$con->commit();
-		$con->close();
-		header("location: " . $url);
-		exit();
+		$allSuccess = true;
+		
+		foreach ($kode_accurate_array as $i => $subData) {
+			if($subData['id_do_accurate']!=null || $subData['id_do_accurate']!=''){
+				$cekidacc = "SELECT b.id_accurate, b.no_so, a.id_do_accurate, a.no_do_syop, d.kode_pelanggan,e.nama_cabang
+                FROM pro_po_detail pod 
+                JOIN pro_pr_detail a ON pod.id_plan=a.id_plan
+                JOIN pro_po_customer_plan b ON a.id_plan = b.id_plan
+                JOIN pro_po_customer c ON b.id_poc = c.id_poc
+                JOIN pro_penawaran p ON p.id_penawaran = c.id_penawaran
+                JOIN pro_customer d ON c.id_customer = d.id_customer
+                JOIN pro_master_cabang e ON p.id_cabang = e.id_master
+		        WHERE pod.id_pod='" . $subData['id_pod'] . "'";
+        		$getidacc = $con->getRecord($cekidacc);
+
+				$query = http_build_query([
+					'id' => $getidacc['id_accurate'],
+				]);
+
+				$urlnya = 'https://zeus.accurate.id/accurate/api/sales-order/detail.do?' . $query;
+
+				$result_detail = curl_get($urlnya);
+
+				$dataItem = [];
+				$dataItemDO = [];
+				foreach ($result_detail['d']['detailItem'] as $item) {
+					$detail = [
+						'id'     		=> $item['id'],
+						'itemNo'     	=> $item['item']['no'],
+						'quantity'   	=> $item['quantity'],
+						'unitPrice'  	=> $item['unitPrice'],
+						'departmentName'=> $item['department']['name'],
+						'projectNo'		=> $subData['mobil_po'],
+					];
+
+					// if ($subData['mobil_po'] !== 'NULL') {
+					// 	$detail['projectNo'] = $subData['mobil_po'];
+					// }
+
+					$dataItem['detailItem'][] = $detail;
+				}
+			
+				$urlnya_so = 'https://zeus.accurate.id/accurate/api/sales-order/save.do';
+				// Data yang akan dikirim dalam format JSON
+				$data_so = array(
+					"id"                => $getidacc['id_accurate'],
+					"customerNo"        => $getidacc['kode_pelanggan'],
+					"number"            => $getidacc['no_so'],
+					"transDate"         => $result_detail['d']['transDate'],
+					"branchName"        => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
+					"detailItem"       	=> $dataItem['detailItem']
+				);
+				$jsonData_so = json_encode($data_so);
+				
+				$result_so = curl_post($urlnya_so, $jsonData_so);
+				// var_dump($result_so);
+				// exit;
+
+				if ($result_so['s'] == true) {
+					
+						$query_do = http_build_query([
+							'id' => $subData['id_do_accurate'],
+						]);
+
+						$urlnya_do = 'https://zeus.accurate.id/accurate/api/delivery-order/detail.do?' . $query_do;
+
+						$result_detail_do = curl_get($urlnya_do);
+						
+						foreach ($result_detail_do['d']['detailItem'] as $itemDO) {
+							$detail = [
+								'id'     		=> $itemDO['id'],
+								'itemNo'     	=> $itemDO['item']['no'],
+								'quantity'   	=> $itemDO['quantity'],
+								'unitPrice'  	=> $itemDO['unitPrice'],
+								'departmentName'=> $itemDO['department']['name'],
+								'projectNo'		=> $subData['mobil_po'],
+							];
+							// if ($subData['mobil_po'] !== 'NULL') {
+							// 	$detail['projectNo'] = $subData['mobil_po'];
+							// }
+
+							$dataItemDO['detailItem'][] = $detail;
+						}
+
+						$urlnya2 = 'https://zeus.accurate.id/accurate/api/delivery-order/save.do';
+						// Data yang akan dikirim dalam format JSON
+						$data2 = array(
+							"id"                => $subData['id_do_accurate'],
+							"customerNo"        => $getidacc['kode_pelanggan'],
+							"number"            => $getidacc['no_do_syop'],
+							"transDate"         => $result_detail_do['d']['transDate'],
+							"branchName"        => $getidacc['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $getidacc['nama_cabang'],
+							"detailItem"       	=> $dataItemDO['detailItem']
+						);
+						$jsonData2 = json_encode($data2);
+						// var_dump($jsonData2);
+						// exit;
+					
+						$result_do = curl_post($urlnya2, $jsonData2);
+					
+						
+						if ($result_do['s'] != true) {
+							// $con->commit();
+							// $con->close();
+							// $flash->add("success", "Data berhasil disimpan", $url);
+							// header("location: " . $url);
+							// exit();
+						// } else {
+							$allSuccess = false;
+							$con->rollBack();
+							$con->clearError();
+							$con->close();
+							$flash->add("error", $result_do['d'][0] . " - Response dari Accurate DO", BASE_REFERER);
+						}
+				} else {
+					$con->rollBack();
+					$con->clearError();
+					$con->close();
+					$flash->add("error", $result_so['d'][0] . " - Response dari Accurate SO", BASE_REFERER);
+				}
+			
+			}
+		}
+
+		if ($allSuccess) {
+			$con->commit();
+			$con->close();
+			header("location: " . $url);
+			exit();
+		} else {
+			$con->rollBack();
+			$con->clearError();
+			$con->close();
+			$flash->add("error", "GAGAL_MASUK", BASE_REFERER);
+		}
+		// $con->commit();
+		// $con->close();
+		// header("location: " . $url);
+		// exit();
 	} else {
 		$con->rollBack();
 		$con->clearError();
