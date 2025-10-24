@@ -31,7 +31,7 @@
                     $sql = "select a.*, c.pr_pelanggan, c.produk, c.transport, e.status_jadwal, e.tanggal_kirim, e.tanggal_loading as tgl_loading_plan, f.harga_poc, f.nomor_poc, 
                     g.alamat_survey, g.id_wil_oa, g.jenis_usaha, g.id_lcr, h.nama_prov, i.nama_kab, j.nama_customer, j.id_customer, j.kode_pelanggan, 
                     k.fullname, n.nama_area, o.nama_terminal, o.tanki_terminal, o.lokasi_terminal, p.nama_vendor, q.nomor_plat, r.nama_sopir, 
-					s.wilayah_angkut, t.ongkos_angkut, u.is_cancel, u.is_delivered, u.is_loaded, m.detail_rincian, m.oa_kirim, c.no_do_syop, c.nomor_lo_pr
+					s.wilayah_angkut, t.ongkos_angkut, u.is_cancel, u.is_delivered, u.is_loaded, m.detail_rincian, m.oa_kirim, c.no_do_syop, c.nomor_lo_pr, c.id_do_accurate
                     from pro_po_detail a
                     join pro_po b on a.id_po = b.id_po
                     join pro_pr_detail c on a.id_prd = c.id_prd 
@@ -72,6 +72,7 @@
                             }
 
                             $idp = $data['id_pod'];
+                            $id_do_acc = $data['id_do_accurate'];
                             $tempal = strtolower(str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data['nama_kab']));
                             $alamat    = $data['alamat_survey'] . " " . ucwords($tempal) . " " . $data['nama_prov'];
                             $kirim    = date("d/m/Y", strtotime($data['tgl_kirim_po']));
@@ -121,6 +122,7 @@
                                     <?php } else echo '&nbsp;'; ?>
                                 </td>
                                 <td><?php echo '<input type="text" name="dt1[' . $idp . ']" id="dt1' . $nom . '" class="' . $class1 . '" value="' . $nom . '" readonly />'; ?></td>
+                                <?php echo '<input type="hidden" name="doAcc[' . $idp . ']" id="doAcc' . $nom . '" class="' . $class1 . '" value="' . $id_do_acc . '" readonly />'; ?>
                                 <td>
                                     <p style="margin-bottom:0px"><b><?php echo ($data['kode_pelanggan'] ? $data['kode_pelanggan'] . '<br/>' : '') . $data['nama_customer']; ?></b></p>
                                     <p style="margin-bottom:0px"><i><?php echo $data['fullname']; ?></i></p>
