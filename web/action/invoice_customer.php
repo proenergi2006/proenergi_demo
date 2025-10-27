@@ -580,12 +580,15 @@ if ($act == "add") {
 
 					// $data_item2 = array_merge($data_item_post, $data_item2);
 					foreach ($kode_item as $item) {
+
 						if ($item['item']['no'] == 'NS-001') {
 							$detailItems['detailItem'][] = [
 								'itemNo'       => $item['item']['no'],
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'departmentName'=> $item['department']['name'],
+								'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
 						} elseif ($item['item']['no'] == 'PBBKB') {
@@ -594,6 +597,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
+								'departmentName'=> $item['department']['name'],
+								'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
 						} else {
@@ -603,6 +608,8 @@ if ($act == "add") {
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
 								'itemCashDiscount' => $discount,
+								'departmentName'=> $item['department']['name'],
+								'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
 						}
@@ -622,7 +629,8 @@ if ($act == "add") {
 					$con->setQuery($sql4);
 					$oke  = $oke && !$con->hasError();
 
-
+					// var_dump($detailItems);
+					// exit;
 					if ($noms01 == $total_pengiriman) {
 						// Eksekusi API request dengan data item yang sudah lengkap
 						$urlnya = 'https://zeus.accurate.id/accurate/api/sales-invoice/save.do';
@@ -669,6 +677,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($item['item']['no'] == 'NS-001') {
@@ -677,6 +687,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} else {
@@ -686,6 +698,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							}
@@ -789,6 +803,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($item['item']['no'] == 'PBBKB') {
@@ -797,6 +813,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} else {
@@ -806,6 +824,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							}
@@ -903,6 +923,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($item['item']['no'] == 'PBBKB') {
@@ -911,6 +933,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} else {
@@ -920,6 +944,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							}
@@ -1379,6 +1405,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
+									'departmentName'=> $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
@@ -1392,6 +1420,8 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
+										'departmentName'=> $item['department']['name'],
+										'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
 								}
@@ -1406,6 +1436,8 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
+										'departmentName'=> $item['department']['name'],
+										'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
 								}
@@ -1420,6 +1452,8 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
+										'departmentName'=> $item['department']['name'],
+										'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
 								}
