@@ -131,16 +131,22 @@ $header = array(
 	"Nomor SO" => 'string',
 	"Nomor DO" => 'string',
 	"Nomor PO Customer" => 'string',
-	"Nomor PO Transporter" => 'string',
+	"Nomor PO Transportir" => 'string',
 	"Nomor Loading Order" => 'string',
 	"Tanggal DS" => 'string',
 	"Tanggal PO Customer" => 'string',
 	"Tanggal Kirim" => 'string',
 	"Nomor Surat Jalan" => 'string',
+	"Nama Transportir" => 'string',
 	"Nopol Truck" => 'string',
 	"Driver" => 'string',
 	"Tanggal ETL" => 'string',
 	"Tanggal ETA" => 'string',
+	"Start" => 'string',
+	"at Terminal" => 'string',
+	"at Customer" => 'string',
+	"Finish" => 'string',
+	"SJ Received" => 'string',
 	"Volume (Liter)" => 'string',
 	"Volume Realisasi (Liter)" => 'string',
 	"Site" => 'string',
@@ -156,6 +162,10 @@ if (count($res) > 0) {
 	$last = $start - 1;
 	foreach ($res as $data) {
 		$last++;
+
+		$tanggal_loaded = !empty($data['tanggal_loaded']) ? date('d-m-Y', strtotime($data['tanggal_loaded'])) : '';
+		$jam_loaded = !empty($data['jam_loaded']) ? date('H:i', strtotime($data['jam_loaded'])) : '';
+		$tanggal_jam_loaded = ($tanggal_loaded && $jam_loaded) ? $tanggal_loaded . ' ' . $jam_loaded : '';
 
 		if ($data['is_cancel'] == 1) {
 			$status_cancel = "Canceled " . date("d/m/Y", strtotime($data['tanggal_cancel']));
@@ -175,6 +185,16 @@ if (count($res) > 0) {
 			$status_delivered = "-";
 		}
 
+		if (!empty($data['drop_point_end'])) {
+			if ($data['drop_point_end'] == "0000-00-00 00:00:00") {
+				$finish = "";
+			} else {
+				$finish = date('d/m/Y H:i', strtotime($data['drop_point_end']));
+			}
+		} else {
+			$finish = "";
+		}
+
 		$writer->writeSheetRow($sheet, array(
 			$data['nama_customer'],
 			$data['nomor_pr'],
@@ -188,10 +208,16 @@ if (count($res) > 0) {
 			date("d/m/Y", strtotime($data['tanggal_poc'])),
 			date("d/m/Y", strtotime($data['tgl_kirim_po'])),
 			$data['no_spj'],
+			$data['nama_suplier'],
 			$data['nomor_plat'],
 			$data['nama_sopir'],
 			date("d/m/Y", strtotime($data['tgl_etl_po'])),
 			date("d/m/Y", strtotime($data['tgl_eta_po'])),
+			!empty($data['drop_point_start']) ? date('d/m/Y H:i', strtotime($data['drop_point_start'])) : '',
+			$tanggal_jam_loaded,
+			!empty($data['tanggal_delivered']) ? date('d/m/Y H:i', strtotime($data['tanggal_delivered'])) : '',
+			$finish,
+			!empty($data['tgl_realisasi']) ? date('d/m/Y H:i', strtotime($data['tgl_realisasi'])) : '',
 			$data['volume_po'],
 			floatval($data['realisasi_volume']),
 			$data['tanki_terminal'] . " - " . $data['nama_terminal'] . " - " . $data['lokasi_terminal'],
@@ -200,12 +226,12 @@ if (count($res) > 0) {
 			$status_delivered
 		));
 	}
-	$writer->writeSheetRow($sheet, array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL", "=SUM(Q" . $start . ":Q" . $last . ")", "=SUM(R" . $start . ":R" . $last . ")", "", "", "", "", ""));
+	$writer->writeSheetRow($sheet, array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL", "=SUM(W" . $start . ":W" . $last . ")", "=SUM(X" . $start . ":X" . $last . ")", "", "", "", "", ""));
 	$last++;
 	$writer->newMergeCell($sheet, "A" . $last, "C" . $last);
 } else {
 	$writer->writeSheetRow($sheet, array("Data tidak ada"));
-	$writer->newMergeCell($sheet, "A" . $start, "W" . $start);
+	$writer->newMergeCell($sheet, "A" . $start, "AB" . $start);
 	$start++;
 }
 

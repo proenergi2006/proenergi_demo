@@ -25,38 +25,62 @@ $q2	= isset($_POST["q2"]) ? htmlspecialchars($_POST["q2"], ENT_QUOTES) : '';
 $q3	= isset($_POST["q3"]) ? htmlspecialchars($_POST["q3"], ENT_QUOTES) : '';
 
 $p = new paging;
-$sql = "SELECT a.*,
-    b.nama_customer, 
-    b.alamat_customer,
-    b.kode_pelanggan, 
-	b.id_wilayah as wilayah_customer,
-    c.nama_kab, 
-    d.nama_prov, 
-    e.fullname, 
-    g.nama_cabang, 
-    h.realisasi,
-    h.vol_plan,
-	f.pembulatan,
-    COALESCE((SELECT COALESCE(volume_close, 0)
-                FROM pro_po_customer_close
-                WHERE id_poc = a.id_poc AND st_Aktif = 'Y'),0) as volume_close_po,
-    (SELECT role_approved from pro_sales_confirmation where id_customer=a.id_customer and id_poc=a.id_poc order by created_date desc limit 0,1) as role_approved,
-    (SELECT disposisi from pro_sales_confirmation where id_customer=a.id_customer and id_poc=a.id_poc order by created_date desc limit 0,1) as disposisi  
-FROM pro_po_customer a 
-JOIN pro_customer b on a.id_customer = b.id_customer 
-JOIN pro_master_kabupaten c on b.kab_customer = c.id_kab 
-JOIN pro_master_provinsi d on b.prov_customer = d.id_prov 
-JOIN acl_user e on b.id_marketing = e.id_user 
-JOIN pro_penawaran f on a.id_penawaran = f.id_penawaran 
-JOIN pro_master_cabang g on f.id_cabang = g.id_master 
+$sql = "SELECT
+  a.*,
+  b.nama_customer,
+  b.alamat_customer,
+  b.kode_pelanggan,
+  b.id_wilayah AS wilayah_customer,
+  c.nama_kab,
+  d.nama_prov,
+
+  /* tampilkan nama marketing dari dokumen: PO -> Penawaran -> Customer */
+  e.fullname,
+
+  g.nama_cabang,
+  h.realisasi,
+  h.vol_plan,
+  f.pembulatan,
+
+  COALESCE((
+    SELECT SUM(x.volume_close)
+    FROM pro_po_customer_close x
+    WHERE x.id_poc = a.id_poc AND x.st_Aktif = 'Y'
+  ),0) AS volume_close_po,
+
+  (SELECT role_approved
+     FROM pro_sales_confirmation
+    WHERE id_customer=a.id_customer AND id_poc=a.id_poc
+    ORDER BY created_date DESC LIMIT 1) AS role_approved,
+
+  (SELECT disposisi
+     FROM pro_sales_confirmation
+    WHERE id_customer=a.id_customer AND id_poc=a.id_poc
+    ORDER BY created_date DESC LIMIT 1) AS disposisi
+
+FROM pro_po_customer a
+JOIN pro_customer b           ON a.id_customer = b.id_customer
+JOIN pro_master_kabupaten c   ON b.kab_customer = c.id_kab
+JOIN pro_master_provinsi d    ON b.prov_customer = d.id_prov
+
+/* LEFT JOIN supaya PO legacy tanpa penawaran tetap terbawa */
+LEFT JOIN pro_penawaran f     ON a.id_penawaran = f.id_penawaran
+
+/* fullname marketing diambil dari prioritas dokumen */
+JOIN acl_user e               ON e.id_user = COALESCE(a.id_marketing, f.id_marketing, b.id_marketing)
+
+JOIN pro_master_cabang g      ON f.id_cabang = g.id_master
+
 LEFT JOIN (
-    SELECT id_poc,
-        sum(if(realisasi_kirim = 0, volume_kirim, realisasi_kirim)) as vol_plan,
-        sum(realisasi_kirim) as realisasi 
-    FROM pro_po_customer_plan 
-    WHERE status_plan not in (2,3)
-    group by id_poc
-) h on a.id_poc = h.id_poc 
+  SELECT
+    id_poc,
+    SUM(IF(realisasi_kirim=0, volume_kirim, realisasi_kirim)) AS vol_plan,
+    SUM(realisasi_kirim) AS realisasi
+  FROM pro_po_customer_plan
+  WHERE status_plan NOT IN (2,3)
+  GROUP BY id_poc
+) h ON a.id_poc = h.id_poc
+
 WHERE 1=1";
 // $sql = "select a.*, b.nama_customer, b.alamat_customer, b.kode_pelanggan, c.nama_kab, d.nama_prov, e.fullname, g.nama_cabang, h.realisasi, h.vol_plan from pro_po_customer a join pro_customer b on a.id_customer = b.id_customer join pro_master_kabupaten c on b.kab_customer = c.id_kab join pro_master_provinsi d on b.prov_customer = d.id_prov join acl_user e on b.id_marketing = e.id_user join pro_penawaran f on a.id_penawaran = f.id_penawaran join pro_master_cabang g on f.id_cabang = g.id_master left join (select id_poc, sum(if(realisasi_kirim = 0,volume_kirim, realisasi_kirim)) as vol_plan, sum(realisasi_kirim) as realisasi from pro_po_customer_plan where status_plan not in (2,3) group by id_poc) h on a.id_poc = h.id_poc where 1=1";
 if ($sesrol == 18) {
@@ -65,7 +89,11 @@ if ($sesrol == 18) {
 	else if (!paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) and paramDecrypt($_SESSION['sinori' . SESSIONID]['id_group']))
 		$sql .= " and (b.id_group = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_group']) . "' or b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "')";
 } else if ($sesrol == 17 || $sesrol == 11) {
-	$sql .= " and b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "'";
+	$sql .= " AND (
+        a.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "'
+     OR (a.id_marketing IS NULL AND f.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "')
+     OR (a.id_marketing IS NULL AND f.id_marketing IS NULL AND b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "')
+      )";
 }
 
 

@@ -88,13 +88,20 @@ if ($tombol == 1) {
 			$dt3 = htmlspecialchars(str_replace(array(".", ","), array("", ""), $_POST['dt3'][$idx1]), ENT_QUOTES);
 			$tgl_loading = htmlspecialchars($_POST["tgl_loading"][$idx1], ENT_QUOTES);
 
-			$sql2 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "',volume_kirim = '" . $dt4 . "', status_plan = 1 where id_plan = '" . $idx1 . "'";
-			$con->setQuery($sql2);
-			$oke  = $oke && !$con->hasError();
+			$cek_plan = "SELECT is_approved, status_plan FROM pro_po_customer_plan WHERE id_plan='" . $idx1 . "'";
+			$ambil_plan = $con->getRecord($cek_plan);
 
-			$sql3 = "insert into pro_pr_detail(id_pr, id_plan, produk, volume, transport, is_approved) values ('" . $res1 . "', '" . $idx1 . "', '" . $dt1 . "', '" . $dt4 . "', '" . $dt3 . "','1')";
-			$con->setQuery($sql3);
-			$oke  = $oke && !$con->hasError();
+			if ($ambil_plan['status_plan'] == 1 && $ambil_plan['is_approved'] == 1) {
+				$oke = false;
+			} else {
+				$sql2 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "',volume_kirim = '" . $dt4 . "', status_plan = 1 where id_plan = '" . $idx1 . "'";
+				$con->setQuery($sql2);
+				$oke  = $oke && !$con->hasError();
+
+				$sql3 = "insert into pro_pr_detail(id_pr, id_plan, produk, volume, transport, is_approved) values ('" . $res1 . "', '" . $idx1 . "', '" . $dt1 . "', '" . $dt4 . "', '" . $dt3 . "','1')";
+				$con->setQuery($sql3);
+				$oke  = $oke && !$con->hasError();
+			}
 		}
 
 		if (count($arrExtraData) > 0) {
@@ -105,13 +112,21 @@ if ($tombol == 1) {
 				$volume 	= $data01['volume'];
 				$oanya 		= $data01['oanya'];
 
-				$sql2 = "update pro_po_customer_plan set volume_kirim = '" . $volume . "', status_plan = 1 where id_plan = '" . $id_plan . "'";
-				$con->setQuery($sql2);
-				$oke  = $oke && !$con->hasError();
+				$cek_plan = "SELECT is_approved, status_plan FROM pro_po_customer_plan WHERE id_plan='" . $idx1 . "'";
+				$ambil_plan = $con->getRecord($cek_plan);
 
-				$sql3 = "insert into pro_pr_detail(id_pr, id_plan, produk, volume, transport, is_approved) values ('" . $res1 . "', '" . $id_plan . "', '" . $produk . "', '" . $volume . "', '" . $oanya . "','1')";
-				$con->setQuery($sql3);
-				$oke  = $oke && !$con->hasError();
+				if ($ambil_plan['status_plan'] == 1 && $ambil_plan['is_approved'] == 1) {
+					$oke = false;
+				} else {
+
+					$sql2 = "update pro_po_customer_plan set volume_kirim = '" . $volume . "', status_plan = 1 where id_plan = '" . $id_plan . "'";
+					$con->setQuery($sql2);
+					$oke  = $oke && !$con->hasError();
+
+					$sql3 = "insert into pro_pr_detail(id_pr, id_plan, produk, volume, transport, is_approved) values ('" . $res1 . "', '" . $id_plan . "', '" . $produk . "', '" . $volume . "', '" . $oanya . "','1')";
+					$con->setQuery($sql3);
+					$oke  = $oke && !$con->hasError();
+				}
 			}
 		}
 
@@ -141,11 +156,18 @@ if ($tombol == 1) {
 		$oke  = $oke && !$con->hasError();
 	}
 } else if ($tombol == 3) {
-	$catatan 	= str_replace(array("\r\n", "\r", "\n"), "<br />", htmlspecialchars($_POST["catatan_logistik"], ENT_QUOTES));
+	$catatan = str_replace(array("\r\n", "\r", "\n"), "<br />", htmlspecialchars($_POST["catatan_logistik"], ENT_QUOTES));
 	foreach ($_POST['cek'] as $idx => $val) {
-		$sql1 = "update pro_po_customer_plan set status_plan = '2', is_approved = 0, catatan_reschedule = '" . $catatan . "' where id_plan = '" . $idx . "'";
-		$con->setQuery($sql1);
-		$oke  = $oke && !$con->hasError();
+		$cek_plan = "SELECT is_approved, status_plan FROM pro_po_customer_plan WHERE id_plan='" . $idx . "'";
+		$ambil_plan = $con->getRecord($cek_plan);
+
+		if ($ambil_plan['status_plan'] == 1 && $ambil_plan['is_approved'] == 1) {
+			$oke = false;
+		} else {
+			$sql1 = "update pro_po_customer_plan set status_plan = '2', is_approved = 0, catatan_reschedule = '" . $catatan . "' where id_plan = '" . $idx . "'";
+			$con->setQuery($sql1);
+			$oke  = $oke && !$con->hasError();
+		}
 	}
 }
 

@@ -19,23 +19,43 @@ $sess_wil = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
 
 $p = new paging;
 $sql = "
-select a.*, b.nama_customer, b.kode_pelanggan, c.nama_cabang, d.nama_area, 
-		if(a.flag_approval = 0 && a.flag_disposisi > 0, 1, 0) as position,
-		CASE 
-		WHEN e.id_penawaran IS NOT NULL THEN 'YA'
-		WHEN a.flag_disposisi = 0 THEN '-'
-		ELSE '-'  
-		END AS penawaran_status
-		from pro_penawaran a 
-		join pro_customer b on a.id_customer = b.id_customer 
-		join pro_master_cabang c on a.id_cabang = c.id_master 
-		join pro_master_area d on a.id_area = d.id_master 
-		LEFT JOIN (
-    SELECT id_penawaran
-    FROM pro_po_customer
-    GROUP BY id_penawaran
-) e ON a.id_penawaran = e.id_penawaran
-		where 1=1
+SELECT
+  a.*,
+  b.nama_customer,
+  b.kode_pelanggan,
+  c.nama_cabang,
+  d.nama_area,
+
+  /* tampilkan nama marketing pemilik penawaran (dokumen -> master) */
+  m.fullname AS nama_marketing,
+
+  /* flag posisi seperti semula */
+  IF(a.flag_approval = 0 AND a.flag_disposisi > 0, 1, 0) AS position,
+
+  /* status ada PO atau belum */
+  CASE
+    WHEN e.id_penawaran IS NOT NULL THEN 'YA'
+    WHEN a.flag_disposisi = 0 THEN '-'
+    ELSE '-'
+  END AS penawaran_status
+
+FROM pro_penawaran a
+JOIN pro_customer b        ON a.id_customer = b.id_customer
+JOIN pro_master_cabang c   ON a.id_cabang   = c.id_master
+JOIN pro_master_area d     ON a.id_area     = d.id_master
+
+/* nama marketing ditarik dari prioritas: penawaran -> master customer */
+JOIN acl_user m            ON m.id_user = COALESCE(a.id_marketing, b.id_marketing)
+
+/* cek apakah penawaran sudah punya PO */
+LEFT JOIN (
+  SELECT id_penawaran
+  FROM pro_po_customer
+  WHERE id_penawaran IS NOT NULL
+  GROUP BY id_penawaran
+) e ON e.id_penawaran = a.id_penawaran
+
+WHERE 1=1
 	";
 if ($sesrol == 18) {
 	if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) and paramDecrypt($_SESSION['sinori' . SESSIONID]['id_group']))
@@ -43,7 +63,10 @@ if ($sesrol == 18) {
 	else if (!paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) and paramDecrypt($_SESSION['sinori' . SESSIONID]['id_group']))
 		$sql .= " and (b.id_group = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_group']) . "' or b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "')";
 } else if ($sesrol == 17 || $sesrol == 11) {
-	$sql .= " and b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "'";
+	$sql .= " AND (
+        a.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "'
+     OR (a.id_marketing IS NULL AND b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "')
+      )";
 } else if ($sesrol == 20) {
 	if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) == 2) {
 		$sql .= " and b.id_marketing = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']) . "'";

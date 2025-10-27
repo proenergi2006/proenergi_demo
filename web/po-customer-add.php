@@ -119,7 +119,11 @@ if ($idr != "" && $idk != "") {
 
 	$total_order = (float)$rsm['harga_poc'] * (float)$rsm['volume_poc'];
 
-	$credit_limit_reserved = $rsm['credit_limit_reserved'] - $total_order;
+	if ($lsClosePo) {
+		$credit_limit_reserved = $rsm['credit_limit_reserved'];
+	} else {
+		$credit_limit_reserved = $rsm['credit_limit_reserved'] - $total_order;
+	}
 
 	$reminding = ($rsm['credit_limit'] ? $rsm['credit_limit'] + $rsm['credit_limit_temp'] + $total_order - $rsm['credit_limit_reserved'] - ($rsm['not_yet'] + $rsm['ov_up_07'] + $rsm['ov_under_30'] + $rsm['ov_under_60'] + $rsm['ov_under_90'] + $rsm['ov_up_90']) : 0);
 	$rsm['reminding'] = $reminding;

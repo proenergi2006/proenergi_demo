@@ -72,9 +72,10 @@ if ($act == "delete") {
 	if ($idr == "" || $idk == "" || $alamat_kirim == "" || $tanggal_kirim == "" || $volume_kirim == "") {
 		$con->close();
 		$flash->add("error", "KOSONG", BASE_REFERER);
-	} else if ($cekHari < 0) {
-		$con->close();
-		$flash->add("error", "Tanggal pengiriman tidak benar....", BASE_REFERER);
+
+		// } else if ($cekHari < 0) {
+		// 	$con->close();
+		// 	$flash->add("error", "Tanggal pengiriman tidak benar....", BASE_REFERER);
 	} else {
 		if ($cekHari == 0)
 			$status .= "<br /><i>Urgent</i>";

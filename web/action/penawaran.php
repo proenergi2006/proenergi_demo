@@ -49,6 +49,7 @@ $catatan 	= str_replace(array("\r\n", "\r", "\n"), "<br />", htmlspecialchars($_
 $jns_waktu	= ($_POST["jenis_waktu"] ? htmlspecialchars($_POST["jenis_waktu"], ENT_QUOTES) : htmlspecialchars($_POST["jenis_payment"], ENT_QUOTES));
 $top		= ($jns_waktu == "CREDIT" ? $top : 0);
 $user_pic	= paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']);
+$id_user 	= paramDecrypt($_SESSION['sinori' . SESSIONID]['id_user']);
 $user_ip	= $_SERVER['REMOTE_ADDR'];
 $rincian 	= array();
 $formula 	= array();
@@ -162,11 +163,11 @@ if ($act == "add") {
 		$cek2 = "select id_wilayah, id_group from pro_customer where id_customer = '" . $idr . "'";
 		$row2 = $con->getRecord($cek2);
 
-		$sql1 = "insert ignore into pro_penawaran(id_customer, nomor_surat, id_cabang, id_group, id_area, gelar, nama_up, jabatan_up, alamat_up, telp_up, fax_up, jenis_payment, jenis_net, 
+		$sql1 = "insert ignore into pro_penawaran(id_customer, id_marketing, nomor_surat, id_cabang, id_group, id_area, gelar, nama_up, jabatan_up, alamat_up, telp_up, fax_up, jenis_payment, jenis_net, 
 					jangka_waktu, masa_awal, masa_akhir, volume_tawar, perhitungan, harga_dasar, is_rinci, detail_rincian, detail_formula, produk_tawar, pbbkb_tawar, method_order, 
 					catatan, refund_tawar, ket_harga, harga_asli, oa_kirim, other_cost, tol_susut, alat_ukur, lok_kirim, created_time, created_ip, created_by, term_condition, metode, 
 					kalkulasi_oa, pembulatan, gabung_oa, all_in, gabung_pbbkb, gabung_pbbkboa, harga_tier, tier) 
-					values ('" . $idr . "', '" . $noms . "', '" . $cabang . "', '" . $grcb . "', '" . $area . "', 
+					values ('" . $idr . "', '" . $id_user . "', '" . $noms . "', '" . $cabang . "', '" . $grcb . "', '" . $area . "', 
 					'" . $gelar . "', '" . $nama_up . "', '" . $jabatan_up . "', '" . $alamat_up . "', '" . $telp_up . "', '" . $fax_up . "', '" . $jns_waktu . "', '" . $jenis_net . "', '" . $top . "', '" . tgl_db($masa_awal) . "', 
 					'" . tgl_db($masa_akhir) . "', '" . $volume . "', '" . $flagHitung . "', '" . $hargaDasar . "', '" . $is_rinci . "', '" . json_encode($rincian) . "', '" . json_encode($formula) . "', 
 					'" . $produk . "', '" . $pbbkb . "', '" . $order . "', '" . $catatan . "', '" . $refund . "', '" . $ket_harga . "', '" . $harga_asli . "', '" . $oa_kirim . "', '" . $other_cost . "', '" . $tol_susut . "', '" . $alat_ukur . "',
@@ -253,7 +254,7 @@ if ($act == "add") {
 		}
 
 
-		$sql1 = "update pro_penawaran set gelar = '" . $gelar . "', nama_up = '" . $nama_up . "', jabatan_up = '" . $jabatan_up . "', alamat_up = '" . $alamat_up . "', 
+		$sql1 = "update pro_penawaran set id_marketing = '" . $id_user . "', gelar = '" . $gelar . "', nama_up = '" . $nama_up . "', jabatan_up = '" . $jabatan_up . "', alamat_up = '" . $alamat_up . "', 
 					telp_up = '" . $telp_up . "', fax_up = '" . $fax_up . "', jenis_payment = '" . $jns_waktu . "', jenis_net = '" . $jenis_net . "', jangka_waktu = '" . $top . "', masa_awal = '" . tgl_db($masa_awal) . "', 
 					masa_akhir = '" . tgl_db($masa_akhir) . "', id_area = '" . $area . "', volume_tawar = '" . $volume . "', perhitungan = '" . $flagHitung . "', harga_dasar = '" . $hargaDasar . "', 
 					is_rinci = '" . $is_rinci . "', detail_rincian = '" . json_encode($rincian) . "', detail_formula = '" . json_encode($formula) . "', produk_tawar = '" . $produk . "', 
