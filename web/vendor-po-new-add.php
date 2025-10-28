@@ -2006,7 +2006,7 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
             }
             if (kodeAccurate.biaya_iuran) {
                 var option = new Option(kodeAccurate.biaya_iuran+' '+kodeAccurate.biaya_iuran_name,kodeAccurate.biaya_iuran, true, true);
-                 $f('#kode_biaya2').append(option).trigger('change');
+                 $('#kode_biaya2').append(option).trigger('change');
             }
             if (kodeAccurate.biaya_pph22) {
                 var option = new Option(kodeAccurate.biaya_pph22+' '+kodeAccurate.biaya_pph22_name,kodeAccurate.biaya_pph22, true, true);

@@ -569,7 +569,7 @@ if ($data['kategori_oa'] == 2) {
                     <td>:</td>
                     <td>
                         <?php if ($data['kd_tax'] == 'EC') { ?>
-                            <b>IDR <?php echo number_format($total_order, 2, '.', ','); ?></b>
+                            <b>IDR <?php echo number_format(($total_order+$total_iuran), 2, '.', ','); ?></b>
                         <?php } else { ?>
                             <b>IDR <?php echo number_format($totalorderori, 2, '.', ','); ?></b>
                         <?php } ?>
