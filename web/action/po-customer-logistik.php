@@ -97,7 +97,7 @@ if ($tombol == 1) {
 				$sql2 = "update pro_po_customer_plan set tanggal_loading = '" . tgl_db($tgl_loading) . "',volume_kirim = '" . $dt4 . "', status_plan = 1 where id_plan = '" . $idx1 . "'";
 				$con->setQuery($sql2);
 				$oke  = $oke && !$con->hasError();
-
+			
 				$sql3 = "insert into pro_pr_detail(id_pr, id_plan, produk, volume, transport, is_approved) values ('" . $res1 . "', '" . $idx1 . "', '" . $dt1 . "', '" . $dt4 . "', '" . $dt3 . "','1')";
 				$con->setQuery($sql3);
 				$oke  = $oke && !$con->hasError();

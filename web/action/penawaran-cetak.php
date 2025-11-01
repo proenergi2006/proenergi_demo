@@ -57,7 +57,7 @@ $sql = "
 $rsm = $con->getRecord($sql);
 $jabat 	= str_replace("Role ", "", $rsm['role_name']);
 $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date("d/m/Y H:i:s") . " WIB";
-$barcod = $rsm['kode_barcode'] . '01' . str_pad($rsm['id_penawaran'], 6, '0', STR_PAD_LEFT);
+// $barcod = $rsm['kode_barcode'] . '01' . str_pad($rsm['id_penawaran'], 6, '0', STR_PAD_LEFT);
 $arrTgl = array(1 => "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII");
 $alamat = $rsm['alamat_customer'] . " " . str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $rsm['nama_kab']) . " " . $rsm['nama_prov'];
 $pembulatan = $rsm['pembulatan'];
@@ -139,7 +139,9 @@ if ($rsm['perhitungan'] == 1 && !$breakdown) {
 }
 
 if ($rsm['flag_approval'] == 1) {
-
+	$array = array($idr,$idk,$bhs);
+	$code = implode(",", $array);
+	$barcod = 'http://barcode.proenergi.com/customer/barcode/penawaran/' . paramEncrypt($code);
 	ob_start();
 	if ($bhs == 'ind') {
 		$arrPayment = array("CREDIT" => "CREDIT " . $rsm['jangka_waktu'] . " Hari " . $arrKondInd[$jenis_net], "CBD" => "CBD (Cash Before Delivery)", "COD" => "COD (Cash On Delivery)");

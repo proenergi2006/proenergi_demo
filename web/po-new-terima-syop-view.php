@@ -21,7 +21,8 @@ where a.id_master = '" . $idr . "'";
 
 $data = $con->getRecord($sql);
 $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date("d/m/Y H:i:s") . " WIB";
-$barcod =   '00' . str_pad($idr, 6, '0', STR_PAD_LEFT);
+// $barcod =   '00' . str_pad($idr, 6, '0', STR_PAD_LEFT);
+$barcod = 'http://barcode.proenergi.com/supplier/barcode/po/' . paramEncrypt($idr);
 
 ob_start();
 require_once(realpath("./action/template/po-supplier-vendor-syop.php"));
