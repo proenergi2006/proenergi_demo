@@ -320,7 +320,8 @@
 							WHERE a.id_customer ='" . $idc . "'";
 			$rowget_lcr = $con->getResult($queryget_lcr);
 
-			$query_kode = "SELECT kode_pelanggan FROM pro_customer WHERE kode_pelanggan LIKE '%TEMP%' ORDER BY kode_pelanggan DESC LIMIT 1";
+			// $query_kode = "SELECT kode_pelanggan FROM pro_customer WHERE kode_pelanggan LIKE '%TEMP%' ORDER BY kode_pelanggan DESC LIMIT 1";
+			$query_kode = "SELECT kode_pelanggan FROM pro_customer WHERE kode_pelanggan LIKE 'TEMP%' ORDER BY CAST(SUBSTRING(kode_pelanggan, 5) AS UNSIGNED) DESC LIMIT 1";
 			$getkode = $con->getOne($query_kode);
 			$nomor_kode = explode("P",$getkode);
 

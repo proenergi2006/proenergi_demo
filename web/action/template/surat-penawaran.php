@@ -94,11 +94,23 @@
 </htmlpageheader>
 
 <htmlpagefooter name="myHTMLFooter1" style="margin-top: 10px;">
-    <div style="margin:0 0 3px; text-align:right;">
+    <!-- <div style="margin:0 0 3px; text-align:right;">
         <barcode code="<?php echo $barcod; ?>" type="C39" />
     </div>
-    <p style="margin:0 0 5px; padding-right:95px; text-align:right; font-size:9pt;"><?php echo $barcod; ?></p>
-    <p style="margin:0 0 5px; padding:0 15px 5px; text-align:right; font-size:9pt;"><i>(This form is valid with sign by computerized system)</i></p>
+    <p style="margin:0 0 5px; padding-right:95px; text-align:right; font-size:9pt;"><?php echo $barcod; ?></p> -->
+    <div style="margin:0 0 3px; text-align:right;margin-right:110px;padding-top:20px">
+        <!-- <barcode code="<?php echo $barcod; ?>" type="C39" /> -->
+           <!-- <div align="center" style="text-align:center; padding-top:50px;margin-left:-120px;"> -->
+            <!-- Cetak satu QR per halaman, absolute centered -->
+            <barcode
+                code="<?= $barcod ?>"
+                type="QR"
+                size="0.8"
+                height="0.8"
+                class="qr-center" />
+            <!-- </div> -->
+    </div>
+    <p style="margin:0 0 5px; padding:5px 15px 5px; text-align:right; font-size:8pt;"><i>(This form is valid with sign by computerized system)</i></p>
     <div style="margin:0 10%; border-top:1px solid #000; text-align:center;">
         <b style="font-size: 10pt;">PT. Pro Energi, </b>
         <span style="font-size:9pt;">&bull; Gedung Graha Irama Lantai 6 unit G, Jln. HR Rasuna Said Blok X1 Kav 1-2.<br />

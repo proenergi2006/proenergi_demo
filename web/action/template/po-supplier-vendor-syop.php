@@ -95,7 +95,7 @@
         font-size: 12px;
     }
 </style>
-
+          
 <?php
 $volume_po = $data['volume_po'];
 $volume_ri = $data['volume_ri'];
@@ -351,7 +351,7 @@ if ($data['kategori_oa'] == 2) {
                 <?php echo number_format($data['volume_po']); ?>
             <?php endif ?>
             <?php if ($data['iuran_migas'] == 1) : ?>
-                <br>
+            <br>
                 <br>
                 <?php echo number_format($data['volume_po']); ?>
             <?php endif ?>
@@ -617,7 +617,7 @@ if ($data['kategori_oa'] == 2) {
                         <br>
                         <br>
 
-                        <p style="margin:0; text-align:center; font-size:6pt; padding-right:70px;">></p>
+                        <p style="margin:0; text-align:center; font-size:6pt; padding-right:70px;"></p>
 
                     </td>
                 </tr>
@@ -642,7 +642,7 @@ if ($data['kategori_oa'] == 2) {
                         <br>
                         <br>
 
-                        <p style="margin:0; text-align:center; font-size:6pt; padding-right:70px;"><?php echo $barcod; ?></p>
+                        <!-- <p style="margin:0; text-align:center; font-size:6pt; padding-right:70px;"><?php echo $barcod; ?></p> -->
                         <hr style="width: 70%;">
                         Vica Krisdianatha
 

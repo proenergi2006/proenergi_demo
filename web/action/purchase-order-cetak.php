@@ -36,7 +36,8 @@ $att = json_decode($res[0]['att_suplier'], true);
 $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date("d/m/Y H:i:s") . " WIB";
 
 $code = $res[0]['kode_barcode'] . '-' . '03' . '-' . $idr;
-$barcod = BASE_URL . "/barcode_result.php?idr=" . paramEncrypt($code);
+$barcod = "http://barcode.proenergi.com/customer/barcode/po/" . paramEncrypt($code);
+// $barcod = BASE_URL . "/barcode_result.php?idr=" . paramEncrypt($code);
 // $barcod = $res[0]['kode_barcode'] . '03' . str_pad($idr, 6, '0', STR_PAD_LEFT);
 // echo $barcod;
 
