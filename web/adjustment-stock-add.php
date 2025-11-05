@@ -34,8 +34,8 @@ if (isset($enk['idr']) && $enk['idr'] !== '') {
     $tglinv     = 'value=""';
 }
 
-$sql3 = "SELECT * FROM pro_master_gudang_accurate";
-$res_gudang = $con->getResult($sql3);
+// $sql3 = "SELECT * FROM pro_master_gudang_accurate";
+// $res_gudang = $con->getResult($sql3);
 
 // $urlnya = 'https://zeus.accurate.id/accurate/api/item/list.do?' . $query_item;
 
