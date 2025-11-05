@@ -67,10 +67,10 @@
     }
 </style>
 <htmlpagefooter name="myHTMLFooter1">
-    <p style="margin:0; text-align:right;">
-        <barcode code="<?php echo $barcod; ?>" type="C39" size="0.8" />
-    </p>
-    <p style="margin:0; text-align:right; font-size:6pt; padding-right:70px;"><?php echo $barcod; ?></p>
+    <div style="margin:0; text-align:right;">
+		<barcode code="<?php echo $barcod; ?>" type="QR" size="1" />
+	</div>
+    <!-- <p style="margin:0; text-align:right; font-size:6pt; padding-right:70px;"><?php echo $barcod; ?></p> -->
     <p style="margin:0; text-align:right; font-size:7pt;"><i>(This form is valid with sign by computerized system)</i></p>
     <p style="margin:0; text-align:right; font-size:6pt;">Printed by <?php echo $printe; ?></p>
 </htmlpagefooter>
@@ -165,7 +165,7 @@
             $lampPt = $data['lampiran_poc_ori'];
             if ($data['lampiran_poc'] && file_exists($pathPt)) {
                 $linkPt = ACTION_CLIENT . "/download-file.php?" . paramEncrypt("tipe=2&ktg=POC_" . $data['id_poc'] . "_&file=" . $lampPt);
-                $attach = '<a href="' . $linkPt . '"><i class="fa fa-file-alt" title="' . $lampPt . '"></i> PO Customer</a>';
+                $attach = '<a href="' . $linkPt . '"  class="text-blue-600"><i class="fa fa-file-alt" title="' . $lampPt . '"></i> PO Customer</a>';
             } else {
                 $attach = '';
             }
@@ -190,7 +190,7 @@
                 </td>
                 <td class="b3 b4" align="right"><?php echo number_format($data['volume']); ?></td>
                 <td class="b3 b4" align="right"><?php
-                                                if (!$fnr) echo '<input type="text" name="ket[' . $idp . ']" id="ket' . $nom . '" class="form-control input-po hitung" />';
+                                                if (!$fnr) echo '<input type="tet" name="ket[' . $idp . ']" id="ket' . $nom . '" class="form-control input-po hitung" />';
                                                 else echo ($data['vol_ket']) ? number_format($data['vol_ket']) : '&nbsp;';
                                                 ?></td>
                 <td class="b3 b4" align="right"><?php echo number_format($data['harga_poc']); ?></td>

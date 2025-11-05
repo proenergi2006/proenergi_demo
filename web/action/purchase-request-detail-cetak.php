@@ -36,13 +36,16 @@ $sql = "select a.*, b.sm_result, b.nomor_pr, b.sm_summary, b.sm_pic, b.sm_tangga
 $res = $con->getResult($sql);
 $printe = paramDecrypt($_SESSION["sinori" . SESSIONID]["fullname"]) . " " . date("d/m/Y H:i:s") . " WIB";
 // created by Alvin
-$barcod  = isset($res[0]['kode_barcode']) ? $res[0]['kode_barcode'] : '07';
-if (strlen($barcod) == 1)
-	$barcod = '0' . $barcod;
-// $barcod = $barcod."10".substr(rand(), 0, 6);
-$nomor_pr = explode('/', $row[0]['nomor_pr'])[0];
-$barcod = $barcod . "10" . sprintf("%06d", $nomor_pr);
+// $barcod  = isset($res[0]['kode_barcode']) ? $res[0]['kode_barcode'] : '07';
+// if (strlen($barcod) == 1)
+// 	$barcod = '0' . $barcod;
+// // $barcod = $barcod."10".substr(rand(), 0, 6);
+// $nomor_pr = explode('/', $row[0]['nomor_pr'])[0];
+// $barcod = $barcod . "10" . sprintf("%06d", $nomor_pr);
 // echo json_encode($res); die();
+
+//new barcode
+$barcod = "https://barcode.proenergi.com/customer/barcode/delivery-request/" . paramEncrypt($idr);
 
 $rincian = json_decode($res[0]['detail_rincian'], true);
 $ongkos_angkut = 0;
