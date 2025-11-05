@@ -201,7 +201,7 @@ if ($act == 'update') {
 							if ($result_detail['s'] == true) {
 
 								$data_save = array(
-									'transDate'        	=> date("d/m/Y"),
+									'transDate'        	=> date("d/m/Y", strtotime($rowget['tanggal_inven'])),
 									'vendorNo'         	=> $rowget['kode_vendor'],
 									'number'           	=> $new_nopo,
 									'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
