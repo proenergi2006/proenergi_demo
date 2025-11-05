@@ -108,7 +108,13 @@ $sql = "SELECT DISTINCT
     k.masa_awal, 
     k.masa_akhir, 
     CONCAT(o.jenis_produk, ' - ', o.merk_dagang) AS nama_produk, 
-    (SELECT SUM(vol_kirim) FROM pro_invoice_admin_detail WHERE id_invoice = a.id_invoice) AS volume_invoice, 
+    (
+    SELECT SUM(pp.volume_kirim)
+    FROM pro_po_customer_plan pp
+    JOIN pro_po_ds_detail dsd2 ON pp.id_plan = dsd2.id_plan
+    JOIN pro_invoice_admin_detail iad2 ON iad2.id_dsd = dsd2.id_dsd AND iad2.jenisnya='truck'
+    WHERE iad2.id_invoice = a.id_invoice
+    ) AS volume_invoice, 
     n.is_lunas, 
     q.nama_cabang
 FROM 
@@ -195,7 +201,13 @@ SELECT DISTINCT
     k.masa_awal, 
     k.masa_akhir, 
     CONCAT(o.jenis_produk, ' - ', o.merk_dagang) AS nama_produk, 
-    (SELECT SUM(vol_kirim) FROM pro_invoice_admin_detail WHERE id_invoice = a.id_invoice) AS volume_invoice, 
+    (
+    SELECT SUM(pp.volume_kirim)
+    FROM pro_po_customer_plan pp
+    JOIN pro_po_ds_kapal dsk2 ON pp.id_plan = dsk2.id_plan
+    JOIN pro_invoice_admin_detail iad2 ON iad2.id_dsd = dsk2.id_dsk AND iad2.jenisnya='kapal'
+    WHERE iad2.id_invoice = a.id_invoice
+    ) AS volume_invoice, 
     n.is_lunas, 
     q.nama_cabang
 FROM 

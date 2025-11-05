@@ -587,8 +587,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'departmentName'=> $item['department']['name'],
-								'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+								'departmentName' => $item['department']['name'],
+								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
 						} elseif ($item['item']['no'] == 'PBBKB') {
@@ -597,8 +597,8 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'departmentName'=> $item['department']['name'],
-								'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+								'departmentName' => $item['department']['name'],
+								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
 						} else {
@@ -608,8 +608,8 @@ if ($act == "add") {
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
 								'itemCashDiscount' => $discount,
-								'departmentName'=> $item['department']['name'],
-								'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+								'departmentName' => $item['department']['name'],
+								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
 						}
@@ -677,8 +677,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($item['item']['no'] == 'NS-001') {
@@ -687,8 +687,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} else {
@@ -698,8 +698,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							}
@@ -803,8 +803,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($item['item']['no'] == 'PBBKB') {
@@ -813,8 +813,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} else {
@@ -824,8 +824,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							}
@@ -923,8 +923,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($item['item']['no'] == 'PBBKB') {
@@ -933,8 +933,8 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} else {
@@ -944,8 +944,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							}
@@ -1405,8 +1405,8 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName'=> $item['department']['name'],
-									'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+									'departmentName' => $item['department']['name'],
+									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
 							} elseif ($ris['jenis'] == "harga_dasar_oa" || $ris['jenis'] == "harga_dasar_pbbkb" || $ris['jenis'] == "harga_dasar") {
@@ -1420,8 +1420,8 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName'=> $item['department']['name'],
-										'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+										'departmentName' => $item['department']['name'],
+										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
 								}
@@ -1436,8 +1436,8 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName'=> $item['department']['name'],
-										'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+										'departmentName' => $item['department']['name'],
+										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
 								}
@@ -1452,8 +1452,8 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName'=> $item['department']['name'],
-										'projectNo'		=> $item['project']['no'] == null?'':$item['project']['no'],
+										'departmentName' => $item['department']['name'],
+										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
 								}
@@ -1651,26 +1651,156 @@ if ($act == "add") {
 				$oke  = $oke && !$con->hasError();
 
 				// UPDATE INCENTIVE
-				$sql_incentive = "SELECT a.id_dsd as id_dsdnya, a.id_invoice as id_invoicenya, a.total_incentive, a.disposisi as statusnya, i.nama_customer, i.kode_pelanggan, i.jenis_payment, i.top_payment, i.id_customer as id_customernya, e.alamat_survey, f.nama_prov, g.nama_kab, j.id_user, j.fullname, j.id_role, h.nomor_poc, h.tanggal_poc, h.id_poc as id_pocnya, h.produk_poc, b.volume_po, k.refund_tawar, l.nama_area, l.id_master as id_areanya, m.wilayah_angkut, k.id_penawaran, k.harga_asli as harga_dasarnya, k.harga_tier, k.tier, ppdd.tanggal_delivered, n.no_invoice, n.tgl_invoice_dikirim, n.tgl_invoice, k.masa_awal, k.masa_akhir, CONCAT(o.jenis_produk,' - ', o.merk_dagang) as nama_produk, p.vol_kirim as volume_invoice, n.is_lunas, q.nama_cabang, (SELECT SUM(vol_kirim) FROM pro_invoice_admin_detail WHERE id_invoice=a.id_invoice) as total_vol_invoice
-				from pro_incentive a 
-				join pro_po_ds_detail ppdd on ppdd.id_dsd = a.id_dsd
-				join pro_po_detail b on ppdd.id_pod = b.id_pod
-				join pro_pr_detail c on ppdd.id_prd = c.id_prd 
-				join pro_po_customer_plan d on ppdd.id_plan = d.id_plan 
-				join pro_customer_lcr e on d.id_lcr = e.id_lcr
-				join pro_master_provinsi f on e.prov_survey = f.id_prov 
-				join pro_master_kabupaten g on e.kab_survey = g.id_kab
-				join pro_po_customer h on d.id_poc = h.id_poc 
-				join pro_customer i on h.id_customer = i.id_customer 
-				join acl_user j on a.id_marketing = j.id_user 
-				join pro_penawaran k on h.id_penawaran = k.id_penawaran	
-				join pro_master_area l on k.id_area = l.id_master 
-				join pro_master_wilayah_angkut m on e.id_wil_oa = m.id_master and e.prov_survey = m.id_prov and e.kab_survey = m.id_kab
-				join pro_invoice_admin n on a.id_invoice = n.id_invoice
-				join pro_master_produk o on o.id_master=h.produk_poc
-				join pro_invoice_admin_detail p on a.id_invoice=p.id_invoice
-				join pro_master_cabang q on q.id_master=i.id_wilayah
-				WHERE k.created_time > '2025-03-01' AND n.id_invoice='" . $id_invoice_hsd . "'";
+				$sql_incentive = "
+				SELECT 
+                      a.id_dsd AS id_dsdnya, 
+                      a.id_invoice AS id_invoicenya, 
+                      a.total_incentive, 
+                      a.disposisi AS statusnya,
+                      i.nama_customer, 
+                      i.kode_pelanggan, 
+                      i.jenis_payment, 
+                      i.top_payment, 
+                      i.id_customer AS id_customernya,
+                      e.alamat_survey, 
+                      f.nama_prov, 
+                      g.nama_kab, 
+                      j.id_user, 
+                      j.fullname, 
+                      j.id_role,
+                      h.nomor_poc, 
+                      h.tanggal_poc, 
+                      h.id_poc AS id_pocnya, 
+                      h.produk_poc, 
+                      b.volume_po, 
+                      k.refund_tawar, 
+                      l.nama_area, 
+                      l.id_master AS id_areanya,
+                      m.wilayah_angkut, 
+                      k.id_penawaran, 
+                      k.harga_asli AS harga_dasarnya, 
+                      k.harga_tier, 
+                      k.tier, 
+                      ppdd.tanggal_delivered,
+                      n.no_invoice, 
+                      n.tgl_invoice_dikirim, 
+                      n.tgl_invoice, 
+                      k.masa_awal, 
+                      k.masa_akhir,
+                      CONCAT(o.jenis_produk,' - ', o.merk_dagang) AS nama_produk,
+                      p.vol_kirim AS volume_invoice, 
+                      n.is_lunas, 
+                      q.nama_cabang,
+                      (
+                      SELECT SUM(pp.volume_kirim)
+                      FROM pro_po_customer_plan pp
+                      JOIN pro_po_ds_detail dsd2 ON pp.id_plan = dsd2.id_plan
+                      JOIN pro_invoice_admin_detail iad2 
+                          ON iad2.id_dsd = dsd2.id_dsd AND iad2.jenisnya='truck'
+                      WHERE iad2.id_invoice = a.id_invoice
+                  ) AS total_vol_invoice
+                  FROM pro_incentive a
+                  JOIN pro_po_ds_detail ppdd ON ppdd.id_dsd = a.id_dsd
+                  JOIN pro_po_detail b ON ppdd.id_pod = b.id_pod
+                  JOIN pro_pr_detail c ON ppdd.id_prd = c.id_prd
+                  JOIN pro_po_customer_plan d ON ppdd.id_plan = d.id_plan
+                  JOIN pro_customer_lcr e ON d.id_lcr = e.id_lcr
+                  JOIN pro_master_provinsi f ON e.prov_survey = f.id_prov
+                  JOIN pro_master_kabupaten g ON e.kab_survey = g.id_kab
+                  JOIN pro_po_customer h ON d.id_poc = h.id_poc
+                  JOIN pro_customer i ON h.id_customer = i.id_customer
+                  JOIN acl_user j ON a.id_marketing = j.id_user
+                  JOIN pro_penawaran k ON h.id_penawaran = k.id_penawaran
+                  JOIN pro_master_area l ON k.id_area = l.id_master
+                  JOIN pro_master_wilayah_angkut m ON e.id_wil_oa = m.id_master 
+                      AND e.prov_survey = m.id_prov 
+                      AND e.kab_survey = m.id_kab
+                  JOIN pro_invoice_admin n ON a.id_invoice = n.id_invoice
+                  JOIN pro_master_produk o ON o.id_master = h.produk_poc
+                  JOIN pro_invoice_admin_detail p 
+                      ON a.id_invoice = p.id_invoice 
+                    AND p.id_dsd = ppdd.id_dsd 
+                    AND p.jenisnya = 'truck'
+                  JOIN pro_master_cabang q ON q.id_master = i.id_wilayah
+                  WHERE k.created_time > '2025-03-01' 
+                    AND n.id_invoice = '" . $id_invoice_hsd . "'
+                  LIMIT 1
+              )
+              UNION ALL
+              (
+                  SELECT 
+                      a.id_dsd AS id_dsdnya, 
+                      a.id_invoice AS id_invoicenya, 
+                      a.total_incentive, 
+                      a.disposisi AS statusnya,
+                      i.nama_customer, 
+                      i.kode_pelanggan, 
+                      i.jenis_payment, 
+                      i.top_payment, 
+                      i.id_customer AS id_customernya,
+                      e.alamat_survey, 
+                      f.nama_prov, 
+                      g.nama_kab, 
+                      j.id_user, 
+                      j.fullname, 
+                      j.id_role,
+                      h.nomor_poc, 
+                      h.tanggal_poc, 
+                      h.id_poc AS id_pocnya, 
+                      h.produk_poc, 
+                      NULL AS volume_po, 
+                      k.refund_tawar, 
+                      l.nama_area, 
+                      l.id_master AS id_areanya,
+                      m.wilayah_angkut, 
+                      k.id_penawaran, 
+                      k.harga_asli AS harga_dasarnya, 
+                      k.harga_tier, 
+                      k.tier, 
+                      ppdd.tanggal_delivered,
+                      n.no_invoice, 
+                      n.tgl_invoice_dikirim, 
+                      n.tgl_invoice, 
+                      k.masa_awal, 
+                      k.masa_akhir,
+                      CONCAT(o.jenis_produk,' - ', o.merk_dagang) AS nama_produk,
+                      p.vol_kirim AS volume_invoice, 
+                      n.is_lunas, 
+                      q.nama_cabang,
+                      (
+                  SELECT SUM(pp.volume_kirim)
+                  FROM pro_po_customer_plan pp
+                  JOIN pro_po_ds_kapal dsk2 ON pp.id_plan = dsk2.id_plan
+                  JOIN pro_invoice_admin_detail iad2 
+                      ON iad2.id_dsd = dsk2.id_dsk AND iad2.jenisnya='kapal'
+                  WHERE iad2.id_invoice = a.id_invoice
+              ) AS total_vol_invoice
+                  FROM pro_incentive a
+                  JOIN pro_po_ds_kapal ppdd ON ppdd.id_dsk = a.id_dsd
+                  JOIN pro_pr_detail c ON ppdd.id_prd = c.id_prd
+                  JOIN pro_po_customer_plan d ON ppdd.id_plan = d.id_plan
+                  JOIN pro_customer_lcr e ON d.id_lcr = e.id_lcr
+                  JOIN pro_master_provinsi f ON e.prov_survey = f.id_prov
+                  JOIN pro_master_kabupaten g ON e.kab_survey = g.id_kab
+                  JOIN pro_po_customer h ON d.id_poc = h.id_poc
+                  JOIN pro_customer i ON h.id_customer = i.id_customer
+                  JOIN acl_user j ON a.id_marketing = j.id_user
+                  JOIN pro_penawaran k ON h.id_penawaran = k.id_penawaran
+                  JOIN pro_master_area l ON k.id_area = l.id_master
+                  JOIN pro_master_wilayah_angkut m ON e.id_wil_oa = m.id_master 
+                      AND e.prov_survey = m.id_prov 
+                      AND e.kab_survey = m.id_kab
+                  JOIN pro_invoice_admin n ON a.id_invoice = n.id_invoice
+                  JOIN pro_master_produk o ON o.id_master = h.produk_poc
+                  JOIN pro_invoice_admin_detail p 
+                      ON a.id_invoice = p.id_invoice 
+                    AND p.id_dsd = ppdd.id_dsk 
+                    AND p.jenisnya = 'kapal'
+                  JOIN pro_master_cabang q ON q.id_master = i.id_wilayah
+                  WHERE k.created_time > '2025-03-01' 
+                    AND n.id_invoice = '" . $id_invoice_hsd . "'
+                  LIMIT 1
+				";
 				$row_incentive = $con->getRecord($sql_incentive);
 
 				if ($row_incentive) {
