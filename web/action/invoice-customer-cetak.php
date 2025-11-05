@@ -78,7 +78,7 @@ $res02 = $con->getResult($sql02);
 
 $sql03 = "
 		select 
-		a.*, SUM(a.discount) as total_disc, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan,c1.jenis_payment,c1.top_payment
+		a.*, SUM(a.discount) as total_disc, b.nomor_do as no_dn, k1.nomor_plat as angkutan, l1.nama_sopir as sopir, d.nomor_poc, b.realisasi_volume, d.top_poc, c.tanggal_kirim, e.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan,c1.jenis_payment,c1.top_payment, b1.tgl_etl_po as tgl_po
 		from pro_invoice_admin_detail a 
 		join pro_po_ds_detail b on a.id_dsd = b.id_dsd and a.jenisnya = 'truck' 
 		join pro_po_customer_plan c on b.id_plan = c.id_plan 
@@ -97,7 +97,7 @@ $sql03 = "
 		HAVING total_disc IS NOT NULL
 		UNION ALL 
 		select 
-		a.*, SUM(a.discount) as total_disc, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan, c1.jenis_payment,c1.top_payment
+		a.*, SUM(a.discount) as total_disc, b.nomor_dn_kapal as no_dn, b.vessel_name as angkutan, b.kapten_name as sopir, e.nomor_poc, b.realisasi_volume, e.top_poc, d.tanggal_kirim, c.produk, g.wilayah_angkut, h.nama_prov as provinsi_angkut, i.nama_kab as kab_angkut, f.alamat_survey, j.gabung_oa, j.all_in, j.gabung_pbbkb, j.gabung_pbbkboa, j.id_penawaran, j.pembulatan, c1.jenis_payment,c1.top_payment, b.tgl_etl as tgl_etl
 		from pro_invoice_admin_detail a 
 		join pro_po_ds_kapal b on a.id_dsd = b.id_dsk and a.jenisnya = 'kapal' 
 		join pro_pr_detail c on b.id_prd = c.id_prd 
@@ -111,7 +111,7 @@ $sql03 = "
 		join pro_customer c1 on e.id_customer = c1.id_customer
 		where 1=1 and a.id_invoice = '" . $idr . "' 
 		HAVING total_disc IS NOT NULL
-		order by id_invoice_detail 
+		order by id_invoice_detail
 ";
 
 $res03 = $con->getRecord($sql03);

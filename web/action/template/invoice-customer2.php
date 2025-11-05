@@ -290,7 +290,8 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     Ship Date
                 </b>
                 <br>
-                <?= date("d M Y", strtotime($res03['tanggal_kirim'])) ?>
+                <?= date("d M Y", strtotime($res03['tgl_po'])) ?>
+                <!-- <?= date("d M Y", strtotime($res03['tanggal_kirim'])) ?> -->
             </td>
         </tr>
     </table>
