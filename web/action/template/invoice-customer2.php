@@ -363,7 +363,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     }
 
                     if ($res03['all_in'] == 1) {
-                        $harga = $res03['harga_kirim'];
+                        $harga = $harga_asli + $ongkos_angkut;
                         $total_harga  = $harga * $total_vol_kirim;
                         $total_harga_pbbkb  = $pbbkb * $total_vol_kirim;
                     } else {
@@ -392,8 +392,13 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 
                 if ($res03['pembulatan'] == 1) {
                     if ($res03['all_in'] == 1) {
+                        $total_pbbkb = $pbbkb * $total_vol_kirim;
                         $total_ppn = (round(($harga_asli + $ongkos_angkut) * $nilai_ppn / 100)) * $total_vol_kirim;
-                        $grand_total = $sub_total;
+                        if ($tipe == 'default') {
+                            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+                        } else {
+                            $grand_total = $sub_total + $total_ppn;
+                        }
                     } elseif ($res03['gabung_pbbkb'] == 1 || $res03['gabung_pbbkboa'] == 1) {
                         $total_pbbkb = 0;
                         $total_ppn = (round(($harga_asli + $ongkos_angkut) * $nilai_ppn / 100)) * $total_vol_kirim;
@@ -421,8 +426,13 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     }
                 } elseif ($res03['pembulatan'] == 0) {
                     if ($res03['all_in'] == 1) {
-                        $total_ppn = round((($harga_asli + $ongkos_angkut) * $nilai_ppn / 100), 2) * $total_vol_kirim;
-                        $grand_total = $sub_total;
+                        $total_pbbkb = $pbbkb * $total_vol_kirim;
+                        $total_ppn = (round(($harga_asli + $ongkos_angkut) * $nilai_ppn / 100)) * $total_vol_kirim;
+                        if ($tipe == 'default') {
+                            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+                        } else {
+                            $grand_total = $sub_total + $total_ppn;
+                        }
                     } elseif ($res03['gabung_pbbkb'] == 1 || $res03['gabung_pbbkboa'] == 1) {
                         $total_pbbkb = 0;
                         $total_ppn = round((($harga_asli + $ongkos_angkut) * $nilai_ppn / 100), 2) * $total_vol_kirim;
@@ -450,8 +460,13 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     }
                 } elseif ($res03['pembulatan'] == 2) {
                     if ($res03['all_in'] == 1) {
-                        $total_ppn = round((($harga_asli + $ongkos_angkut) * $nilai_ppn / 100), 4) * $total_vol_kirim;
-                        $grand_total = $sub_total;
+                        $total_pbbkb = $pbbkb * $total_vol_kirim;
+                        $total_ppn = (round(($harga_asli + $ongkos_angkut) * $nilai_ppn / 100)) * $total_vol_kirim;
+                        if ($tipe == 'default') {
+                            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+                        } else {
+                            $grand_total = $sub_total + $total_ppn;
+                        }
                     } elseif ($res03['gabung_pbbkb'] == 1 || $res03['gabung_pbbkboa'] == 1) {
                         $total_pbbkb = 0;
                         $total_ppn = round((($harga_asli + $ongkos_angkut) * $nilai_ppn / 100), 4) * $total_vol_kirim;
@@ -508,7 +523,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     }
 
                     if ($res03['all_in'] == 1) {
-                        $harga = $res03['harga_kirim'];
+                        $harga = $harga_asli + $ongkos_angkut;
                         $total_harga  = $harga * $total_vol_kirim;
                     } else {
                         if ($res03['gabung_oa'] == '1') {
@@ -533,8 +548,13 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 
                 if ($res03['pembulatan'] == 1) {
                     if ($res03['all_in'] == 1) {
+                        $total_pbbkb = $pbbkb * $total_vol_kirim;
                         $total_ppn = $ppn * $total_vol_kirim;
-                        $grand_total = $sub_total;
+                        if ($tipe == 'default') {
+                            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+                        } else {
+                            $grand_total = $sub_total + $total_ppn;
+                        }
                     } elseif ($res03['gabung_pbbkb'] == 1 || $res03['gabung_pbbkboa'] == 1) {
                         $total_pbbkb = 0;
                         $total_ppn = $ppn * $total_vol_kirim;
@@ -562,8 +582,13 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                     }
                 } else {
                     if ($res03['all_in'] == 1) {
+                        $total_pbbkb = $pbbkb * $total_vol_kirim;
                         $total_ppn = $ppn * $total_vol_kirim;
-                        $grand_total = $sub_total;
+                        if ($tipe == 'default') {
+                            $grand_total = $sub_total + $total_ppn + $total_pbbkb;
+                        } else {
+                            $grand_total = $sub_total + $total_ppn;
+                        }
                     } elseif ($res03['gabung_pbbkb'] == 1 || $res03['gabung_pbbkboa'] == 1) {
                         $total_pbbkb = 0;
                         $total_ppn = $ppn * $total_vol_kirim;
@@ -736,11 +761,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
                 </b>
             </td>
             <td align="right">
-                <?php if ($res03['all_in'] == 1) : ?>
-                    0
-                <?php else : ?>
-                    <?= number_format($total_ppn) ?>
-                <?php endif ?>
+                <?= number_format($total_ppn) ?>
             </td>
         </tr>
         <?php if ($tipe == 'default') : ?>
