@@ -1652,7 +1652,7 @@ if ($act == "add") {
 
 				// UPDATE INCENTIVE
 				$sql_incentive = "
-				SELECT 
+				(SELECT 
                       a.id_dsd AS id_dsdnya, 
                       a.id_invoice AS id_invoicenya, 
                       a.total_incentive, 
@@ -1725,7 +1725,7 @@ if ($act == "add") {
                   WHERE k.created_time > '2025-03-01' 
                     AND n.id_invoice = '" . $id_invoice_hsd . "'
                   LIMIT 1
-              )
+                  )
               UNION ALL
               (
                   SELECT 
@@ -1799,8 +1799,7 @@ if ($act == "add") {
                   JOIN pro_master_cabang q ON q.id_master = i.id_wilayah
                   WHERE k.created_time > '2025-03-01' 
                     AND n.id_invoice = '" . $id_invoice_hsd . "'
-                  LIMIT 1
-				";
+                  LIMIT 1)";
 				$row_incentive = $con->getRecord($sql_incentive);
 
 				if ($row_incentive) {
