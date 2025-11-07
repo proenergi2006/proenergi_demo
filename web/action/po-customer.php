@@ -27,6 +27,7 @@ $supply_date	= htmlspecialchars($_POST["supply_date"], ENT_QUOTES);
 $nomor_po		= htmlspecialchars($_POST["nomor_po"], ENT_QUOTES);
 $top			= htmlspecialchars($_POST["top"], ENT_QUOTES);
 $produk			= htmlspecialchars($_POST["produk"], ENT_QUOTES);
+$keterangan_po	= htmlspecialchars($_POST["keterangan"], ENT_QUOTES);
 $penerima_refund = $_POST["penerima_refund"];
 $terima_refund = $_POST["terima_refund"];
 $harga_liter	= htmlspecialchars(str_replace(array(","), array(""), $_POST["harga_liter"]), ENT_QUOTES);
@@ -111,9 +112,9 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 
 		if ($filePhoto != "") {
 			$upl = true;
-			$sql = "insert ignore into pro_po_customer(id_customer, id_marketing, id_penawaran, top_poc, nomor_poc, tanggal_poc, supply_date, harga_poc, volume_poc, produk_poc, lampiran_poc_ori, created_time, 
+			$sql = "insert ignore into pro_po_customer(id_customer, id_marketing, id_penawaran, top_poc, nomor_poc, tanggal_poc, supply_date, harga_poc, volume_poc, produk_poc, lampiran_poc_ori, keterangan, created_time, 
 						created_ip, created_by) values ('" . $customer . "', '" . $sesid . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter2 . "', 
-						'" . $total_volume . "', '" . $produk . "', '" . sanitize_filename($filePhoto) . "', NOW(), '" . $user_ip . "', '" . $user_pic . "')";
+						'" . $total_volume . "', '" . $produk . "', '" . sanitize_filename($filePhoto) . "', '" . $keterangan_po . "', NOW(), '" . $user_ip . "', '" . $user_pic . "')";
 			$idk = $con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
 
@@ -137,9 +138,8 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 		} else {
 			$upl = false;
 			$nqu = '';
-			$sql = "insert ignore into pro_po_customer(id_customer, id_marketing, id_penawaran, top_poc, nomor_poc, tanggal_poc, supply_date, harga_poc, volume_poc, produk_poc, created_time, 
-						created_ip, created_by) values ('" . $customer . "', '" . $sesid . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter2 . "',
-						'" . $total_volume . "', '" . $produk . "', NOW(), '" . $user_ip . "', '" . $user_pic . "')";
+			$sql = "insert ignore into pro_po_customer(id_customer, id_marketing, id_penawaran, top_poc, nomor_poc, tanggal_poc, supply_date, harga_poc, volume_poc, produk_poc, keterangan, created_time, created_ip, created_by) values ('" . $customer . "', '" . $sesid . "', '" . $penawaran . "', '" . $top . "', '" . $nomor_po . "', '" . tgl_db($tanggal_po) . "', '" . tgl_db($supply_date) . "', '" . $harga_liter2 . "',
+						'" . $total_volume . "', '" . $produk . "', '" . $keterangan_po . "', NOW(), '" . $user_ip . "', '" . $user_pic . "')";
 			$idk = $con->setQuery($sql);
 			$oke  = $oke && !$con->hasError();
 
@@ -301,9 +301,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			if ($filePhoto != "") {
 				$upl = true;
 				$nqu = 'POC_' . $idk . '_' . sanitize_filename($filePhoto);
-				$sql = "update pro_po_customer set id_marketing = '" . $sesid . "', nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter2 . "',
-							lampiran_poc = '" . $nqu . "', lampiran_poc_ori = '" . sanitize_filename($filePhoto) . "', lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', 
-							lastupdate_by = '" . $user_pic . "' where id_customer = '" . $idr . "' and id_poc = '" . $idk . "'";
+				$sql = "update pro_po_customer set id_marketing = '" . $sesid . "', nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter2 . "', lampiran_poc = '" . $nqu . "', lampiran_poc_ori = '" . sanitize_filename($filePhoto) . "', keterangan = '" . $keterangan_po . "', lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', lastupdate_by = '" . $user_pic . "' where id_customer = '" . $idr . "' and id_poc = '" . $idk . "'";
 				$con->setQuery($sql);
 				$oke  = $oke && !$con->hasError();
 
@@ -324,8 +322,7 @@ if ($act == 'update_no_po' && $nomor_po_cust != "") {
 			} else {
 				$upl = false;
 				$nqu = '';
-				$sql = "update pro_po_customer set id_marketing = '" . $sesid . "', nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter2 . "',
-							lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', lastupdate_by = '" . $user_pic . "' where id_customer = '" . $idr . "' and id_poc = '" . $idk . "'";
+				$sql = "update pro_po_customer set id_marketing = '" . $sesid . "', nomor_poc = '" . $nomor_po . "', tanggal_poc = '" . tgl_db($tanggal_po) . "', supply_date = '" . tgl_db($supply_date) . "', volume_poc = '" . $total_volume . "', harga_poc = '" . $harga_liter2 . "', keterangan = '" . $keterangan_po . "', lastupdate_time = NOW(), lastupdate_ip = '" . $user_ip . "', lastupdate_by = '" . $user_pic . "' where id_customer = '" . $idr . "' and id_poc = '" . $idk . "'";
 				$con->setQuery($sql);
 				$oke  = $oke && !$con->hasError();
 

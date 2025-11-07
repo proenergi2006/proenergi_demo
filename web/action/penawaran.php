@@ -141,7 +141,7 @@ if ($act == "add") {
 		$harga_om = $row4['harga_om'];
 		$harga_coo = $row4['harga_coo'];
 
-		if ($harga_tier > $harga_sm) {
+		if ($harga_tier >= $harga_sm) {
 			$tier = 'I';
 		} elseif ($harga_tier >= $harga_om && $harga_tier < $harga_sm) {
 			$tier = 'II';
@@ -243,7 +243,7 @@ if ($act == "add") {
 		$harga_om = $row4['harga_om'];
 		$harga_coo = $row4['harga_coo'];
 
-		if ($harga_tier > $harga_sm) {
+		if ($harga_tier >= $harga_sm) {
 			$tier = 'I';
 		} elseif ($harga_tier >= $harga_om && $harga_tier < $harga_sm) {
 			$tier = 'II';

@@ -633,7 +633,7 @@ $termPayment = $arr_payment[$jns_payment];
 	<?php if ($row_button['status'] == 1) : ?>
 		<?php if ($simpan === true) : ?>
 			<?php if ($status_disabled == "disabled") : ?>
-				<span style="color: red;"><b>SC sudah melewati jam 16:00:00, Akan dibuka kembali pada : <?= $tgl_buka ?></b>
+				<span style="color: red;"><b>SC sudah melewati jam <?= $waktu_tutup ?>, Akan dibuka kembali pada : <?= $tgl_buka ?></b>
 				</span>
 			<?php endif ?>
 			<br>

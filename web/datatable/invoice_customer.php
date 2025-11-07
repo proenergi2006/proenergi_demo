@@ -34,11 +34,19 @@ if ($sesrol == '25') {
 }
 
 $p = new paging;
-$sql = "SELECT a.*, a.id_accurate as id_aol_invoice, b.nama_customer, b.jenis_payment, b.top_payment, c.nama_cabang, d.fullname as nama_marketing
-		from pro_invoice_admin a 
-		join pro_customer b on a.id_customer = b.id_customer 
-		join pro_master_cabang c on b.id_wilayah = c.id_master
-		join acl_user d on b.id_marketing = d.id_user
+$sql = "SELECT 
+			a.*, 
+			a.id_accurate AS id_aol_invoice,
+			b.nama_customer, 
+			b.jenis_payment, 
+			b.top_payment, 
+			c.nama_cabang,
+			COALESCE(u_invoice.fullname, u_customer.fullname) AS nama_marketing
+		FROM pro_invoice_admin a
+		JOIN pro_customer b ON a.id_customer = b.id_customer
+		JOIN pro_master_cabang c ON b.id_wilayah = c.id_master
+		LEFT JOIN acl_user u_invoice ON a.id_marketing = u_invoice.id_user
+		LEFT JOIN acl_user u_customer ON b.id_marketing = u_customer.id_user
 		where 1=1 " . $filter_cabang . "";
 
 if ($q1 != "")

@@ -107,6 +107,11 @@ $linkCetak_all = ACTION_CLIENT . '/invoice-customer-cetak.php?' . paramEncrypt('
                             <td><?php echo $rsm['jenis_produk'] . " - " . $rsm['merk_dagang']; ?></td>
                         </tr>
                         <tr>
+                            <td>Keterangan</td>
+                            <td>:</td>
+                            <td><?php echo $rsm['keterangan'] ? $rsm['keterangan'] : '-'; ?></td>
+                        </tr>
+                        <tr>
                             <td>Harga/Liter</td>
                             <td>:</td>
                             <td><?php echo $harga_pocnya; ?></td>
