@@ -210,6 +210,11 @@ $selisih_hari = ($timestamp_sekarang - $tgl_poc) / (60 * 60 * 24);
 												<td><?php echo $rsm['jenis_produk'] . " " . $rsm['merk_dagang']; ?></td>
 											</tr>
 											<tr>
+												<td>Keterangan</td>
+												<td>:</td>
+												<td><?php echo $rsm['keterangan'] ? $rsm['keterangan'] : '-'; ?></td>
+											</tr>
+											<tr>
 												<td>Harga/Liter</td>
 												<td>:</td>
 												<td><?php echo $harga_pocnya; ?></td>

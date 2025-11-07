@@ -33,44 +33,56 @@ $sql = "SELECT
   b.id_wilayah AS wilayah_customer,
   c.nama_kab,
   d.nama_prov,
-
-  /* tampilkan nama marketing dari dokumen: PO -> Penawaran -> Customer */
-  e.fullname,
-
+  e.fullname AS nama_marketing,
   g.nama_cabang,
   h.realisasi,
   h.vol_plan,
   f.pembulatan,
-
-  COALESCE((
-    SELECT SUM(x.volume_close)
-    FROM pro_po_customer_close x
-    WHERE x.id_poc = a.id_poc AND x.st_Aktif = 'Y'
-  ),0) AS volume_close_po,
-
-  (SELECT role_approved
-     FROM pro_sales_confirmation
-    WHERE id_customer=a.id_customer AND id_poc=a.id_poc
-    ORDER BY created_date DESC LIMIT 1) AS role_approved,
-
-  (SELECT disposisi
-     FROM pro_sales_confirmation
-    WHERE id_customer=a.id_customer AND id_poc=a.id_poc
-    ORDER BY created_date DESC LIMIT 1) AS disposisi
-
+  IFNULL(x.volume_close_po, 0) AS volume_close_po,
+  y.role_approved,
+  y.disposisi
 FROM pro_po_customer a
-JOIN pro_customer b           ON a.id_customer = b.id_customer
-JOIN pro_master_kabupaten c   ON b.kab_customer = c.id_kab
-JOIN pro_master_provinsi d    ON b.prov_customer = d.id_prov
+JOIN pro_customer b
+  ON a.id_customer = b.id_customer
+JOIN pro_master_kabupaten c
+  ON b.kab_customer = c.id_kab
+JOIN pro_master_provinsi d
+  ON b.prov_customer = d.id_prov
+LEFT JOIN pro_penawaran f
+  ON a.id_penawaran = f.id_penawaran
+LEFT JOIN pro_master_cabang g
+  ON f.id_cabang = g.id_master
 
-/* LEFT JOIN supaya PO legacy tanpa penawaran tetap terbawa */
-LEFT JOIN pro_penawaran f     ON a.id_penawaran = f.id_penawaran
+/* 🔹 Optimasi pemilihan marketing */
+LEFT JOIN acl_user e
+  ON e.id_user = CASE
+      WHEN a.id_marketing IS NOT NULL THEN a.id_marketing
+      WHEN f.id_marketing IS NOT NULL THEN f.id_marketing
+      ELSE b.id_marketing
+  END
 
-/* fullname marketing diambil dari prioritas dokumen */
-JOIN acl_user e               ON e.id_user = COALESCE(a.id_marketing, f.id_marketing, b.id_marketing)
+/* 🔹 Pre-aggregate close volume */
+LEFT JOIN (
+  SELECT id_poc, SUM(volume_close) AS volume_close_po
+  FROM pro_po_customer_close
+  WHERE st_Aktif = 'Y'
+  GROUP BY id_poc
+) x ON x.id_poc = a.id_poc
 
-JOIN pro_master_cabang g      ON f.id_cabang = g.id_master
+/* 🔹 Ambil role_approved dan disposisi terakhir sekaligus */
+LEFT JOIN (
+  SELECT t.id_customer, t.id_poc, t.role_approved, t.disposisi
+  FROM pro_sales_confirmation t
+  INNER JOIN (
+    SELECT id_customer, id_poc, MAX(created_date) AS max_date
+    FROM pro_sales_confirmation
+    GROUP BY id_customer, id_poc
+  ) m ON t.id_customer = m.id_customer
+      AND t.id_poc = m.id_poc
+      AND t.created_date = m.max_date
+) y ON y.id_customer = a.id_customer AND y.id_poc = a.id_poc
 
+/* 🔹 Ringkasan plan */
 LEFT JOIN (
   SELECT
     id_poc,
