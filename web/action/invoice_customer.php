@@ -616,7 +616,7 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'departmentName' => $item['department']['name'],
+								'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
@@ -626,7 +626,7 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'departmentName' => $item['department']['name'],
+								'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
@@ -637,7 +637,7 @@ if ($act == "add") {
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
 								'itemCashDiscount' => $discount,
-								'departmentName' => $item['department']['name'],
+								'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
@@ -706,7 +706,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -716,7 +716,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -727,7 +727,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -832,7 +832,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -842,7 +842,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -853,7 +853,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -952,7 +952,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -962,7 +962,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -973,7 +973,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -1451,7 +1451,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' => $item['department']['name'],
+									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -1466,7 +1466,7 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName' => $item['department']['name'],
+										'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
@@ -1482,7 +1482,7 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName' => $item['department']['name'],
+										'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
@@ -1498,7 +1498,7 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName' => $item['department']['name'],
+										'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
 										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
