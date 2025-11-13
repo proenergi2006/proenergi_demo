@@ -388,7 +388,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
             $sub_total_pbbkb = $harga_asli_pbbkb * $total_vol_kirim;
 
             $sub_total = $sub_total_hsd + $sub_total_oa + $sub_total_pbbkb;
-            $total_ppn = round($ppn * $total_vol_kirim);
+            $total_ppn = $ppn * $total_vol_kirim;
             $grand_total = $sub_total + $total_ppn + $total_pbbkb;
             ?>
         <?php endforeach ?>

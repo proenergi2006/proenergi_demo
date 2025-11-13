@@ -330,37 +330,45 @@ if ($act == "add") {
 	$id_dsd_list = array_map('intval', $_POST['id_dsd']);
 	$id_dsd_str = implode(',', $id_dsd_list);
 
-	$sqlCheckPO = "
-	SELECT DISTINCT dsd.id_poc
-	FROM pro_po_ds_detail dsd
-	WHERE dsd.id_dsd IN ($id_dsd_str)
-	";
-	$poList = $con->getResult($sqlCheckPO);
+	$sqlCekKapal = "SELECT COUNT(*) AS total FROM pro_po_ds_kapal WHERE id_dsk IN ($id_dsd_str)";
+	$rowCekKapal = $con->getRecord($sqlCekKapal);
+	$isKapal = $rowCekKapal && $rowCekKapal['total'] > 0;
 
-	if (count($poList) > 1) {
-		$con->rollBack();
-		$con->clearError();
-		$con->close();
-		$flash->add("error", "Invoice tidak boleh beda PO", BASE_REFERER);
+	if ($isKapal) {
+		$sqlGetPoc = "SELECT id_poc FROM pro_po_ds_kapal WHERE id_dsk IN ($id_dsd_str) LIMIT 1";
+	} else {
+		$sqlGetPoc = "SELECT id_poc FROM pro_po_ds_detail WHERE id_dsd IN ($id_dsd_str) LIMIT 1";
 	}
-	$id_poc = $poList[0]['id_poc'];
 
-	$sqlMarketing = "
-	SELECT po.id_marketing
-	FROM pro_po_customer po
-	WHERE po.id_poc = $id_poc
-	LIMIT 1";
-	$rowM = $con->getRecord($sqlMarketing);
-	$id_marketing = $rowM['id_marketing'];
+	$rowPoc = $con->getRecord($sqlGetPoc);
+	$id_poc = $rowPoc ? (int)$rowPoc['id_poc'] : 0;
+
+	$id_marketing = 0;
+	if ($id_poc > 0) {
+		$sqlMarketing = "
+        SELECT id_marketing
+        FROM pro_po_customer
+        WHERE id_poc = $id_poc
+        LIMIT 1
+    ";
+		$rowM = $con->getRecord($sqlMarketing);
+		$id_marketing = $rowM ? (int)$rowM['id_marketing'] : NULL;
+	}
+
+	if ($id_marketing == "" || $id_marketing == NULL) {
+		$mark_id = NULL;
+	} else {
+		$mark_id = $id_marketing;
+	}
 
 	// echo json_encode($id_marketing);
 	// exit();
 
 	if ($split_invoice == "all_in") {
 		$sql1 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'all_in', '" . $approval['id_master'] . "',  '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'all_in', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql1);
 		$oke  = $oke && !$con->hasError();
@@ -380,9 +388,9 @@ if ($act == "add") {
 
 		// Harga Dasar + PBBKB + PPN x Volume Kirim
 		$sql_split_oa1 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_pbbkb', '" . $approval['id_master'] . "',  '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_pbbkb', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql_split_oa1);
 		$oke  = $oke && !$con->hasError();
@@ -394,9 +402,9 @@ if ($act == "add") {
 		// Ongkos Kirim + PPN x Volume Kirim
 		$noms_inv_split_oa = $noms_inv . "A";
 		$sql_split_oa2 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval,id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval,id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',  '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res2 = $con->setQuery($sql_split_oa2);
 		$oke  = $oke && !$con->hasError();
@@ -417,9 +425,9 @@ if ($act == "add") {
 	} elseif ($split_invoice == "split_pbbkb") {
 		// Harga Dasar + OA + PPN x Volume Kirim
 		$sql_split_pbbkb1 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_oa) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_oa', '" . $approval['id_master'] . "', '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar_oa) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar_oa', '" . $approval['id_master'] . "', '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql_split_pbbkb1);
 		$oke  = $oke && !$con->hasError();
@@ -431,9 +439,9 @@ if ($act == "add") {
 		// PBBKB x Volume Kirim
 		$noms_inv_split_pbbkb = $noms_inv . "B";
 		$sql_split_pbbkb2 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "',  '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res2 = $con->setQuery($sql_split_pbbkb2);
 		$oke  = $oke && !$con->hasError();
@@ -455,9 +463,9 @@ if ($act == "add") {
 
 		// Harga Dasar + PPN x Volume Kirim
 		$sql_split_all1 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar', '" . $approval['id_master'] . "', '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_harga_dasar) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', 'notyet', 'harga_dasar', '" . $approval['id_master'] . "', '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res1 = $con->setQuery($sql_split_all1);
 		$oke  = $oke && !$con->hasError();
@@ -469,9 +477,9 @@ if ($act == "add") {
 		// Ongkos Kirim + PPN x Volume Kirim
 		$noms_inv_split_oa = $noms_inv . "A";
 		$sql_split_all2 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitoa, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',  '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv_split_oa . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_ongkos_angkut) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_oa . "', 'notyet', 'split_oa', '" . $approval['id_master'] . "',  '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res2 = $con->setQuery($sql_split_all2);
 		$oke  = $oke && !$con->hasError();
@@ -483,9 +491,9 @@ if ($act == "add") {
 		// PBBKB x Volume Kirim
 		$noms_inv_split_pbbkb = $noms_inv . "B";
 		$sql_split_all3 = "
-		insert into pro_invoice_admin(id_customer, id_marketing, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval, id_bank,
+		insert into pro_invoice_admin(id_customer, no_invoice, tgl_invoice, tgl_kirim_awal, tgl_kirim_akhir, total_invoice, is_cetakan, no_invoice_customer, no_po_splitpbbkb, status_ar, jenis, id_approval, id_bank,
 		created_time, created_ip, created_by) values 
-		('" . $id_customer . "', '" . $id_marketing . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "', '" . $id_bank . "',
+		('" . $id_customer . "', '" . $noms_inv_split_pbbkb . "', '" . tgl_db($tgl_invoice) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . tgl_db($tgl_delivered_awal) . "', '" . round($total_invoice_pbbkb) . "', '" . $is_cetakan . "','" . $no_invoice_customer . "', '" . $nomor_po_pbbkb . "', 'notyet', 'split_pbbkb', '" . $approval['id_master'] . "', '" . $id_bank . "',
 		'" . $created_time . "', '" . $created_ip . "', '" . $created_by . "')";
 		$res3 = $con->setQuery($sql_split_all3);
 		$oke  = $oke && !$con->hasError();
@@ -626,7 +634,7 @@ if ($act == "add") {
 								'quantity'     => $vol_kirim,
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
-								'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+								'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
@@ -637,7 +645,7 @@ if ($act == "add") {
 								'unitPrice'    => $item['unitPrice'],
 								'deliveryOrderNumber' => $data_prd['no_do_syop'],
 								'itemCashDiscount' => $discount,
-								'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+								'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 								'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 								'salesmanListNumber' => $item['salesmanList'][0]['number']
 							];
@@ -706,7 +714,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -716,7 +724,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -727,7 +735,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -832,7 +840,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -842,7 +850,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -853,7 +861,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -952,7 +960,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -962,7 +970,7 @@ if ($act == "add") {
 									'quantity'     => $vol_kirim,
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -973,7 +981,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -1314,23 +1322,6 @@ if ($act == "add") {
 
 
 	if (count($_POST["id_dsd"]) > 0) {
-		$id_dsd_list = array_map('intval', $_POST['id_dsd']);
-		$id_dsd_str = implode(',', $id_dsd_list);
-
-		$sqlCheckPO = "
-		SELECT DISTINCT dsd.id_poc
-		FROM pro_po_ds_detail dsd
-		WHERE dsd.id_dsd IN ($id_dsd_str)
-		";
-		$poList = $con->getResult($sqlCheckPO);
-
-		if (count($poList) > 1) {
-			$con->rollBack();
-			$con->clearError();
-			$con->close();
-			$flash->add("error", "Invoice tidak boleh beda PO", BASE_REFERER);
-		}
-
 		$detailItems 	= [];
 		$noms01 = 0;
 		$total_pengiriman = count($_POST["id_dsd"]);
@@ -1451,7 +1442,7 @@ if ($act == "add") {
 									'unitPrice'    => $item['unitPrice'],
 									'deliveryOrderNumber' => $data_prd['no_do_syop'],
 									'itemCashDiscount' => $discount,
-									'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+									'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 									'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 									'salesmanListNumber' => $item['salesmanList'][0]['number']
 								];
@@ -1466,7 +1457,7 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+										'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
@@ -1482,7 +1473,7 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+										'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];
@@ -1498,7 +1489,7 @@ if ($act == "add") {
 										'unitPrice'    => $item['unitPrice'],
 										'deliveryOrderNumber' => $data_prd['no_do_syop'],
 										'itemCashDiscount' => $discount,
-										'departmentName' =>$item['department']['name'] == null ? '' : $item['department']['name'],
+										'departmentName' => $item['department']['name'] == null ? '' : $item['department']['name'],
 										'projectNo'		=> $item['project']['no'] == null ? '' : $item['project']['no'],
 										'salesmanListNumber' => $item['salesmanList'][0]['number']
 									];

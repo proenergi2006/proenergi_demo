@@ -384,7 +384,7 @@ if ($res03['jenis_payment'] == "COD" || $res03['jenis_payment'] == "CBD") {
 
             $sub_total = $total_harga + $total_harga_oa;
             $sub_total_hsd = ($harga_asli + $ongkos_angkut) * $total_vol_kirim;
-            $total_ppn = round($ppn * $total_vol_kirim);
+            $total_ppn = $ppn * $total_vol_kirim;
             $grand_total = $sub_total + $total_ppn + $total_harga_pbbkb;
             ?>
         <?php endforeach ?>
