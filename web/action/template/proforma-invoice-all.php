@@ -551,6 +551,16 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                         <td>
                             Cab. Sudirman, Jakarta
                         </td>
+                    <?php elseif ($sess_wil == '3') : ?>
+                        <td>
+                            Bank Mandiri
+                        </td>
+                        <td>
+                            :
+                        </td>
+                        <td>
+                            Cab. Graha Irama
+                        </td>
                     <?php else : ?>
                         <td>
                             Bank Rakyat Indonesia
@@ -573,6 +583,8 @@ if ($res03['top_poc'] == "COD" || $res03['top_poc'] == "CBD") {
                     <td>
                         <?php if ($sess_wil == '6') : ?>
                             100 2083 604
+                        <?php elseif ($sess_wil == '3') : ?>
+                            1240005570453
                         <?php else : ?>
                             0329-01-003694-305
                         <?php endif ?>
