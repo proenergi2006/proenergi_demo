@@ -20,7 +20,7 @@ $q3	= htmlspecialchars($enk["q3"], ENT_QUOTES);
 $q4	= htmlspecialchars($enk["q4"], ENT_QUOTES);
 $q5	= htmlspecialchars($enk["q5"], ENT_QUOTES);
 
-$sql = "select a.*, o.tanggal_ds, c.pr_pelanggan, i.nama_customer, e.alamat_survey, f.nama_prov, g.nama_kab, j.fullname, n.nama_transportir, n.nama_suplier, b.no_spj, k.nomor_plat, d.no_so, h.nomor_poc, l.nama_sopir, b.volume_po, h.produk_poc, p.id_area, c.pr_vendor, r.nama_terminal, r.tanki_terminal, r.lokasi_terminal, s.wilayah_angkut, m.nomor_po as po_transportir, m.tanggal_po, c.produk, b.tgl_kirim_po, b.mobil_po, b.tgl_etl_po, b.tgl_eta_po, b.jam_etl_po, c.no_do_syop, h.tanggal_poc, pr.nomor_pr, c.nomor_lo_pr
+$sql = "select a.*, o.tanggal_ds, c.pr_pelanggan, i.nama_customer, e.alamat_survey, f.nama_prov, g.nama_kab, j.fullname, n.nama_transportir, n.nama_suplier, b.no_spj, k.nomor_plat, d.no_so, h.nomor_poc, l.nama_sopir, b.volume_po, h.produk_poc, p.id_area, p.harga_dasar, c.pr_vendor, r.nama_terminal, r.tanki_terminal, r.lokasi_terminal, s.wilayah_angkut, m.nomor_po as po_transportir, m.tanggal_po, c.produk, b.tgl_kirim_po, b.mobil_po, b.tgl_etl_po, b.tgl_eta_po, b.jam_etl_po, c.no_do_syop, h.tanggal_poc, pr.nomor_pr, c.nomor_lo_pr, c.nomor_po_supplier, IF(u.no_invoice IS NOT NULL,u.no_invoice, 'Belum Invoice') AS `no_invoice`
 	from pro_po_ds_detail a 
 	join pro_po_ds o on a.id_ds = o.id_ds 
 	join pro_po_detail b on a.id_pod = b.id_pod 
@@ -41,6 +41,8 @@ $sql = "select a.*, o.tanggal_ds, c.pr_pelanggan, i.nama_customer, e.alamat_surv
 	join pro_master_transportir n on m.id_transportir = n.id_master 
 	join pro_master_terminal r on o.id_terminal = r.id_master 
 	join pro_master_wilayah_angkut s on e.id_wil_oa = s.id_master and e.prov_survey = s.id_prov and e.kab_survey = s.id_kab
+	left join pro_invoice_admin_detail t ON a.id_dsd = t.id_dsd
+  	left join pro_invoice_admin u ON t.id_invoice = u.id_invoice
 	where a.is_loaded = 1 and o.id_wilayah = '" . paramDecrypt($_SESSION["sinori" . SESSIONID]["id_wilayah"]) . "'";
 
 if ($q1 != "")
@@ -133,6 +135,8 @@ $header = array(
 	"Nomor PO Customer" => 'string',
 	"Nomor PO Transportir" => 'string',
 	"Nomor Loading Order" => 'string',
+	"Nomor Invoice" => 'string',
+	"Alamat Site" => 'string',
 	"Tanggal DS" => 'string',
 	"Tanggal PO Customer" => 'string',
 	"Tanggal Kirim" => 'string',
@@ -147,9 +151,10 @@ $header = array(
 	"at Customer" => 'string',
 	"Finish" => 'string',
 	"SJ Received" => 'string',
+	"Harga SC" => 'string',
 	"Volume (Liter)" => 'string',
 	"Volume Realisasi (Liter)" => 'string',
-	"Site" => 'string',
+	"Alamat Terminal" => 'string',
 	"Status Cancel" => 'string',
 	"Status Loaded" => 'string',
 	"Status Delivered" => 'string'
@@ -166,6 +171,9 @@ if (count($res) > 0) {
 		$tanggal_loaded = !empty($data['tanggal_loaded']) ? date('d-m-Y', strtotime($data['tanggal_loaded'])) : '';
 		$jam_loaded = !empty($data['jam_loaded']) ? date('H:i', strtotime($data['jam_loaded'])) : '';
 		$tanggal_jam_loaded = ($tanggal_loaded && $jam_loaded) ? $tanggal_loaded . ' ' . $jam_loaded : '';
+
+		$tempal 	= strtolower(str_replace(array("KABUPATEN ", "KOTA "), array("", ""), $data['nama_kab']));
+		$alamat		= $data['alamat_survey'] . " " . ucwords($tempal) . " " . $data['nama_prov'];
 
 		if ($data['is_cancel'] == 1) {
 			$status_cancel = "Canceled " . date("d/m/Y", strtotime($data['tanggal_cancel']));
@@ -204,6 +212,8 @@ if (count($res) > 0) {
 			trim($data['nomor_poc']),
 			trim($data['po_transportir']),
 			$data['nomor_lo_pr'],
+			$data['no_invoice'],
+			$alamat,
 			date("d/m/Y", strtotime($data['tanggal_ds'])),
 			date("d/m/Y", strtotime($data['tanggal_poc'])),
 			date("d/m/Y", strtotime($data['tgl_kirim_po'])),
@@ -218,6 +228,7 @@ if (count($res) > 0) {
 			!empty($data['tanggal_delivered']) ? date('d/m/Y H:i', strtotime($data['tanggal_delivered'])) : '',
 			$finish,
 			!empty($data['tgl_realisasi']) ? date('d/m/Y H:i', strtotime($data['tgl_realisasi'])) : '',
+			$data['harga_dasar'],
 			$data['volume_po'],
 			floatval($data['realisasi_volume']),
 			$data['tanki_terminal'] . " - " . $data['nama_terminal'] . " - " . $data['lokasi_terminal'],
@@ -226,12 +237,12 @@ if (count($res) > 0) {
 			$status_delivered
 		));
 	}
-	$writer->writeSheetRow($sheet, array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL", "=SUM(W" . $start . ":W" . $last . ")", "=SUM(X" . $start . ":X" . $last . ")", "", "", "", "", ""));
+	$writer->writeSheetRow($sheet, array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL", "=SUM(Z" . $start . ":Z" . $last . ")", "=SUM(AA" . $start . ":AA" . $last . ")", "", "", "", "", ""));
 	$last++;
 	$writer->newMergeCell($sheet, "A" . $last, "C" . $last);
 } else {
 	$writer->writeSheetRow($sheet, array("Data tidak ada"));
-	$writer->newMergeCell($sheet, "A" . $start, "AB" . $start);
+	$writer->newMergeCell($sheet, "A" . $start, "AE" . $start);
 	$start++;
 }
 

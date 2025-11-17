@@ -54,7 +54,8 @@ j.is_delivered as is_delivered_kapal,
 j.is_cancel as is_cancel_kapal,
 j.tanggal_loaded as tanggal_loaded_kapal,
 j.jam_loaded as jam_loaded_kapal, 
-j.tanggal_cancel as tanggal_cancel_kapal
+j.tanggal_cancel as tanggal_cancel_kapal,
+k.detail_rincian
 
 from pro_pr_detail a
 join pro_pr b on a.id_pr = b.id_pr
@@ -66,6 +67,7 @@ join pro_master_terminal g on a.pr_terminal = g.id_master
 LEFT join new_pro_inventory_potongan_stock h on a.id_prd = h.id_prd
 left join pro_po_ds_detail i on a.id_prd = i.id_prd
 left join pro_po_ds_kapal j on a.id_prd = j.id_prd
+join pro_penawaran k on d.id_penawaran = k.id_penawaran 
 where 1=1";
 
 
@@ -122,6 +124,25 @@ foreach ($result as $data) {
 }
 $content = [];
 foreach ($data_ as $i => $row) {
+    $ongkos_angkut = 0;
+
+    if (!empty($row->detail_rincian)) {
+        $detail = json_decode($row->detail_rincian, true);
+
+        if (is_array($detail)) {
+            foreach ($detail as $d) {
+                if (
+                    isset($d['rincian']) &&
+                    strtolower($d['rincian']) == 'ongkos angkut'
+                ) {
+                    // ambil biaya Ongkos Angkut
+                    $ongkos_angkut = floatval($d['biaya']);
+                    break;
+                }
+            }
+        }
+    }
+
     $purchasing_tanggal = $row->purchasing_tanggal;
     $tanggal_pr = $row->tanggal_pr;
     $nomor_pr = $row->nomor_pr;
@@ -219,6 +240,7 @@ foreach ($data_ as $i => $row) {
         number_format($vol_ori),
         number_format($vol_potongan),
         number_format($vol_split),
+        $ongkos_angkut,
         $nomor_po_supplier,
         $nomor_po_split,
         $nomor_lo_pr,
@@ -262,6 +284,7 @@ $header = array(
     "Volume Ori" => 'string',
     "Volume Potongan" => 'string',
     "Volume Split" => 'string',
+    "OAT" => 'string',
     "Nomor PO Supplier" => 'string',
     "Nomor PO Split" => 'string',
     "Nomor LO" => 'string',
