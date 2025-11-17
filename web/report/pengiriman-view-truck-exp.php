@@ -135,6 +135,7 @@ $header = array(
 	"Nomor PO Customer" => 'string',
 	"Nomor PO Transportir" => 'string',
 	"Nomor Loading Order" => 'string',
+	"Nomor PO Supplier" => 'string',
 	"Nomor Invoice" => 'string',
 	"Alamat Site" => 'string',
 	"Tanggal DS" => 'string',
@@ -212,6 +213,7 @@ if (count($res) > 0) {
 			trim($data['nomor_poc']),
 			trim($data['po_transportir']),
 			$data['nomor_lo_pr'],
+			$data['nomor_po_supplier'],
 			$data['no_invoice'],
 			$alamat,
 			date("d/m/Y", strtotime($data['tanggal_ds'])),
@@ -237,7 +239,7 @@ if (count($res) > 0) {
 			$status_delivered
 		));
 	}
-	$writer->writeSheetRow($sheet, array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL", "=SUM(Z" . $start . ":Z" . $last . ")", "=SUM(AA" . $start . ":AA" . $last . ")", "", "", "", "", ""));
+	$writer->writeSheetRow($sheet, array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL", "=SUM(AA" . $start . ":AA" . $last . ")", "=SUM(AB" . $start . ":AB" . $last . ")", "", "", "", "", ""));
 	$last++;
 	$writer->newMergeCell($sheet, "A" . $last, "C" . $last);
 } else {
