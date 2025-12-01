@@ -23,10 +23,17 @@ $arrBln = array(1 => "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Ju
         font-size: 0.9em;
         margin: 0.5em;
         text-align: center;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
     .badge-warning {
-        background-color:rgb(242, 163, 28);
+        background-color:rgba(252, 177, 47, 1);
+    }
+    .badge-primary {
+        background-color:rgba(198, 233, 255, 1);
+        color:rgba(36, 89, 182, 1); ;
+    }
+    .badge-danger {
+        background-color:rgba(198, 233, 255, 1);
+        color:rgba(36, 89, 182, 1); ;
     }
 </style>
 <body class="skin-blue fixed">

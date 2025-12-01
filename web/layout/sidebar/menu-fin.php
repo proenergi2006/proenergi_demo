@@ -35,13 +35,14 @@ $mnRef14     = array("attach-harga-minyak", "add-attach-harga-minyak", "detil-at
 $mnRef      = array_merge($mnRef1, $mnRef2, $mnRef3, $mnRef4, $mnRef5, $mnRef6, $mnRef7, $mnRef8, $mnRef9, $mnRef10, $mnRef11, $mnRef12, $mnRef13, $mnRef14);
 
 $menuPnwran  = array("penawaran-approval", "penawaran-approval-detail");
+$menuShipReq = array("shipping-request-detail");
 $menuVerCust = array("verifikasi-data-customer", "verifikasi-data-customer-detail");
 $menuVerPmhn = array("verifikasi-permohonan", "verifikasi-permohonan-detail", "verifikasi-permohonan-data");
 $menuVevCust = array("evaluasi-data-customer", "evaluasi-data-customer-detail");
 $menuVerPoc  = array("verifikasi-poc", "verifikasi-poc-detail");
 $menuVerLcr  = array("lcr-add", "verifikasi-lcr", "verifikasi-lcr-detail");
 $menuVerPoa  = array("verifikasi-oa", "verifikasi-oa-detail");
-$mnVer       = array_merge($menuPnwran, $menuVerCust, $menuVerPmhn, $menuVevCust, $menuVerPoc, $menuVerLcr, $menuVerPoa);
+$mnVer       = array_merge($menuPnwran, $menuVerCust, $menuVerPmhn, $menuVevCust, $menuVerPoc, $menuVerLcr, $menuVerPoa, $menuShipReq);
 
 $menuPo      = array("purchase-order", "purchase-order-add", "purchase-order-detail");
 $menuPoDs      = array("delivery-loading", "delivery-loading-detail");
@@ -241,7 +242,11 @@ if ($param_session) {
     $jumBadge12  = $con->getOne($sqlBadge12);
     $jumBadgeRole15 += $jumBadge12;
 
-    $jumtot = $jumBadge2 + $jumBadge12;
+    
+    $sqlBadgeShip    = "select count(id_master) as jum from new_pro_inventory_vendor_po_ship_req where STATUS = 1";
+    $jumBadgeShip     = $con->getOne($sqlBadgeShip);
+    // $jumBadge12 =+ $jumBadgeShip;
+    $jumtot = $jumBadge2 + $jumBadge12 +$jumBadgeShip;
 
     ?>
     <a>
@@ -283,6 +288,10 @@ if ($param_session) {
             <li class="<?php echo (in_array($menuKey, $menuVerLos)) ? 'active' : ''; ?>">
                 <a href="<?php echo BASE_URL_CLIENT . "/verifikasi-losses.php"; ?>"><i class="fa"></i> <span>Verifikasi Losses</span>
                     <span id="menubadge19" class="label label-primary pull-right"><?php echo ($jumBadge12 > 0) ? $jumBadge12 : ''; ?></span></a>
+            </li>
+            <li class="<?php echo (in_array($menuKey, $menuShipReq)) ? 'active' : ''; ?>">
+                <a href="<?php echo BASE_URL_CLIENT . "/shipping-request-list.php"; ?>"><i class="fa"></i> <span>Shipping Request</span>
+                    <span id="menubadge19" class="label label-primary pull-right"><?php echo ($jumBadgeShip  > 0) ? $jumBadgeShip  : ''; ?></span></a>
             </li>
         <?php } ?>
     </ul>

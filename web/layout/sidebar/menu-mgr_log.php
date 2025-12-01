@@ -69,6 +69,9 @@
     $sqlBadge5 .= " and logistik_result = 1 and disposisi_pr = 5 and id_wilayah = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']) . "'";
     $jumBadge5     = $con->getOne($sqlBadge5);
     $jumBadgeDelivery += $jumBadge5;
+    $sqlBadgeShip    = "select count(id_master) as jum from new_pro_inventory_vendor_po_ship_req where nomor_si IS NULL AND STATUS = 0";
+    $jumBadgeShip     = $con->getOne($sqlBadgeShip);
+    $jumBadgeDelivery += $jumBadgeShip;
     ?>
     <a>
         <i class="fa fa-folder"></i> <span>Delivery</span>
@@ -76,6 +79,10 @@
         <div class="icon"><i class="fa fa-plus"></i></div>
     </a>
     <ul class="treeview-menu">
+        <li class="<?php echo (in_array($menuKey, $menuSup)) ? 'active' : ''; ?>">
+            <a href="<?php echo BASE_URL_CLIENT . "/shipping-request-list.php"; ?>"><i class="fa"></i> <span>Shipping Request</span>
+                <span id="menubadge12" class="label label-primary pull-right"><?php echo ($jumBadgeShip > 0) ? $jumBadgeShip : ''; ?></span></a>
+        </li>
         <li class="<?php echo (in_array($menuKey, $menuPoLog)) ? 'active' : ''; ?>">
             <a href="<?php echo BASE_URL_CLIENT . "/po-customer-logistik.php"; ?>"><i class="fa"></i> <span>Delivery Plan</span>
                 <span id="menubadge12" class="label label-primary pull-right"><?php echo ($jumBadge12 > 0) ? $jumBadge12 : ''; ?></span></a>

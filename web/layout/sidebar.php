@@ -46,13 +46,14 @@ $menuVerLos = array("verifikasi-losses", "verifikasi-losses-detail", "verifikasi
 $menuVerPoa  = array("verifikasi-oa", "verifikasi-oa-detail");
 $mnVer  	 = array_merge($menuPnwran, $menuVerCust, $menuVerPmhn, $menuVerLos, $menuVevCust, $menuVerPoc, $menuVerLcr, $menuVerPoa, ['pro_sales_confirmation', 'po-customer-om', 'purchase-request', 'sales_confirmation_form']);
 
+$menuSup 	 = array("shipping-request");
 $menuPo 	 = array("purchase-order", "purchase-order-add", "purchase-order-detail");
 $menuPoDs 	 = array("delivery-loading", "delivery-loading-detail");
 $menuPoDk  	 = array("delivery-kapal", "delivery-kapal-add", "delivery-kapal-detail");
 $menuMnSg  	 = array("manual-segel", "manual-segel-add", "manual-segel-detail");
 $menuLgPl  	 = array("pengiriman-list-logistik");
 $menuLgP2  	 = array("pengiriman-list-logistik-kapal");
-$mnDel  	 = array_merge($menuPo, $menuPoDs, $menuPoDk, $menuMnSg, $menuLgPl, $menuLgP2);
+$mnDel  	 = array_merge($menuSup, $menuPo, $menuPoDs, $menuPoDk, $menuMnSg, $menuLgPl, $menuLgP2);
 
 $menuCust  	 = array("customer", "customer-add", "customer-detail");
 $menuPCust 	 = array("penawaran", "penawaran-add", "penawaran-detail");
