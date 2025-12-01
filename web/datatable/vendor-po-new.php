@@ -30,12 +30,13 @@ $sqlnya = "
 		)
 		select a.*, c.jenis_produk, c.merk_dagang, d.nama_vendor, 
 		e.nama_terminal, e.tanki_terminal, e.lokasi_terminal, 
-		a1.id_po_supplier, a1.vol_terima , a1.vol_bl
+		a1.id_po_supplier, a1.vol_terima , a1.vol_bl, sr.id_master AS id_ship_req, sr.status as status_ship
 		from new_pro_inventory_vendor_po a 
 		join pro_master_produk c on a.id_produk = c.id_master 
 		join pro_master_vendor d on a.id_vendor = d.id_master 
 		join pro_master_terminal e on a.id_terminal = e.id_master 
-		left join tbl_realisasi a1 on a.id_master = a1.id_po_supplier  
+		left join tbl_realisasi a1 on a.id_master = a1.id_po_supplier
+        left JOIN new_pro_inventory_vendor_po_ship_req sr ON a.id_master = sr.id_vendor_po
 		where 1=1 and a.harga_tebus > 0 
 	";
 
@@ -77,6 +78,7 @@ if ($tot_record <= 0) {
         $count++;
         $status        = "";
         $resubmit        = "";
+        $ship_req        = "";
         $background = "";
 
 
@@ -96,10 +98,26 @@ if ($tot_record <= 0) {
         else $status = '';
 
         if ($data['is_resubmission'] == 1) {
-            $resubmit = '<div class="badge badge-warning">Pengajuan Ulang ke- ' . $data['resubmission_count'] . '</div>';
+            $resubmit = '<div class="badge badge-warning">Pengajuan Ulang ke- ' . $data['resubmission_count'] . '</div><br>';
+        }
+        
+        if ($data['id_ship_req']) {
+            if ($data['status_ship'] == 0) {
+                $ship_req = '<div class="badge badge-primary">Shipping request by Purchasing</div>';
+            }else if($data['status_ship'] == 1){
+                $ship_req = '<div class="badge badge-primary">Shipping Instruction on progress</div>';
+            }else {
+                $ship_req = '<div class="badge badge-primary">Shipping Instruction</div>';
+            }
+            
+            if ($data['mgrfin_result'] == 2 || $data['ceo_result'] == 2) {
+                 $ship_req = '<div class="badge badge-danger">Shipping Instruction rejected</div>';
+
+             }
         }
 
         $linkEdit    = BASE_URL_CLIENT . '/vendor-po-new-add.php?' . paramEncrypt('idr=' . $data['id_master']);
+        $linkReq   = BASE_URL_CLIENT . '/vendor-po-ship-req.php?' . paramEncrypt('idr=' . $data['id_master']. '&idsr=' . $data['id_ship_req']);
         $linkCancel    = BASE_URL_CLIENT . '/vendor-po-cancel.php?' . paramEncrypt('idr=' . $data['id_master']);
         $linkClose    = BASE_URL_CLIENT . '/vendor-po-close.php?' . paramEncrypt('idr=' . $data['id_master']);
         $linkHapus    = paramEncrypt("inventory_vendor_po#|#" . $data['id_master']);
@@ -151,7 +169,7 @@ if ($tot_record <= 0) {
         <td class="text-right"> 
 <p style="margin-bottom:0px;">PO: ' . number_format($data['harga_po']) . '</p>
 <p style="margin-bottom:0px;">RI : ' . number_format($data['harga_tebus']) . '</p></td>
-		<td class="text-right">' . $resubmit . $status . '</td>';
+		<td class="text-right">' . $resubmit . $status . $ship_req .'</td>';
 
 
         // Tambahkan blok action berdasarkan nilai $showAction
@@ -193,7 +211,8 @@ if ($tot_record <= 0) {
                 //kondisi tambahan apabila Edit setelah verifikasi CEO maks 3
                 if ($data['vol_terima'] == 0  && $data['resubmission_count'] < 3) {
                     $content .= '<a class="margin-sm btn btn-action btn-info" title="Edit" href="' . $linkEdit . '"><i class="fa fa-pencil-alt"></i></a>';
-                    $content .= $linkTerima;
+                    // $content .= $linkTerima;
+                    $content .= '<a class="margin-sm btn btn-action btn-primary" title="shipping request" href="' . $linkReq . '"><i class="fa fa-ship"></i></a>';
                 } else {
                     $content .= $linkTerima;
                 }
