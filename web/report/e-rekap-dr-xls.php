@@ -77,6 +77,7 @@ if ($q1 != "") {
             OR UPPER(a.nomor_lo_pr) LIKE '%" . strtoupper($q1) . "%' 
             OR UPPER(g.nama_terminal) LIKE '%" . strtoupper($q1) . "%' 
             OR UPPER(g.tanki_terminal) LIKE '%" . strtoupper($q1) . "%' 
+            OR UPPER(e.nama_customer) LIKE '%" . strtoupper($q1) . "%' 
         )";
 }
 if ($q4 != "" && $q5 == "") {
@@ -93,7 +94,7 @@ $sql .= "  ORDER BY b.tanggal_pr DESC";
 
 $data_ = [];
 $result = $con->getResult($sql);
-// echo json_encode($result);
+
 foreach ($result as $data) {
     $data = (object) $data;
     $purchasing_tanggal = $data->purchasing_tanggal;
