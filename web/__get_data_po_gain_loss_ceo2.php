@@ -94,8 +94,8 @@
 </div>
 
 
-<!-- <?php if (count($res) > 0) { ?>
-    <?php if (!$fnr) { ?>
+<?php if (count($res) > 0) { ?>
+    <?php if (!$fnr && $data['jenis'] == 2) { ?>
         <div class="form-group row">
             <div class="col-sm-4">
                 <label>Persetujuan Gain & Loss ?*</label>
@@ -108,11 +108,11 @@
 
         </div>
     <?php } ?>
-<?php } ?> -->
+<?php } ?>
 <div class="form-group row persetujuan-ceo" <?php echo (!$fnr) ? 'hide' : ''; ?>>
     <div class="col-sm-6">
-        <?php if (!$fnr) { ?>
-            <!-- <textarea name="summary" id="summary" class="form-control"></textarea> -->
+        <?php if (!$fnr && $data['jenis'] == 2) { ?>
+            <textarea name="summary" id="summary" class="form-control"></textarea>
         <?php } else { ?>
             <label>Catatan CEO</label>
 
@@ -148,8 +148,8 @@
             <input type="hidden" name="idr" value="<?php echo $idr; ?>" />
             <input type="hidden" name="idw" value="<?php echo $row['id_wilayah']; ?>" />
             <a class="btn btn-default jarak-kanan" href="<?php echo BASE_URL_CLIENT . "/verifikasi-gain-loss.php"; ?>">Kembali</a>
-            <?php if (!$fnr) { ?>
-                <!--  <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt">Simpan</button> -->
+            <?php if (!$fnr && $data['jenis'] == 2) { ?>
+                 <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt">Simpan</button>
             <?php } ?>
         </div>
     </div>

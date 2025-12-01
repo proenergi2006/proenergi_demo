@@ -70,6 +70,63 @@ if ($oke) {
         $mail->send();
     }
 
+    //  if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 21) {
+    //     if ($revert == 1) {
+    //         $queryget = "SELECT b.* FROM new_pro_inventory_gain_loss a 
+    //         JOIN new_pro_inventory_vendor_po b ON a.id_po_supplier = b.id_master
+    //         WHERE a.id_master = '" . $idr . "'";
+    //         $rowgetid = $con->getRecord($queryget);
+
+    //         $id_cabang = paramDecrypt($_SESSION['sinori' . SESSIONID]['id_wilayah']);
+
+    //         $queryget_cabang = "SELECT * FROM pro_master_cabang WHERE id_master = '" . $id_cabang . "'";
+    //         $rowget_cabang = $con->getRecord($queryget_cabang);
+    //         if ($rowgetid['id_accurate'] != null) {
+
+    //             $urlnya = 'https://zeus.accurate.id/accurate/api/purchase-order/save.do';
+    //             // Data yang akan dikirim dalam format JSON
+    //             $data = array(
+    //                 'id'                => $rowgetid['id_accurate'],
+    //                 'branchName'        => $rowget_cabang['nama_cabang'] == 'Kantor Pusat' ? 'Head Office' : $rowget_cabang['nama_cabang'],
+    //                 'toAddress'         => $result_detail['d']['toAddress'],
+    //                 'manualClosed'      => false,
+    //                 // 'detailItem'       	=> [],
+    //             );
+
+    //             // Mengonversi data menjadi format JSON
+    //             $jsonData = json_encode($data);
+    //             $result = curl_post($urlnya, $jsonData);
+
+
+    //             if ($result['s'] == true) {
+    //                 $con->commit();
+    //                 $con->close();
+    //                 header("location: " . BASE_URL_CLIENT . "/verifikasi-po.php");
+    //                 exit();
+    //             } else {
+    //                 $con->rollBack();
+    //                 $con->clearError();
+    //                 $con->close();
+    //                 $flash->add("error", $result["d"][0] . " - Response dari Accurate", BASE_REFERER);
+    //             }
+    //         } else {
+    //             $con->rollBack();
+    //             $con->clearError();
+    //             $con->close();
+    //             $flash->add("error", "Id accurate tidak ditemukan", BASE_REFERER);
+    //         }
+    //     } else {
+    //         $con->commit();
+    //         $con->close();
+    //         header("location: " . BASE_URL_CLIENT . "/verifikasi-gain-loss.php");
+    //         exit();
+    //     }
+    // } else {
+    //     $con->commit();
+    //     $con->close();
+    //     header("location: " . BASE_URL_CLIENT . "/verifikasi-gain-loss.php");
+    //     exit();
+    // }
     $con->commit();
     $con->close();
     header("location: " . BASE_URL_CLIENT . "/verifikasi-gain-loss.php");
