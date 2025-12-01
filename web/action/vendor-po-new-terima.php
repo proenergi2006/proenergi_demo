@@ -297,6 +297,7 @@ if ($act == 'cek') {
 					// Data yang akan dikirim dalam format JSON
 					$data = array(
 						"receiveNumber" => $no_terima,
+						"number" => $no_terima,
 						"transDate" => $tgl_terima,
 						"vendorNo" => $result_po['d']['vendor']['vendorNo'],
 						"description" => "Terima barang dari PO " . $res_po['nomor_po'],
@@ -378,6 +379,7 @@ if ($act == 'cek') {
 				// Data yang akan dikirim dalam format JSON
 				$data = array(
 					"receiveNumber" => $no_terima,
+					"number" => $no_terima,
 					"transDate" => $tgl_terima,
 					"vendorNo" => $result_po['d']['vendor']['vendorNo'],
 					"description" => "Terima barang dari PO " . $res_po['nomor_po'],
