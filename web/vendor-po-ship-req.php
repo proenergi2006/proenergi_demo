@@ -22,8 +22,8 @@ if (($enk['idsr']!=="")) {
 			join pro_master_vendor d on a.id_vendor = d.id_master 
 			join pro_master_terminal e on a.id_terminal = e.id_master 
 			left join new_pro_inventory_vendor_po_receive a1 on a.id_master = a1.id_po_supplier
-            left JOIN new_pro_inventory_vendor_po_ship_req sr ON a.id_master = sr.id_vendor_po
-			where a.id_master = '" . $idr . "'
+            left join new_pro_inventory_vendor_po_ship_req sr ON a.id_master = sr.id_vendor_po
+			where a.id_master = '" . $idr . "' AND sr.is_cancel = 0
 		";
     $rsm     = $con->getRecord($sql);
 
@@ -65,6 +65,7 @@ if (($enk['idsr']!=="")) {
     $ket_ship = ($rsm['ket_ship']) ? $rsm['ket_ship'] : '';
     $id_vessel = ($rsm['id_vessel']) ? $rsm['id_vessel'] : '';
     $freight = ($rsm['freight']) ? $rsm['freight'] : '';
+    $demurrage = ($rsm['demurrage']) ? $rsm['demurrage'] : '';
     $status_ship = ($rsm['status_ship']) ? $rsm['status_ship'] : '';
 
     $approval_steps = [
@@ -83,10 +84,10 @@ if (($enk['idsr']!=="")) {
         "date" => $rsm['log_tanggal']
     ],
     [
-        "role" => $rsm['mgrfin_pic'],
-        "status" => $rsm['mgrfin_result'],
-        "note" => $rsm['mgrfin_summary'],
-        "date" => $rsm['mgrfin_tanggal']
+        "role" => $rsm['cfo_pic'],
+        "status" => $rsm['cfo_result'],
+        "note" => $rsm['cfo_summary'],
+        "date" => $rsm['cfo_tanggal']
     ],
     [
         "role" => $rsm['ceo_pic'],
@@ -154,7 +155,8 @@ if (($enk['idsr']!=="")) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<?php load_headHtml(BASE_PATH_CSS, BASE_PATH_JS, array("js" => array("formatNumber", "jqueryUI", "ckeditor"), "css" => array("jqueryUI"))); ?>
+<?php load_headHtml(BASE_PATH_CSS, BASE_PATH_JS, array("js" => array("formatNumber", "jqueryUI", "formatNumber", "myGrid"), "css" => array("jqueryUI"))); ?>
+
 <style>
 .timeline {
 	list-style: none;
@@ -264,21 +266,18 @@ if (($enk['idsr']!=="")) {
 											<input type="text" id="cargo" name="cargo" tabindex="5" class="form-control" value="<?php echo $cargo_name; ?>" required/>
 										</div>
 										
-                                        <div class="col-sm-6 col-sm-top">
-											<label>Country of Origin *</label>
-											<input type="text" id="country" name="country" tabindex="14" class="form-control" value="<?php echo $country; ?>" required />
-										</div>
-                                        <!-- <div class="col-sm-3 col-sm-top">
-											<label>Bill of Lading *</label>
-											<input type="text" id="bill" name="bill" tabindex="8" class="form-control" value="<?php echo $bill_lading; ?>"/>
-										</div>
-										<div class="col-sm-3 col-sm-top">
-                                            <label>Loss Tolerance *</label>
+                                       <div class="col-sm-3 col-sm-top">
+                                            <label>Country of Origin *</label>
+                                            <input type="text" id="country" name="country" tabindex="14" class="form-control" value="<?php echo $country; ?>" required />
+                                        </div>
+                                        <div class="col-sm-3 col-sm-top">
+                                            <label>Biaya Demurrage *</label>
                                             <div class="input-group">
-                                                <input type="text" id="loss" name="loss" tabindex="9" class="form-control hitung" value="<?php echo isset($loss_tolerance) ? $loss_tolerance : 0; ?>" />
-                                                <span class="input-group-addon" style="font-size:12px;">%</span>
+                                                <input type="text" id="demurrage" name="demurrage" tabindex="9" class="form-control hitung1" value="<?php echo isset($demurrage) ? $demurrage : 0; ?>" />
+                                                <span class="input-group-addon" style="font-size:12px;">/24 Jam</span>
                                             </div>
-										</div> -->
+                                        </div>
+										
 									</div>
                                     
 									<div class="form-group row">
@@ -295,11 +294,19 @@ if (($enk['idsr']!=="")) {
                                         <div class="col-sm-6 col-sm-top">
                                             <label class="control-label">Vessel Name *</label>
                                             <select id="id_vessel" name="id_vessel" tabindex="1" class="form-control select2" required>
-                                                <option></option> <?php $con->fill_select("id_master", "concat(nama_kapal,' - ',tipe_kapal)", "pro_master_oa_kapal", $id_vessel, "", "id_master", false); ?>
+                                                <option></option> <?php $con->fill_select(
+                                                        "a.id_master",
+                                                        "concat(a.nama_kapal,' - ',a.tipe_kapal,' - ',b.nama_suplier)",
+                                                        "pro_master_oa_kapal a JOIN pro_master_transportir b ON a.id_transportir = b.id_master",
+                                                        $id_vessel,
+                                                        "",
+                                                        "a.id_master",
+                                                        false
+                                                    ); ?>
                                             </select>
                                         </div>
                                         <div class="col-sm-3 col-sm-top">
-                                            <label>Freight</label>
+                                            <label>Freight*</label>
                                             <div class="input-group">
                                                 <input type="text" id="freight" name="freight" tabindex="4" class="form-control hitung" value="<?php echo $freight; ?>" required/>
                                                 <span class="input-group-addon" style="font-size:12px;">/ L</span>
@@ -377,14 +384,21 @@ if (($enk['idsr']!=="")) {
 
                                         <a href="<?php echo BASE_URL_CLIENT . '/vendor-po-new.php'; ?>" class="btn btn-default" style="min-width:90px;">
                                         <i class="fa fa-reply jarak-kanan"></i> Kembali</a>
-                                        <?php if($status_ship == 0 || ($rsm['mgrfin_result'] == 2 || $rsm['ceo_result']== 2)) {?>
+                                        <?php if($status_ship == 0 || ($rsm['cfo_result'] == 2 || $rsm['ceo_result']== 2)) {?>
                                         <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt" style="min-width:90px;">
                                             <i class="fa fa-save jarak-kanan"></i> <?php echo ($action == 'add') ? 'Simpan' :  'edit' ;?></button>
                                          <?php } ?> 
-                                            <?php if($idsr) { ?>
-                                                <a href="#" class="btn btn-info detail-ship" style="min-width:90px;"> Detail</a>
+                                        <?php if($idsr) {?>
+                                            <a href="#" class="btn btn-info detail-ship" style="min-width:90px;"> Detail</a>
+                                         <?php } ?> 
+
+                                            <?php if($status_ship == 4 || $rsm['ceo_result'] == 1 ) { ?>
                                                 <!-- <a href="<?php echo ACTION_CLIENT . '/vendor-po-ship-req-cetak.php?' . paramEncrypt('idr=' . $idr . '&idsr='.$idsr); ?>" class="btn btn-success" style="min-width:90px;">
                                                 <i class="fa fa-print"></i> Cetak</a> -->
+                                                <a target="_blank" href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idsr. '&tipe=shipping_instruction'); ?>" class="btn btn-success" style="min-width:90px;">
+                                                <i class="fa fa-print"></i> Cetak</a>
+                                                <a href="#" class="btn btn-danger cancel-ship" style="min-width:90px;">
+                                                <i class="fa fa-times"></i> Cancel</a>
                                             <?php } ?>
                                     </div>
 
@@ -400,18 +414,18 @@ if (($enk['idsr']!=="")) {
 
 
 
-    <div class="modal fade" id="loading_modal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header bg-blue">
-					<h4 class="modal-title">Loading Data ...</h4>
-				</div>
-				<div class="modal-body text-center modal-loading"></div>
-			</div>
-		</div>
-	</div>
+<div class="modal fade" id="loading_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-blue">
+                <h4 class="modal-title">Loading Data ...</h4>
+            </div>
+            <div class="modal-body text-center modal-loading"></div>
+        </div>
+    </div>
+</div>
 
-   <div class="modal fade" id="detail_modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="detail_modal" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header bg-blue">
@@ -490,19 +504,39 @@ if (($enk['idsr']!=="")) {
 
                     <?php endforeach; ?>
                     </ul>
-                    <?php if (($rsm['status'] == 3 &&  $rsm['ceo_result'] == 1)) { ?>
-                        <a target="_blank" href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idsr); ?>" class="btn btn-success" style="min-width:90px;">
-                            <i class="fa fa-print"></i> Cetak</a>
-                        </div>
-                    <?php } ?>
+                   
 			</div>
 		</div>
 	</div>
 </div>
 
+ <div class="modal fade" id="cancel_modal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-blue">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Cancel Shipping Instruction </h4>
+				</div>
+				<div class="modal-body">
+                    <div class="col-sm-12">
+                        <label>Keterangan Cancel</label>
+                        <textarea id="ket_cancel" name="ket_cancel" class="form-control" required></textarea>
+                    </div>
+                </div>
+				<div class="modal-footer text-right">
+                    <div class="col-sm-12">
+                          <button type="button" class="btn btn-primary save-cancel" data-act="cancel" data-id="<?php echo paramEncrypt($idsr); ?>" style="min-width:90px;">
+                            <i class="fa fa-check"></i> Simpan</button>
+                    </div>
+                </div>
+			</div>
+		</div>
+	</div>
 
-    <script>
-        $(document).ready(function() {
+
+
+<script>
+    $(document).ready(function() {
              // Format angka dengan plugin number
             $(".hitung1").number(true, 0, ".", ",");
             $(".hitung").number(true, 2, ".", ",");
@@ -597,9 +631,77 @@ if (($enk['idsr']!=="")) {
                 $("#detail_modal").modal("show");
             })
 
-        });
-    
-    </script>
+            $('.cancel-ship').click(function(e){
+                e.preventDefault();
+                $("#cancel_modal").modal("show");
+            })
+
+            $('.save-cancel').click(function(e){
+                e.preventDefault();
+                var ket_cancel = $("#ket_cancel").val();
+                var idsr = $(this).data('id');
+                var act = $(this).data('act');
+                console.log(ket_cancel)
+                    Swal.fire({
+                        title: 'Konfirmasi Cancel',
+                        text: "Anda yakin ingin cancel?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Cancel',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: 'POST',
+                                url: "./action/vendor-po-ship-req.php",
+                                data: {
+                                    "ket_cancel": ket_cancel,
+                                    "act": act,
+                                    "idsr": idsr
+                                },
+                                cache: false,
+                                dataType: "json",
+                                success: function(data) {
+                                    if(data.status == true){
+                                        swal.fire({
+                                            icon: "success",
+                                            width: '350px',
+                                            allowOutsideClick: false,
+                                            html: '<p style="font-size:14px; font-family:arial;">Cancel data berhasil</p>'
+                                        }).then(() => {
+                                            // location.reload();
+                                            window.location.href = "vendor-po-new.php";
+                                        });
+                                        $("#cancel_modal").modal("hide");
+
+                                    }else{
+                                        swal.fire({
+                                            icon: "warning",
+                                            width: '350px',
+                                            allowOutsideClick: false,
+                                            html: '<p style="font-size:14px; font-family:arial;">Cancel data gagal</p>'
+                                        });
+                                    }
+                                    // if (data.error) {
+                                    //     $("#error_modal").find("#error-preview").html(data.error);
+                                    //     $("#error_modal").modal({
+                                    //         keyboard: false,
+                                    //         backdrop: 'static'
+                                    //     });
+                                    // }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.log("AJAX ERROR:", error);
+                                    console.log(xhr.responseText);
+                                }
+                            })
+                        }
+                    })
+            })
+
+    });
+
+</script>
 </body>
 
 </html>

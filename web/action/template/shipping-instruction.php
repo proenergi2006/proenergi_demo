@@ -1,69 +1,114 @@
-
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        color: #333;
-        margin: 20px;
-    }
+	table {
+		font-size: 9.5pt;
+		margin-left: 5px;
+		border-collapse: separate;
+		border-spacing: 0 5px; /* 5px vertical spacing */
+	}
+   .container {
+		font-size: 9.5pt;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
 
-    .title-section {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+	
 
-    .title-text {
-        font-size: 18px;
-        font-weight: bold;
-    }
+	p {
+		margin: 3px 0 8px 5px;
+	}
 
-    .title-line {
-        width: 80px;
-        height: 2px;
-        background: #222;
-        margin: 6px auto 0 auto;
-    }
+	.tabel_header td {
+		padding: 1px 3px;
+		font-size: 9pt;
+		height: 18px;
+	}
 
-    .info-box {
-        border: 1px solid #404040ff;
-        border-radius: 6px;
-        padding: 12px;
-        margin-bottom: 15px;
-    }
+	.tabel_rincian th {
+		padding: 5px 3px;
+		background-color: #ffcc99;
+	}
 
-    .row {
-        display: flex;
-        justify-content: space-between;
-        /* margin-bottom: 10px; */
-    }
+	.tabel_rincian td {
+		padding: 3px 2px;
+	}
 
-    .col {
-        width: 48%;
-        margin-bottom: 10px;
-    }
 
-    .label {
-        font-weight: bold;
-    }
+	.b1 {
+		border-top: 0.5px solid #000;
+	}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-    table th {
-        background: #ffcc99;
-        padding: 3px;
-        border: 1px solid #717171ff;
-        text-align: left;
-    }
-    table td {
-        padding: 8px;
-        border: 1px solid #717171ff;
-    }
+	.b2 {
+		border-right: 0.5px solid #000;
+	}
+
+	.b3 {
+		border-bottom: 0.5px solid #000;
+	}
+
+	.b4 {
+		border-left: 0.5px solid #000;
+	}
+
+	.b1d {
+		border-top: 0.5px solid #000;
+	}
+
+	.b2d {
+		border-right: 0.5px solid #000;
+	}
+
+	.b3d {
+		border-bottom: 0.5px solid #000;
+	}
+
+	.b4d {
+		border-left: 0.5px solid #000;
+	}
+
+	tr.jarak-atas td {
+		padding-top: 25px; /* menambah jarak di atas baris ini */
+		padding-bottom: 10px; /* optional */
+	}
+	tr.jarak-bawah td {
+		padding-bottom: 20px; /* optional */
+	}
+	.div-table {
+		padding: 0px;
+		margin: 0px;
+		display: table;
+		width: 100%;
+		border: none;
+	}
+
+	.div-table-row {
+		padding: 0px;
+		margin: 0px;
+		display: table-row;
+		width: 100%;
+		clear: both;
+	}
+
+	.div-table-cell {
+		padding: 0px;
+		margin: 0px;
+		display: table-cell;
+		float: right;
+		font-size: 12px;
+	}
 </style>
-
- <htmlpagefooter name="myHTMLFooter1">
+<?php 
+$loading_date='';
+if(date("m",strtotime($res[0]['etl_date_first']) == date("m",strtotime($res[0]['etl_date_last'])))){
+    if(date("d",strtotime($res[0]['etl_date_first'])) == date("d",strtotime($res[0]['etl_date_last']))){
+        $loading_date=tgl_indo($res[0]['etl_date_first']);
+    }else{
+        $loading_date=date("d",strtotime($res[0]['etl_date_first']))." - ".tgl_indo(($res[0]['etl_date_last']));
+    }
+}else{
+    $loading_date=($res[0]['etl_date_first'])."-".tgl_indo($res[0]['etl_date_last']);
+}
+?>
+<htmlpagefooter name="myHTMLFooter1">
 	<div style="margin:0; text-align:right;">
 		<barcode code="<?php echo $barcod; ?>" type="QR" size="1" />
 	</div>
@@ -72,71 +117,121 @@
 	<p style="margin:0; text-align:right; font-size:6pt;">Printed by <?php echo $printe; ?></p>
 </htmlpagefooter>
 <sethtmlpagefooter name="myHTMLFooter1" page="ALL" value="on" show-this-page="1" />
-    <div>
-        <img src="<?php echo BASE_IMAGE . "/logo-kiri-penawaran.png"; ?>" width="15%"   style="float: right;"/>
-    </div>
-    <!-- HEADER -->
-    <div class="title-section">
-        <div class="title-text">SHIPPING INSTRUCTION</div>
-        <div class="title-line"></div>
-    </div>
+<div class="container">
+	<img src="<?php echo BASE_IMAGE . "/logo-kiri-penawaran.png"; ?>" width="15%"  style="float: right;" />
+</div>
+<div class="container">
+	<table border="0" width="100%">
+		<tr>
+			<td width="30%">
+				<div style="padding:0;"></div>
+			</td>
 
-    <!-- BOX INFO -->
-     
-    <div class="info-box">
-        <div class="row">
-            <div class="col">
-                <div class="label">Number:</div>
-                <?= $res[0]['nomor_si']; ?>
-            </div>
-            <div class="col">
-                <div class="label">Date:</div>
-                <?= date('d M Y', strtotime($res[0]['log_tanggal'])); ?>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col">
-                <div class="label">Shipper:</div>
-                  <?= $res[0]['shipper']; ?>
-            </div>
-            <div class="col">
-                <div class="label">Consignee:</div>
-                 <?= $res[0]['consignee']; ?>
-            </div>
-        </div>
-    </div>
+			<td>
 
-    <!-- TABLE SHIPPING DATA -->
-    <table>
+			<td width="35% " align="center">
+				<h2>
+					Shipping Instruction
+				</h2>
+				
+			</td>
+
+			</td>
+			<td width="30%"></td>
+		</tr>
+	</table>
+</div>
+<br>
+
+
+<div class="container">
+	<table border="0" width="100%" style="margin-top: 30px; margin-bottom:20px">
         <tr>
-            <th>Vessel/Ship</th>
+            <td width="18%">Number</td>
+            <td width="2%">:</td>
+            <td><?php echo $res[0]['nomor_req']; ?></td>
+        </tr>
+        <tr>
+            <td width="18%">Date</td>
+            <td width="2%">:</td>
+            <td><?php echo tgl_indo($res[0]['created_at']); ?></td>
+        </tr>
+	</table>
+    <!-- <hr style="height: 1.5px; border: 1px solid black; margin:2 auto;"> -->
+
+	<div style="line-height: 1; margin-bottom: 10px; max-width: 50%;">
+		<p>To:</p>
+		<p><b><?php echo $res[0]['nama_suplier']; ?></b></p>
+		<p><?php echo nl2br($res[0]['alamat_suplier']); ?></p>
+	</div>
+
+	<div style="line-height: 1.4; margin-top: 10px">
+		<p>Dear sir,</p>
+		<p>  We hereby request you to arrange shipment with detail as mention below :</p>
+	</div>
+    <table border="0" width="100%">
+        <tr>
+            <td width="18%">Product Description</td>
+            <td width="2%">:</td>
+            <td><?php echo $res[0]['cargo_name']; ?></td>
+        </tr>
+        <tr>
+            <td width="18%">Vessel/Ship</td>
+            <td width="2%">:</td>
             <td><?= $res[0]['nama_kapal']." & ". $res[0]['tipe_kapal']; ?></td>
         </tr>
         <tr>
-            <th>Port of Loading</th>
+            <td width="18%">Laycan</td>
+            <td width="2%">:</td>
+            <td><?php echo $loading_date;?></td>
+        </tr>
+        <tr>
+            <td width="18%">Quantity</td>
+            <td width="2%">:</td>
+            <td><?php echo number_format($res[0]['quantity']); ?> (GSV @15C)</td>
+        </tr>
+        <tr class="jarak-atas">
+            <td width="18%" style="vertical-align: top;"><i>Shipper</i></td>
+            <td width="2%" style="vertical-align: top;">:</td>
+            <td>
+			    <div>
+					<p style="padding: 2px 0;"><?php echo $res[0]['shipper']; ?></p>
+					<p style="padding: 2px 0;">Graha Irama Building Lt. 6G</p>
+					<p style="padding: 2px 0;">Jl. HR. Rasuna Said Blok X1, Kav 1-2, Kuningan, Jakarta, 12950</p>
+				</div>
+			</td>
+        </tr>
+        <tr class="jarak-atas">
+            <td width="18%" style="vertical-align: top;"><i>Consignee</i></td>
+            <td width="2%" style="vertical-align: top;">:</td>
+            <td>
+				<div style="line-height: 1.4;">
+					<p><?php echo $res[0]['consignee']; ?></p>
+					<p>Graha Irama Building Lt. 6 Unit F</p>
+					<p>Jl. HR. Rasuna Said Blok X1, Kav 1-2, Kuningan, Jakarta, 12950</p>
+				</div>
+			</td>
+        </tr>
+        <tr>
+            <td width="18%">Port of Loading</td>
+            <td width="2%">:</td>
             <td><?= $res[0]['asal_angkut']; ?></td>
         </tr>
-        <tr>
-            <th>Port of Discharge</th>
+        <tr class="jarak-bawah">
+            <td width="18%">Port of Discharge</td>
+            <td width="2%">:</td>
             <td><?= $res[0]['tujuan_angkut']; ?></td>
         </tr>
-        <tr>
-            <th>ETD</th>
-            <td><?= date('d M Y', strtotime($res[0]['etl_date_first'])); ?></td>
-        </tr>
-        <tr>
-            <th>ETA</th>
-            <td><?= date('d M Y', strtotime($res[0]['etl_date_last'])); ?></td>
-        </tr>
-        <tr>
-            <th>Quantity</th>
-            <td><?= number_format($res[0]['quantity']); ?> Liter'15 (GSV)</td>
-        </tr>
-        <tr>
-            <th>Freight</th>
-            <td><?= $res[0]['freight']; ?> </td>
-        </tr>
-    </table>
+     
+	</table>
+    <p style="font-size: 12px;margin-bottom:30px">Regards,</p>
+	<div style="margin-bottom:40px;">
+		
+	</div>
 
+	<p>Muhammad Ridho Husaini</p>
+	<p style="width:150px; border-top:1px solid black; margin-bottom:5px;"></p>
+	<p>Management Logistik</p>
 
+</div>

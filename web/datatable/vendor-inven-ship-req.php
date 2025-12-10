@@ -16,12 +16,12 @@
 	
 	$p = new paging;
 	$sql = "
-		SELECT a.*,c.nama_kapal,concat(nama_terminal,' - ',tanki_terminal,' - ',lokasi_terminal) as nama_terminal,b.nomor_po,
-		IF(sr.ceo_result = 1 AND sr.STATUS = 3,'approve',IF(sr.ceo_result = 2 AND sr.STATUS = 3,'rejected','not yet')) AS is_shipping
+		SELECT a.*,c.nama_kapal,concat(nama_terminal,' - ',tanki_terminal,' - ',lokasi_terminal) as nama_terminal,b.nomor_po
 		FROM new_pro_inventory_vendor_po_ship_req a 
 		JOIN new_pro_inventory_vendor_po b ON a.id_vendor_po = b.id_master
-		LEFT JOIN pro_master_oa_kapal c ON a.id_vessel = c.id_master
+		JOIN pro_master_oa_kapal c ON a.id_vessel = c.id_master
 		JOIN pro_master_terminal d ON a.id_terminal_discharging=d.id_master
+		WHERE a.is_cancel = 0
 		ORDER BY a.id_master DESC
 	";
 	
@@ -45,25 +45,26 @@
 		$status = "";
 
 		foreach($result as $data){
-			if ($sesrol == '15') {
+			if ($sesrol == '16') {
+				$background = ($data['status'] == 0) ? ' style="background-color:#f5f5f5"' : '';
+			}elseif ($sesrol == '4') {
 				$background = ($data['status'] == 1) ? ' style="background-color:#f5f5f5"' : '';
 			}elseif ($sesrol == '21') {
-				$background = ($data['status'] == 2 && $data['mgrfin_result'] == 1) ? ' style="background-color:#f5f5f5"' : '';
+				$background = ($data['status'] == 2 && $data['cfo_result'] == 1) ? ' style="background-color:#f5f5f5"' : '';
 			}
 
-			if ($data['status'] == 0 && (!$data['nomor_si'])){
-				$background = ' style="background-color:#f5f5f5"';
+			if ($data['status'] == 0){
 				$status = "Request Procurement";
 			}else if($data['status'] == 1){
-				$status = "verifikasi Manager Finance";
+				$status = "Verifikasi CFO";
 			}else if($data['status'] == 2){
-				if( $data['mgrfin_result']==1){
-					$status = "verifikasi CEO";
+				if( $data['cfo_result']==1){
+					$status = "Verifikasi CEO";
 				}else{
-					$status = "Ditolak Manager Finance <i>" . date("d/m/Y H:i:s", strtotime($data['mgrfin_tanggal'])) . ' WIB</i>';;
+					$status = "Ditolak CFO <i>" . date("d/m/Y H:i:s", strtotime($data['cfo_tanggal'])) . ' WIB</i>';;
 				}
-			}else{
-				if( $data['mgrfin_result']==1){
+			}else if($data['status'] == 3){
+				if( $data['ceo_result']==1){
 					$status = "Terverifikasi CEO <i>" . date("d/m/Y H:i:s", strtotime($data['ceo_tanggal'])) . ' WIB</i>';
 				}else{
 					$status = "Ditolak CEO <i>" . date("d/m/Y H:i:s", strtotime($data['ceo_tanggal'])) . ' WIB</i>';;

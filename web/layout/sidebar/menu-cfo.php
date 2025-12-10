@@ -70,7 +70,8 @@ $menuVevCust = array("evaluasi-data-customer", "evaluasi-data-customer-detail");
 $menuVerPoc  = array("verifikasi-poc", "verifikasi-poc-detail");
 $menuVerLcr  = array("lcr-add", "verifikasi-lcr", "verifikasi-lcr-detail");
 $menuVerPoa  = array("verifikasi-oa", "verifikasi-oa-detail");
-$mnVer       = array_merge($menuPnwran, $menuVerCust, $menuVerPmhn, $menuVevCust, $menuVerPoc, $menuVerLcr, $menuVerPoa, ['pro_sales_confirmation', 'po-customer-om', 'purchase-request', 'sales_confirmation_form']);
+$menuShipReq = array("shipping-request-list");
+$mnVer       = array_merge($menuPnwran, $menuVerCust, $menuVerPmhn, $menuVevCust, $menuVerPoc, $menuVerLcr, $menuVerPoa, $menuShipReq,['pro_sales_confirmation', 'po-customer-om', 'purchase-request', 'sales_confirmation_form']);
 
 $menuPo      = array("purchase-order", "purchase-order-add", "purchase-order-detail");
 $menuPoDs      = array("delivery-loading", "delivery-loading-detail");
@@ -176,6 +177,10 @@ $menuMapping = array("mapping-marketing");
     $jumBadge9  = $con->getOne($sqlBadge9);
     $jumBadgeRole5 += $jumBadge9;
 
+    $sqlBadgeShip    = "select count(id_master) as jum from new_pro_inventory_vendor_po_ship_req where STATUS = 1";
+    $jumBadgeShip     = $con->getOne($sqlBadgeShip);
+    $jumBadgeRole3 += $jumBadgeShip;
+
     ?>
     <a>
         <i class="fa fa-folder"></i>
@@ -197,10 +202,14 @@ $menuMapping = array("mapping-marketing");
                 <span id="menubadge8" class="label label-primary pull-right"><?php echo ($jumBadge8 > 0) ? $jumBadge8 : ''; ?></span></a>
         </li>
 
-
         <li class="<?php echo (in_array($menuKey, $menuVenPoNewCR)) ? 'active' : ''; ?>">
             <a href="<?php echo BASE_URL_CLIENT . "/verifikasi-po-crushed-stone.php"; ?>"><i class="fa"></i> <span>PO Suplier Crushed Stone</span>
                 <span id="menubadge8" class="label label-primary pull-right"><?php echo ($jumBadge9 > 0) ? $jumBadge9 : ''; ?></span></a>
+        </li>
+
+        <li class="<?php echo (in_array($menuKey, $menuShipReq)) ? 'active' : ''; ?>">
+            <a href="<?php echo BASE_URL_CLIENT . "/shipping-request-list.php"; ?>"><i class="fa"></i> <span>Shipping Request</span>
+                <span id="menubadge8" class="label label-primary pull-right"><?php echo ($jumBadgeShip > 0) ? $jumBadgeShip : ''; ?></span></a>
         </li>
 
     </ul>

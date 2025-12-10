@@ -242,11 +242,8 @@ if ($param_session) {
     $jumBadge12  = $con->getOne($sqlBadge12);
     $jumBadgeRole15 += $jumBadge12;
 
-    
-    $sqlBadgeShip    = "select count(id_master) as jum from new_pro_inventory_vendor_po_ship_req where STATUS = 1";
-    $jumBadgeShip     = $con->getOne($sqlBadgeShip);
     // $jumBadge12 =+ $jumBadgeShip;
-    $jumtot = $jumBadge2 + $jumBadge12 +$jumBadgeShip;
+    $jumtot = $jumBadge2 + $jumBadge12;
 
     ?>
     <a>
@@ -288,10 +285,6 @@ if ($param_session) {
             <li class="<?php echo (in_array($menuKey, $menuVerLos)) ? 'active' : ''; ?>">
                 <a href="<?php echo BASE_URL_CLIENT . "/verifikasi-losses.php"; ?>"><i class="fa"></i> <span>Verifikasi Losses</span>
                     <span id="menubadge19" class="label label-primary pull-right"><?php echo ($jumBadge12 > 0) ? $jumBadge12 : ''; ?></span></a>
-            </li>
-            <li class="<?php echo (in_array($menuKey, $menuShipReq)) ? 'active' : ''; ?>">
-                <a href="<?php echo BASE_URL_CLIENT . "/shipping-request-list.php"; ?>"><i class="fa"></i> <span>Shipping Request</span>
-                    <span id="menubadge19" class="label label-primary pull-right"><?php echo ($jumBadgeShip  > 0) ? $jumBadgeShip  : ''; ?></span></a>
             </li>
         <?php } ?>
     </ul>

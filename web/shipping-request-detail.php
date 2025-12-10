@@ -11,12 +11,13 @@ $con     = new Connection();
 $flash    = new FlashAlerts;
 $idr     = isset($enk["idr"]) ? htmlspecialchars($enk["idr"], ENT_QUOTES) : '';
 
-$cek = "SELECT a.*,a.created_by as sr_created,a.created_at as sr_createdat,c.*,concat(nama_terminal,' - ',tanki_terminal,' - ',lokasi_terminal) as nama_terminal,b.nomor_po, e.nama_vendor
+$cek = "SELECT a.*,a.created_by as sr_created,a.created_at as sr_createdat,c.*,concat(nama_terminal,' - ',tanki_terminal,' - ',lokasi_terminal) as nama_terminal,b.nomor_po, e.nama_vendor, f.nama_suplier
 		FROM new_pro_inventory_vendor_po_ship_req a 
 		JOIN new_pro_inventory_vendor_po b ON a.id_vendor_po = b.id_master
 		LEFT JOIN pro_master_oa_kapal c ON a.id_vessel = c.id_master
 		JOIN pro_master_terminal d ON a.id_terminal_discharging=d.id_master
         JOIN pro_master_vendor e ON b.id_vendor=e.id_master
+        JOIN pro_master_transportir f ON c.id_transportir =f.id_master
         WHERE a.id_master = '" . $idr . "'";
 $row = $con->getResult($cek);
 
@@ -62,17 +63,15 @@ if(date("m",strtotime($row[0]['etl_date_first']) == date("m",strtotime($row[0]['
 
                                             <table border="0" cellpadding="10" class="table-detail" >
                                                 <tr>
-                                                    <td width="140">No Shipping Request</td>
+                                                    <td width="140">No Shipping Instruction</td>
                                                     <td width="10">:</td>
                                                     <td><?php echo $row[0]['nomor_req']; ?></td>
                                                 </tr>
-                                                <?php if ($row[0]['nomor_si'] != null) { ?>
-                                                <tr>
+                                                <!-- <tr>
                                                     <td width="140">No Shipping Instruction</td>
                                                     <td width="10">:</td>
                                                     <td><?php echo $row[0]['nomor_si']; ?></td>
-                                                </tr>
-                                                <?php }?>
+                                                </tr> -->
                                                 <tr>
                                                     <td>Tanggal Request</td>
                                                     <td>:</td>
@@ -84,9 +83,19 @@ if(date("m",strtotime($row[0]['etl_date_first']) == date("m",strtotime($row[0]['
                                                     <td><?php echo $loading_date; ?></td>
                                                 </tr>
                                                 <tr>
+                                                    <td>Loss Tolerance</td>
+                                                    <td>:</td>
+                                                    <td><?php echo $row[0]['loss_tolerance']; ?> %</td>
+                                                </tr>
+                                                <tr>
                                                     <td>BL Ship on Board</td>
                                                     <td>:</td>
                                                     <td><?php echo $row[0]['bl_ship']; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Transportir</td>
+                                                    <td>:</td>
+                                                    <td><?php echo $row[0]['nama_suplier']; ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td>Vessel Name</td>
@@ -190,89 +199,102 @@ if(date("m",strtotime($row[0]['etl_date_first']) == date("m",strtotime($row[0]['
                                                         </div>
                                                     </div>
                                                  <?php }?>
-                                                <?php if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 15 &&  $row[0]['status'] == 1) { ?>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-4">
-                                                        <label>Approve shipping?*</label>
-                                                        <div class="radio clearfix" style="margin:0px;">
-                                                            <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve1" class="validate[required]" value="1" /> Ya</label>
-                                                            <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve2" class="validate[required]" value="2" /> Tidak</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-4 col-sm-top kembalikan-cfo"><label>Catatan Manager Finance</label>
-                                                        <textarea name="mgrfin_summary" id="mgrfin_summary" class="form-control"><?php if ($row) {
-                                                            echo str_replace("<br />", PHP_EOL, $row[0]['mgrfin_summary']);
-                                                        } ?></textarea>
-                                                    </div>
-                                                </div>
-                                                <?php } ?>
-                                                <?php if ($row[0]['mgrfin_result'] == 1 ) { ?>
-                                                <div class="form-group row ">
-                                                    <div class="col-sm-6">
-                                                        <label>Catatan Manager Finance</label>
-                                                        <div class="form-control" style="height:auto">
-                                                            <?php echo $row[0]['mgrfin_summary']; ?>
-                                                            <?php
-                                                            $picnya = ($row[0]['mgrfin_pic']);
-                                                            $tglnya = ($row[0]['mgrfin_tanggal']);
-                                                            ?>
-                                                            <p style="margin:10px 0 0; font-size:12px;"><i><?php echo $picnya . " - " . date("d/m/Y H:i:s", strtotime($tglnya)) . " WIB"; ?></i></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <?php if ( paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 21  && $row[0]['ceo_result'] == 0) { ?>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-3">
-                                                        <label>Approve shipping?*</label>
-                                                        <div class="radio clearfix" style="margin:0px;">
-                                                            <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve1" class="validate[required]" value="1" /> Ya</label>
-                                                            <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve2" class="validate[required]" value="2" /> Tidak</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-4 col-sm-top kembalikan-cfo" <?php echo (!$fnr) ? 'disabled' : ''; ?>><label>Catatan CEO</label>
-                                                        <textarea name="ceo_summary" id="ceo_summary" class="form-control"><?php if ($row) {
-                                                            echo str_replace("<br />", PHP_EOL, $row[0]['ceo_summary']);
-                                                        } ?></textarea>
-                                                    </div>
-                                                </div>
-                                                <?php
-                                                }
-                                                 if($row[0]['ceo_result'] != 0){ 
-                                                ?>
-                                                    <div class="form-group row ">
-                                                        <div class="col-sm-6">
-                                                            <label>Catatan CEO</label>
-                                                            <div class="form-control" style="height:auto">
-                                                                <?php echo $row[0]['ceo_summary']; ?>
-                                                                <?php
-                                                                $picnya = ($row[0]['ceo_pic']);
-                                                                $tglnya = ($row[0]['ceo_tanggal']);
-                                                                ?>
-                                                                <p style="margin:10px 0 0; font-size:12px;"><i><?php echo $picnya . " - " . date("d/m/Y H:i:s", strtotime($tglnya)) . " WIB"; ?></i></p>
+                                                <?php if ( paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 4  && $row[0]['cfo_result'] == 0) { ?>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-3">
+                                                            <label>Approve shipping?*</label>
+                                                            <div class="radio clearfix" style="margin:0px;">
+                                                                <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve1" class="validate[required]" value="1" /> Ya</label>
+                                                                <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve2" class="validate[required]" value="2" /> Tidak</label>
                                                             </div>
                                                         </div>
+                                                        <div class="col-sm-4 col-sm-top kembalikan-cfo" <?php echo (!$fnr) ? 'disabled' : ''; ?>><label>Catatan CFO</label>
+                                                            <textarea name="cfo_summary" id="cfo_summary" class="form-control"><?php if ($row) {
+                                                                echo str_replace("<br />", PHP_EOL, $row[0]['cfo_summary']);
+                                                            } ?></textarea>
+                                                        </div>
                                                     </div>
-                                                <?php } ?>
-                                                <?php } ?>
+                                                <?php }
+                                                    if($row[0]['cfo_result'] != 0){ ?>
+                                                        <div class="form-group row ">
+                                                            <div class="col-sm-6">
+                                                                <label>Catatan CFO</label>
+                                                                <div class="form-control" style="height:auto">
+                                                                    <?php echo $row[0]['cfo_summary']; ?>
+                                                                    <?php
+                                                                    $picnya = ($row[0]['cfo_pic']);
+                                                                    $tglnya = ($row[0]['cfo_tanggal']);
+                                                                    ?>
+                                                                    <p style="margin:10px 0 0; font-size:12px;"><i><?php echo $picnya . " - " . date("d/m/Y H:i:s", strtotime($tglnya)) . " WIB"; ?></i></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php } ?>
+                                                <?php if ( paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 21  && $row[0]['ceo_result'] == 0) { ?>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-3">
+                                                            <label>Approve shipping?*</label>
+                                                            <div class="radio clearfix" style="margin:0px;">
+                                                                <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve1" class="validate[required]" value="1" /> Ya</label>
+                                                                <label class="col-xs-12" style="margin-bottom:5px;"><input type="radio" name="approve" id="approve2" class="validate[required]" value="2" /> Tidak</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4 col-sm-top kembalikan-cfo" <?php echo (!$fnr) ? 'disabled' : ''; ?>><label>Catatan CEO</label>
+                                                            <textarea name="ceo_summary" id="ceo_summary" class="form-control"><?php if ($row) {
+                                                                echo str_replace("<br />", PHP_EOL, $row[0]['ceo_summary']);
+                                                            } ?></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                    }
+                                                    if($row[0]['ceo_result'] != 0){ 
+                                                    ?>
+                                                        <div class="form-group row ">
+                                                            <div class="col-sm-6">
+                                                                <label>Catatan CEO</label>
+                                                                <div class="form-control" style="height:auto">
+                                                                    <?php echo $row[0]['ceo_summary']; ?>
+                                                                    <?php
+                                                                    $picnya = ($row[0]['ceo_pic']);
+                                                                    $tglnya = ($row[0]['ceo_tanggal']);
+                                                                    ?>
+                                                                    <p style="margin:10px 0 0; font-size:12px;"><i><?php echo $picnya . " - " . date("d/m/Y H:i:s", strtotime($tglnya)) . " WIB"; ?></i></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php } ?>
                                                 <hr style="border-top:4px double #ddd; margin:5px 0 20px;" />
                                                 <div style="margin-bottom:0px;">
                                                     <input type="hidden" name="idr" value="<?php echo $idr; ?>" />
                                                     <a href="<?php echo BASE_URL_CLIENT . '/shipping-request-list.php'; ?>" class="btn btn-default jarak-kanan" style="min-width:90px;">Kembali</a>
-                                                    <?php if (($row[0]['mgrfin_result'] == 0) && paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) ==15 ) { ?>
+                                                    <?php if (($row[0]['status'] == 0) && paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) ==16 ) { ?>
                                                         <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt" style="min-width:90px;">Simpan</button>
                                                     <?php } ?>
                                                     <?php if (($row[0]['ceo_result'] == 0) && paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) ==21 ) { ?>
                                                         <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt" style="min-width:90px;">Simpan</button>
                                                     <?php } ?>
-                                                    <?php if ((paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 16 && $row[0]['status'] == 0)) { ?>
+                                                    <?php if ((paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 4 && $row[0]['status'] == 1)) { ?>
                                                         <button type="submit" class="btn btn-primary jarak-kanan" name="btnSbmt" id="btnSbmt" style="min-width:90px;">Simpan</button>
                                                     <?php } ?>
                                                    
-                                                    <?php if (($row[0]['status'] == 3 &&  $row[0]['ceo_result'] == 1)) { ?>
-                                                        <a href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idr); ?>" class="btn btn-success" style="min-width:90px;">
+                                                    <?php if (($row[0]['status'] != 0 && paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 16)) { ?>
+                                                    <!-- <?php if (($row[0]['status'] == 4 &&  $row[0]['ceo_result'] == 1))  ?> -->
+                                                        <!-- <a href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idr); ?>" class="btn btn-success" style="min-width:90px;">
                                                             <i class="fa fa-print"></i> Cetak</a>
+                                                        </div> -->
+                                                        <div class="btn-group jarak-kanan">
+                                                            <button type="button" class="btn btn-success">Cetak Dokumen</button>
+                                                            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                                                <span class="caret"></span>
+                                                                <span class="sr-only">Toggle Dropdown</span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" role="menu">
+                                                                <li><a target="_blank"  href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idr. '&tipe=shipping_instruction'); ?>">Shipping Instruction</a></li>
+                                                                <li><a target="_blank"  href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idr.'&tipe=LO'); ?>">LO</a></li>
+                                                                <li><a target="_blank"  href="<?php echo ACTION_CLIENT . '/shipping-instruction-cetak.php?' . paramEncrypt('idr=' . $idr.'&tipe=spal'); ?>">SPAL</a></li>
+                                                            </ul>
                                                         </div>
-                                                    <?php } ?>
+                                                    <?php }?>
                                             </form>
                                         </div>
                                     </div>

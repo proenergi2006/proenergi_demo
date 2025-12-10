@@ -16,6 +16,7 @@ $id_vessel  = htmlspecialchars($_POST["id_vessel"], ENT_QUOTES);
 $ket_log    =htmlspecialchars($_POST["ket_log"], ENT_QUOTES);
 $mgrfin_summary    =htmlspecialchars($_POST["mgrfin_summary"], ENT_QUOTES);
 $ceo_summary    =htmlspecialchars($_POST["ceo_summary"], ENT_QUOTES);
+$cfo_summary    =htmlspecialchars($_POST["cfo_summary"], ENT_QUOTES);
 $freight    =htmlspecialchars($_POST["freight"], ENT_QUOTES);
 $loss	    = htmlspecialchars(str_replace(array(","), array("", ""), $_POST["loss"]), ENT_QUOTES);
 $approve     = isset($_POST["approve"]) ? htmlspecialchars($_POST["approve"], ENT_QUOTES) : null;
@@ -89,14 +90,14 @@ if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 16) {
             $flash->add("error", 'Maaf Data Gagal Disimpan', BASE_REFERER);
         }
         // }
-} else if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 15) {
+} else if (paramDecrypt($_SESSION['sinori' . SESSIONID]['id_role']) == 4) {
     $oke = true;
     $con->beginTransaction();
     $con->clearError();
    
     $sql = "
-            update new_pro_inventory_vendor_po_ship_req set mgrfin_summary = '" . $mgrfin_summary . "',
-            status = 2,  mgrfin_result= '" . $approve . "', mgrfin_tanggal = NOW(), mgrfin_pic = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "' 
+            update new_pro_inventory_vendor_po_ship_req set cfo_summary = '" . $cfo_summary . "',
+            status = 2,  cfo_result= '" . $approve . "', cfo_tanggal = NOW(), cfo_pic = '" . paramDecrypt($_SESSION['sinori' . SESSIONID]['fullname']) . "' 
             where id_master = '" . $idr . "'
         ";
     $con->setQuery($sql);

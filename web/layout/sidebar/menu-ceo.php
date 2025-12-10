@@ -201,7 +201,7 @@ $menuMapping = array("mapping-marketing");
     // $sqlBadge14 .= " and flag_disposisi = 6 and flag_approval = 0";
     // $jumBadge14  = $con->getOne($sqlBadge14);
     // $jumBadgeRole14 += $jumBadge8;
-    $sqlBadgeShip    = "select count(id_master) as jum from new_pro_inventory_vendor_po_ship_req where STATUS = 2 AND mgrfin_result = 1";
+    $sqlBadgeShip    = "select count(id_master) as jum from new_pro_inventory_vendor_po_ship_req where STATUS = 2 AND cfo_result = 1";
     $jumBadgeShip     = $con->getOne($sqlBadgeShip);
     $totalBadge = $jumBadgeRole3 + $jumBadgeRole15 + $jumBadgeShip;
 
